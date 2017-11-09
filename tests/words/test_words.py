@@ -13,9 +13,10 @@ class TestWord(unittest.TestCase):
         self.assertTrue(needs_es('fish'))
         self.assertTrue(needs_es('sh'))
         self.assertTrue(needs_es('z'))
+        self.assertTrue(needs_es('go'))
 
     def test_needs_es_false(self):
-        for ending in 'abcdefghijklmnopqrtuvwy':
+        for ending in 'abcdefghijklmnpqrtuvwy':
             word = 'ba' + ending
             self.assertFalse(needs_es(word))
 
@@ -92,7 +93,7 @@ class TestWord(unittest.TestCase):
 
     def test_word_repr(self):
         word = Word('hi')
-        self.assertEqual(repr(word), 'Word(hi)')
+        self.assertEqual(repr(word), "Word('hi')")
 
     def test_word_value_str_repr_remove_external_white_space(self):
         value = '   hi there  '
@@ -101,7 +102,7 @@ class TestWord(unittest.TestCase):
         word = Word(value)
         self.assertEqual(word.value, expected)
         self.assertEqual(str(word), expected)
-        self.assertEqual(repr(word), 'Word({})'.format(expected))
+        self.assertEqual(repr(word), 'Word({!r})'.format(expected))
 
     def test_word_equal(self):
         word = Word('hi')
@@ -112,6 +113,10 @@ class TestWord(unittest.TestCase):
         self.assertTrue(word.__eq__(also_eq))
         self.assertFalse(word.__eq__(ne))
         self.assertFalse(word.__eq__('hi'))
+
+    def test_word_equal_case_sensitive(self):
+        self.assertEqual(Word('Hi'), Word('Hi'))
+        self.assertNotEqual(Word('hi'), Word('Hi'))
 
     def test_word_not_equal(self):
         word = Word('hi')

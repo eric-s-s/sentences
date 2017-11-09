@@ -44,7 +44,7 @@ class Word(object):
         return self.value
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, self.value)
+        return '{}({!r})'.format(self.__class__.__name__, self.value)
 
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
@@ -68,7 +68,7 @@ class Word(object):
 
 
 def needs_es(value: str):
-    add_es = ['s', 'z', 'ch', 'sh', 'x']
+    add_es = ['s', 'z', 'ch', 'sh', 'x', 'o']
     return any(value.endswith(ending) for ending in add_es)
 
 
