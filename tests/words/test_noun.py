@@ -1,4 +1,5 @@
 import unittest
+import string
 
 from sentences.words.noun import Noun, Word
 
@@ -16,6 +17,16 @@ class TestNoun(unittest.TestCase):
     def test_indefinite_vowel_start(self):
         self.assertEqual(Noun('elephant').indefinite(), Noun('an elephant'))
         self.assertEqual(Noun('old man').indefinite(), Noun('an old man'))
+
+    def test_indefinite_all_vowels(self):
+        for vowel in 'aeiouAEIOU':
+            self.assertEqual(Noun(vowel).indefinite(), Noun('an ' + vowel))
+
+    def test_indefinite_all_non_vowels(self):
+        vowels = 'aeiouAEIOU'
+        for consonant in string.ascii_letters:
+            if consonant not in vowels:
+                self.assertEqual(Noun(consonant).indefinite(), Noun('a ' + consonant))
 
     def test_indefinite_preserves_plural(self):
         self.assertEqual(Noun('octopus', 'octopodes').indefinite(), Noun('an octopus', 'an octopodes'))

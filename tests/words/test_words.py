@@ -43,6 +43,9 @@ class TestWord(unittest.TestCase):
         self.assertTrue(is_y_as_long_vowel_sound('baby'))
         self.assertTrue(is_y_as_long_vowel_sound('tummy'))
 
+    def test_is_y_as_long_vowel_edge_case_with_space(self):
+        self.assertFalse(is_y_as_long_vowel_sound('this is a y'))
+
     def test_ends_with_short_vowel_and_consonant_y_w(self):
         self.assertFalse(ends_with_short_vowel_and_consonant('show'))
         self.assertFalse(ends_with_short_vowel_and_consonant('play'))

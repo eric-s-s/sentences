@@ -73,7 +73,7 @@ def needs_es(value: str):
 
 
 def is_y_as_long_vowel_sound(value: str) -> bool:
-    vowels = 'aeiou'
+    vowels = 'aeiou '
     return value.endswith('y') and len(value) > 1 and value[-2] not in vowels
 
 

@@ -8,7 +8,7 @@ class Noun(Word):
 
     def indefinite(self) -> 'Noun':
         article = 'a '
-        vowels = 'aeiou'
+        vowels = 'aeiouAEIOU'
         if any(self.value.startswith(vowel) for vowel in vowels):
             article = 'an '
         return self.__class__(article + self.value, article + self.plural().value)
