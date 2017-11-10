@@ -87,5 +87,3 @@ def ends_with_short_vowel_and_consonant(value: str) -> bool:
             return value[-3] not in vowels
         return True
     return False
-
-
