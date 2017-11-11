@@ -6,7 +6,3 @@ class Punctuation(Enum):
     PERIOD = '.'
     EXCLAMATION = '!'
     QUESTION = '?'
-
-    def capitalize(self):
-        return self
-

@@ -1,4 +1,6 @@
 from sentences.words.noun import Noun
+from sentences.words.verb import BasicVerb
+from sentences.words.word import Word
 
 
 def load_csv(filename):
@@ -17,7 +19,29 @@ def uncountable_nouns():
     return [Noun(*line) for line in raw_lines]
 
 
-def get_noun(lst):
-    if len(lst) == 1:
-        return Noun(lst[0])
-    return Noun(*lst)
+def verbs():
+    raw_lines = load_csv('verbs.csv')
+    return [get_verb_dict(verb_line) for verb_line in raw_lines]
+
+
+def get_verb_dict(str_lst, intransitive=False):
+    inf = str_lst[0]
+    past = str_lst[1]
+    if past == 'null':
+        past = ''
+    verb = BasicVerb(inf, past)
+
+    prep = str_lst[2]
+    if prep == 'null':
+        preposition = None
+    else:
+        preposition = Word(prep)
+
+    if intransitive:
+        obj_num = 0
+    elif len(str_lst) > 3:
+        obj_num = int(str_lst[3])
+    else:
+        obj_num = 1
+
+    return {'verb': verb, 'preposition': preposition, 'objects': obj_num}

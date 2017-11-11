@@ -12,6 +12,10 @@ class Word(object):
     def capitalize(self) -> 'Word':
         return self.__class__(self.value.capitalize())
 
+    def de_capitalize(self) -> 'Word':
+        first_letter = self.value[0].lower()
+        return self.__class__(first_letter + self.value[1:])
+
     def add_s(self) -> 'Word':
         current_value = self.value
         if needs_es(current_value):
