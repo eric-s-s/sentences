@@ -76,3 +76,32 @@ class TestPronoun(unittest.TestCase):
         self.assertEqual(us.de_capitalize(), Word('us'))
         self.assertEqual(they.de_capitalize(), Word('they'))
         self.assertEqual(them.de_capitalize(), Word('them'))
+
+    def test_is_pair_non_pronoun(self):
+        self.assertFalse(me.is_pair('me'))
+
+    def test_is_pair_true_on_pairs(self):
+        self.assertTrue(I.is_pair(me))
+        self.assertTrue(I.is_pair(I))
+        self.assertTrue(he.is_pair(him))
+        self.assertTrue(him.is_pair(he))
+        self.assertTrue(she.is_pair(her))
+        self.assertTrue(her.is_pair(she))
+        self.assertTrue(we.is_pair(us))
+        self.assertTrue(us.is_pair(we))
+        self.assertTrue(them.is_pair(they))
+        self.assertTrue(they.is_pair(them))
+
+    def test_is_pair_true_on_equal(self):
+        for pronoun in Pronoun:
+            self.assertTrue(pronoun.is_pair(pronoun))
+
+    def test_is_pair_false(self):
+        pairs = [(I, me), (you, you), (he, him), (she, her), (it, it), (we, us), (they, them)]
+        for first in pairs:
+            for second in pairs:
+                if first != second:
+                    self.assertFalse(first[0].is_pair(second[0]))
+                    self.assertFalse(first[1].is_pair(second[0]))
+                    self.assertFalse(first[0].is_pair(second[1]))
+                    self.assertFalse(first[1].is_pair(second[1]))
