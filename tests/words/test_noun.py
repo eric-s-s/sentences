@@ -1,10 +1,50 @@
 import unittest
 import string
 
-from sentences.words.noun import Noun, Word
+from sentences.words.noun import Noun, Word, PluralNoun, DefiniteNoun, IndefiniteNoun, DefinitePluralNoun
 
 
 class TestNoun(unittest.TestCase):
+
+    def test_noun_typing(self):
+        noun = Noun('bbo')
+        self.assertNotIsInstance(noun, IndefiniteNoun)
+        self.assertNotIsInstance(noun, DefiniteNoun)
+        self.assertNotIsInstance(noun, PluralNoun)
+        self.assertNotIsInstance(noun, DefinitePluralNoun)
+
+    def test_indefinite_noun_typing(self):
+        noun = IndefiniteNoun('bbo')
+        self.assertIsInstance(noun, Noun)
+        self.assertIsInstance(noun, IndefiniteNoun)
+        self.assertNotIsInstance(noun, DefiniteNoun)
+        self.assertNotIsInstance(noun, PluralNoun)
+        self.assertNotIsInstance(noun, DefinitePluralNoun)
+
+    def test_definite_noun_typing(self):
+        noun = DefiniteNoun('bbo')
+        self.assertIsInstance(noun, Noun)
+        self.assertNotIsInstance(noun, IndefiniteNoun)
+        self.assertIsInstance(noun, DefiniteNoun)
+        self.assertNotIsInstance(noun, PluralNoun)
+        self.assertNotIsInstance(noun, DefinitePluralNoun)
+
+    def test_plural_noun_typing(self):
+        noun = PluralNoun('bbo')
+        self.assertIsInstance(noun, Noun)
+        self.assertNotIsInstance(noun, IndefiniteNoun)
+        self.assertNotIsInstance(noun, DefiniteNoun)
+        self.assertIsInstance(noun, PluralNoun)
+        self.assertNotIsInstance(noun, DefinitePluralNoun)
+
+    def test_defini_plural_noun_typing(self):
+        noun = DefinitePluralNoun('bbo')
+        self.assertIsInstance(noun, Noun)
+        self.assertNotIsInstance(noun, IndefiniteNoun)
+        self.assertIsInstance(noun, DefiniteNoun)
+        self.assertIsInstance(noun, PluralNoun)
+        self.assertIsInstance(noun, DefinitePluralNoun)
+
     def test_capitalize_is_still_noun(self):
         noun = Noun('dog').capitalize()
         self.assertIsInstance(noun, Noun)
@@ -57,3 +97,72 @@ class TestNoun(unittest.TestCase):
 
     def test_eq_must_be_noun(self):
         self.assertNotEqual(Noun('bob'), Word('bob'))
+
+    def test_indefinite_returns_indefinite_noun(self):
+        answer = Noun('bob').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('a bob'))
+
+        answer = IndefiniteNoun('a bob').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('an a bob'))
+
+        answer = DefiniteNoun('the bob').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('a the bob'))
+
+        answer = PluralNoun('bobs').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('a bobs'))
+
+        answer = DefinitePluralNoun('the bobs').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('a the bobs'))
+
+    def test_definite_returns_definite_noun(self):
+        answer = Noun('bob').definite()
+        self.assertIsInstance(answer, DefiniteNoun)
+        self.assertNotIsInstance(answer, PluralNoun)
+        self.assertEqual(answer, Noun('the bob'))
+
+        answer = IndefiniteNoun('a bob').definite()
+        self.assertIsInstance(answer, DefiniteNoun)
+        self.assertNotIsInstance(answer, PluralNoun)
+        self.assertEqual(answer, Noun('the a bob'))
+
+        answer = DefiniteNoun('the bob').definite()
+        self.assertIsInstance(answer, DefiniteNoun)
+        self.assertNotIsInstance(answer, PluralNoun)
+        self.assertEqual(answer, Noun('the the bob'))
+
+        answer = PluralNoun('bobs').definite()
+        self.assertIsInstance(answer, DefinitePluralNoun)
+        self.assertEqual(answer, Noun('the bobs'))
+
+        answer = DefinitePluralNoun('the bobs').definite()
+        self.assertIsInstance(answer, DefinitePluralNoun)
+        self.assertEqual(answer, Noun('the the bobs'))
+
+    def test_plural_returns_plural_noun(self):
+        answer = Noun('bob').plural()
+        self.assertIsInstance(answer, PluralNoun)
+        self.assertNotIsInstance(answer, DefiniteNoun)
+        self.assertEqual(answer, Noun('bobs'))
+
+        answer = IndefiniteNoun('a bob').plural()
+        self.assertIsInstance(answer, PluralNoun)
+        self.assertNotIsInstance(answer, DefiniteNoun)
+        self.assertEqual(answer, Noun('a bobs'))
+
+        answer = DefiniteNoun('the bob').plural()
+        self.assertIsInstance(answer, DefinitePluralNoun)
+        self.assertEqual(answer, Noun('the bobs'))
+
+        answer = PluralNoun('bobs').plural()
+        self.assertIsInstance(answer, PluralNoun)
+        self.assertNotIsInstance(answer, DefiniteNoun)
+        self.assertEqual(answer, Noun('bobses'))
+
+        answer = DefinitePluralNoun('the bobs').plural()
+        self.assertIsInstance(answer, DefinitePluralNoun)
+        self.assertEqual(answer, Noun('the bobses'))
