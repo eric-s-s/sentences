@@ -38,5 +38,4 @@ def is_countable(word) -> bool:
 def is_word_in_sentence(word, raw_sentence):
     if isinstance(word, Pronoun):
         return any(word.is_pair(element) for element in raw_sentence)
-
-    return any(word == element for element in raw_sentence)
+    return word in raw_sentence
