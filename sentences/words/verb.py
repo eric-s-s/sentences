@@ -2,12 +2,15 @@ from sentences.words.word import Word
 
 
 class Verb(Word):
-    def __init__(self, word):
+    def __init__(self, word, infinitive=''):
         super(Verb, self).__init__(word)
+        self._inf = infinitive
+        if not self._inf:
+            self._inf = word
 
     @property
     def infinitive(self) -> str:
-        return self.value
+        return self._inf
 
     def __eq__(self, other):
         if not isinstance(other, Verb):
@@ -17,18 +20,23 @@ class Verb(Word):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __repr__(self):
+        return '{}({!r}, {!r})'.format(self.__class__.__name__, self.value, self.infinitive)
+
+    def to_basic_verb(self):
+        return BasicVerb(self.infinitive)
+
+    def capitalize(self):
+        return self.__class__(self.value.capitalize(), self.infinitive)
+
+    def de_capitalize(self):
+        new_value = super(Verb, self).de_capitalize().value
+        return self.__class__(new_value, self.infinitive)
+
 
 class ConjugatedVerb(Verb):
     def __init__(self, word, infinitive):
-        self._inf = infinitive
-        super(ConjugatedVerb, self).__init__(word)
-
-    @property
-    def infinitive(self) -> str:
-        return self._inf
-
-    def __repr__(self):
-        return 'ConjugatedVerb({!r}, {!r})'.format(self.value, self.infinitive)
+        super(ConjugatedVerb, self).__init__(word, infinitive)
 
 
 class BasicVerb(Verb):
@@ -61,10 +69,6 @@ class NegativeVerb(Verb):
     @property
     def value(self):
         return 'don\'t ' + super(NegativeVerb, self).value
-
-    @property
-    def infinitive(self):
-        return super(NegativeVerb, self).value
 
     def __repr__(self):
         return '{}({!r})'.format(self.__class__.__name__, self.infinitive)

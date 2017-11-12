@@ -42,6 +42,9 @@ class Noun(Word):
         if self._plural:
             return class_(self._plural, base=self.base_noun)
         return class_(self.add_s().value, base=self.base_noun)
+
+    def revert(self) -> 'Noun':
+        return Noun(self.base_noun)
     
     def __eq__(self, other):
         if not isinstance(other, Noun):

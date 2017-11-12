@@ -11,8 +11,8 @@ class TestVerb(unittest.TestCase):
         self.assertEqual(verb.infinitive, 'go')
         self.assertEqual(verb.add_s(), Verb('goes'))
         self.assertEqual(verb.add_ed(), Verb('goed'))
-        self.assertEqual(verb.capitalize(), Verb('Go'))
-        self.assertEqual(repr(verb), "Verb('go')")
+        self.assertEqual(verb.capitalize(), Verb('Go', 'go'))
+        self.assertEqual(repr(verb), "Verb('go', 'go')")
 
     def test_verb_eq(self):
         c_verb = ConjugatedVerb("don't go", 'go')
@@ -121,3 +121,37 @@ class TestVerb(unittest.TestCase):
         answer = verb.third_person()
         self.assertIsInstance(answer, ConjugatedVerb)
         self.assertEqual(answer, ConjugatedVerb("doesn't play", 'play'))
+
+    def test_to_basic_verb(self):
+        verb = Verb('play')
+        basic = verb.to_basic_verb()
+        self.assertEqual(verb, basic)
+        self.assertIsInstance(basic, BasicVerb)
+
+    def test_to_basic_verb_does_not_retain_special_past_tense(self):
+        verb = BasicVerb('go', 'went')
+        past = verb.past_tense()
+        from_past_tense = past.to_basic_verb()
+        from_verb = verb.to_basic_verb()
+
+        self.assertEqual(verb, from_past_tense)
+        self.assertEqual(verb, from_verb)
+
+        past_from_past_tense = from_past_tense.past_tense()
+        past_from_verb = from_verb.past_tense()
+
+        self.assertEqual(past_from_past_tense, past_from_verb)
+        self.assertNotEqual(past, past_from_verb)
+
+        self.assertEqual(past.value, 'went')
+        self.assertEqual(past_from_verb.value, 'goed')
+
+    def test_to_basic_negative_verb(self):
+        verb = BasicVerb('play').negative()
+        self.assertEqual(verb.to_basic_verb(), BasicVerb('play'))
+
+    def test_capitalize(self):
+        self.assertEqual(Verb('go').capitalize(), Verb('Go', 'go'))
+        self.assertEqual(ConjugatedVerb('went', 'go').capitalize(), Verb('Went', 'go'))
+        basic = BasicVerb('eat')
+        self.assertEqual(basic.capitalize(), BasicVerb('Eat', ))
