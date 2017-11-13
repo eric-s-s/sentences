@@ -1,6 +1,6 @@
 import random
 import unittest
-
+from unittest.mock import patch
 
 from sentences.raw_word_randomisation import RawWordsRandomisation
 
@@ -14,6 +14,14 @@ period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
+
+
+def two_subject_verbs():
+    return [{'verb': BasicVerb('bring', 'brought'), 'preposition': None, 'objects': 2}]
+
+
+def with_preposition():
+    return [{'verb': BasicVerb('jump'), 'preposition': Word('on'), 'objects': 1}]
 
 
 class TestRawWordsRandomisation(unittest.TestCase):
@@ -131,13 +139,13 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_predicate(self):
         random.seed(5)
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('play', ''), Word('with'), Noun('octopus', ''), exclamation])
+        self.assertEqual(answer, [BasicVerb('pull', ''), Noun('octopus', ''), exclamation])
 
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('throw', 'threw'), Noun('tiger', ''), period])
+        self.assertEqual(answer, [BasicVerb('use'), Noun('tiger', ''), period])
 
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('throw', 'threw'), Noun('fire fighter', ''), exclamation])
+        self.assertEqual(answer, [BasicVerb('use'), Noun('fire fighter', ''), exclamation])
 
     def test_sentence(self):
         random.seed(1)
@@ -148,4 +156,27 @@ class TestRawWordsRandomisation(unittest.TestCase):
         self.assertEqual(answer, [Noun('rice', ''), BasicVerb('eat', 'ate'), me, period])
 
         answer = self.generator.sentence()
-        self.assertEqual(answer, [Noun('pizza', ''), BasicVerb('steal', 'stole'), it, period])
+        self.assertEqual(answer, [Noun('pizza', ''), BasicVerb('surprise'), it, period])
+
+    @patch('sentences.raw_word_randomisation.verbs', with_preposition)
+    def test_assign_preposition(self):
+        random.seed(10)
+        generator = RawWordsRandomisation()
+        answer = generator.sentence()
+        self.assertEqual(answer, [Noun('pony'), BasicVerb('jump'), Word('on'), Noun('elephant'), period])
+
+        answer = generator.sentence()
+        self.assertEqual(answer, [Noun('stinky tofu'), BasicVerb('jump'), Word('on'), Noun('cow'), period])
+
+    @patch('sentences.raw_word_randomisation.verbs', two_subject_verbs)
+    def test_two_subjects_second_subj_is_never_pronoun(self):
+        random.seed(10)
+        generator = RawWordsRandomisation()
+        answer = generator.predicate(p_pronoun=0.8)
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'), us, Noun('shark'), period])
+
+        answer = generator.predicate(p_pronoun=0.8)
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'), you, Noun('table'), period])
+
+        answer = generator.predicate(p_pronoun=0.8)
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'), them, Noun('baby'), period])

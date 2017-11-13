@@ -2,8 +2,6 @@ import random
 
 from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
-from sentences.words.verb import Verb
-from sentences.words.noun import Noun, PluralNoun
 from sentences.loader import verbs, uncountable_nouns, countable_nouns
 
 
@@ -28,8 +26,11 @@ class RawWordsRandomisation(object):
 
         action, object_count = self._get_verb_list_and_object_count()
 
-        for _ in range(object_count):
-            action.append(self.object(p_pronoun))
+        for position in range(object_count):
+            if position == 0:
+                action.append(self.object(p_pronoun))
+            else:
+                action.append(self.object(p_pronoun=0))
         action.append(random.choice(self._endings))
         return action
 

@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 from sentences.words.word import Word
 
 
@@ -51,4 +50,3 @@ class Pronoun(Enum):
         if not isinstance(other, Pronoun):
             return False
         return self.subject() == other.subject()
-

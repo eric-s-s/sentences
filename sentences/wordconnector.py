@@ -11,8 +11,6 @@ def flatten_paragraph(paragraph):
     return list(chain.from_iterable(paragraph))
 
 
-
-
 def connect_words(word_list):
     answer = ''
     for word in word_list:

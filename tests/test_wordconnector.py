@@ -5,10 +5,9 @@ from sentences.words.verb import BasicVerb
 from sentences.words.noun import Noun
 from sentences.words.punctuation import Punctuation
 
-from sentences.wordconnector import connect_words
+from sentences.wordconnector import connect_words, flatten_paragraph, convert_paragraph
 
 
-# TODO test two new func
 class TestWordConnector(unittest.TestCase):
     def test_connect_words_no_punctuation(self):
         lst = [Pronoun.I, Word('like'), Word('big'), Word('butts')]
@@ -25,3 +24,13 @@ class TestWordConnector(unittest.TestCase):
                Noun('cake').plural().capitalize().definite(), Word('or'),
                Noun('octopus', 'octopodes').definite().plural().capitalize(), Punctuation.PERIOD]
         self.assertEqual(connect_words(lst), "We didn't eat the Cakes or The octopodes.")
+
+    def test_flatten_paragraph(self):
+        paragraph = [['some', 'words'], ['another', 'sentence'], ['a third']]
+        self.assertEqual(flatten_paragraph(paragraph), ['some', 'words', 'another', 'sentence', 'a third'])
+
+    def test_convert_paragraph(self):
+        paragraph = [[Pronoun.I, Word('like'), Word('big'), Word('butts'), Punctuation.COMMA],
+                     [Word('and'), Pronoun.I, Word('cannot'), Word('lie'), Punctuation.EXCLAMATION]]
+        self.assertEqual(convert_paragraph(paragraph),
+                         'I like big butts, and I cannot lie!')

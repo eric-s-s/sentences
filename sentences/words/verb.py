@@ -52,6 +52,8 @@ class BasicVerb(Verb):
 
     def third_person(self) -> ConjugatedVerb:
         with_s = self.add_s().value
+        if with_s == 'haves':
+            with_s = 'has'
         return ConjugatedVerb(with_s, self.value)
 
     def capitalize(self) -> 'BasicVerb':

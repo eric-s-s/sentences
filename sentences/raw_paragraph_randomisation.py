@@ -61,7 +61,6 @@ class RawParagraphRandomisation(object):
         return paragraph
 
 
-
 def get_subj(pool, predicate):
     to_use = pool[:]
     random.shuffle(to_use)

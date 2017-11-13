@@ -94,6 +94,10 @@ class TestVerb(unittest.TestCase):
         self.assertIsInstance(answer, ConjugatedVerb)
         self.assertEqual(answer, ConjugatedVerb('copies', 'copy'))
 
+    def test_basic_verb_third_person_have(self):
+        verb = BasicVerb('have')
+        self.assertEqual(verb.third_person(), Verb('has', 'have'))
+
     def test_basic_verb_negative(self):
         verb = BasicVerb('do', 'did')
         answer = verb.negative()
@@ -188,5 +192,3 @@ class TestVerb(unittest.TestCase):
 
     def test_hash(self):
         self.assertEqual(hash(Verb('eat', 'ate')), hash("hash of Verb('eat', 'ate')"))
-
-

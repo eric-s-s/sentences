@@ -41,5 +41,7 @@ def line_print(big_str):
 
 
 import sentences.grammarizer as grammar
-
+print()
 line_print(wc.convert_paragraph(grammar.Grammarizer(answer).generate_paragraph()))
+print()
+print()
