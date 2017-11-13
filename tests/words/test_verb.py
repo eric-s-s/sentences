@@ -16,7 +16,7 @@ class TestVerb(unittest.TestCase):
 
     def test_verb_eq(self):
         c_verb = ConjugatedVerb("don't go", 'go')
-        n_verb = NegativeVerb('go')
+        n_verb = NegativeVerb('don\'t go', 'go')
         self.assertEqual(n_verb.value, "don't go")
         self.assertEqual(n_verb.infinitive, "go")
 
@@ -41,10 +41,10 @@ class TestVerb(unittest.TestCase):
 
     def test_basic_verb_repr(self):
         verb = BasicVerb('go', 'went')
-        self.assertEqual(repr(verb), "BasicVerb('go', 'went')")
+        self.assertEqual(repr(verb), "BasicVerb('go', 'went', 'go')")
 
         verb = BasicVerb('play')
-        self.assertEqual(repr(verb), "BasicVerb('play', '')")
+        self.assertEqual(repr(verb), "BasicVerb('play', '', 'play')")
 
     def test_basic_verb_value_is_infinitive(self):
         verb = BasicVerb('go', 'went')
@@ -102,25 +102,49 @@ class TestVerb(unittest.TestCase):
         self.assertEqual(answer.infinitive, 'do')
 
     def test_negative_verb_value_and_infinitive(self):
-        verb = NegativeVerb('play')
+        verb = NegativeVerb('don\'t play', 'play')
         self.assertEqual(verb.infinitive, 'play')
         self.assertEqual(verb.value, 'don\'t play')
 
+        verb = NegativeVerb('do not play', 'play')
+        self.assertEqual(verb.infinitive, 'play')
+        self.assertEqual(verb.value, 'do not play')
+
     def test_negative_verb_repr(self):
-        verb = NegativeVerb('play')
-        self.assertEqual(repr(verb), "NegativeVerb('play')")
+        verb = NegativeVerb('don\'t play', 'play')
+        self.assertEqual(repr(verb), "NegativeVerb(\"don't play\", 'play')")
 
     def test_negative_verb_past_tense(self):
-        verb = NegativeVerb('play')
+        verb = NegativeVerb('don\'t play', 'play')
         answer = verb.past_tense()
         self.assertIsInstance(answer, ConjugatedVerb)
         self.assertEqual(answer, ConjugatedVerb("didn't play", 'play'))
 
+        self.assertEqual(NegativeVerb('do not play', 'play').past_tense(), ConjugatedVerb("did not play", 'play'))
+
     def test_negative_verb_third_person(self):
-        verb = NegativeVerb('play')
+        verb = NegativeVerb('don\'t play', 'play')
         answer = verb.third_person()
         self.assertIsInstance(answer, ConjugatedVerb)
         self.assertEqual(answer, ConjugatedVerb("doesn't play", 'play'))
+
+        self.assertEqual(NegativeVerb('do not play', 'play').third_person(), ConjugatedVerb("does not play", 'play'))
+
+    def test_negative_verb_past_tense_capitalized(self):
+        verb = NegativeVerb('don\'t play', 'play').capitalize()
+        answer = verb.past_tense()
+        self.assertIsInstance(answer, ConjugatedVerb)
+        self.assertEqual(answer, ConjugatedVerb("didn't play", 'play'))
+
+        self.assertEqual(NegativeVerb('Do not play', 'play').past_tense(), ConjugatedVerb("did not play", 'play'))
+
+    def test_negative_verb_third_person_capitalized(self):
+        verb = NegativeVerb('don\'t play', 'play').capitalize()
+        answer = verb.third_person()
+        self.assertIsInstance(answer, ConjugatedVerb)
+        self.assertEqual(answer, ConjugatedVerb("doesn't play", 'play'))
+
+        self.assertEqual(NegativeVerb('Do not play', 'play').third_person(), ConjugatedVerb("does not play", 'play'))
 
     def test_to_basic_verb(self):
         verb = Verb('play')
@@ -153,5 +177,18 @@ class TestVerb(unittest.TestCase):
     def test_capitalize(self):
         self.assertEqual(Verb('go').capitalize(), Verb('Go', 'go'))
         self.assertEqual(ConjugatedVerb('went', 'go').capitalize(), Verb('Went', 'go'))
+        self.assertEqual(NegativeVerb('do not go', 'go').capitalize(), Verb('Do not go', 'go'))
+        basic = BasicVerb('eat', 'ate')
+        self.assertEqual(basic.capitalize(), BasicVerb('Eat', 'ate', 'eat'))
+
+    def test_capitalize_limitations(self):
+        basic = BasicVerb('eat', 'ate')
+        self.assertEqual(basic.capitalize().past_tense(), ConjugatedVerb('ate', 'eat'))
+        self.assertEqual(basic.negative().capitalize().past_tense(), ConjugatedVerb('didn\'t eat', 'eat'))
+
+    def test_de_capitalize(self):
+        self.assertEqual(Verb('go').capitalize().de_capitalize(), Verb('go', 'go'))
+        self.assertEqual(ConjugatedVerb('went', 'go').capitalize().de_capitalize(), Verb('went', 'go'))
+        self.assertEqual(NegativeVerb('do not go', 'go').capitalize().de_capitalize(), Verb('do not go', 'go'))
         basic = BasicVerb('eat')
-        self.assertEqual(basic.capitalize(), BasicVerb('Eat', ))
+        self.assertEqual(basic.capitalize().de_capitalize(), BasicVerb('eat', ))
