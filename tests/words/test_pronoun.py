@@ -63,20 +63,6 @@ class TestPronoun(unittest.TestCase):
         self.assertEqual(they.capitalize(), Word('They'))
         self.assertEqual(them.capitalize(), Word('Them'))
 
-    def test_de_capitalize(self):
-        self.assertEqual(I.de_capitalize(), Word('i'))
-        self.assertEqual(me.de_capitalize(), Word('me'))
-        self.assertEqual(you.de_capitalize(), Word('you'))
-        self.assertEqual(he.de_capitalize(), Word('he'))
-        self.assertEqual(him.de_capitalize(), Word('him'))
-        self.assertEqual(she.de_capitalize(), Word('she'))
-        self.assertEqual(her.de_capitalize(), Word('her'))
-        self.assertEqual(it.de_capitalize(), Word('it'))
-        self.assertEqual(we.de_capitalize(), Word('we'))
-        self.assertEqual(us.de_capitalize(), Word('us'))
-        self.assertEqual(they.de_capitalize(), Word('they'))
-        self.assertEqual(them.de_capitalize(), Word('them'))
-
     def test_is_pair_non_pronoun(self):
         self.assertFalse(me.is_pair('me'))
 

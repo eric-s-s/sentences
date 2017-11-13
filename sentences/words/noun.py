@@ -17,10 +17,6 @@ class Noun(Word):
         value = super(Noun, self).capitalize().value
         return self.__class__(value, self._plural, self.base_noun)
 
-    def de_capitalize(self):
-        value = super(Noun, self).de_capitalize().value
-        return self.__class__(value, self._plural, self.base_noun)
-
     def indefinite(self) -> 'Noun':
         article = 'a '
         vowels = 'aeiouAEIOU'

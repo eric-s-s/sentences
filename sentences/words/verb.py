@@ -29,10 +29,6 @@ class Verb(Word):
     def capitalize(self):
         return self.__class__(self.value.capitalize(), self.infinitive)
 
-    def de_capitalize(self):
-        new_value = Word(self.value).de_capitalize().value
-        return self.__class__(new_value, self.infinitive)
-
 
 class ConjugatedVerb(Verb):
     def __init__(self, word, infinitive):

@@ -185,10 +185,3 @@ class TestVerb(unittest.TestCase):
         basic = BasicVerb('eat', 'ate')
         self.assertEqual(basic.capitalize().past_tense(), ConjugatedVerb('ate', 'eat'))
         self.assertEqual(basic.negative().capitalize().past_tense(), ConjugatedVerb('didn\'t eat', 'eat'))
-
-    def test_de_capitalize(self):
-        self.assertEqual(Verb('go').capitalize().de_capitalize(), Verb('go', 'go'))
-        self.assertEqual(ConjugatedVerb('went', 'go').capitalize().de_capitalize(), Verb('went', 'go'))
-        self.assertEqual(NegativeVerb('do not go', 'go').capitalize().de_capitalize(), Verb('do not go', 'go'))
-        basic = BasicVerb('eat')
-        self.assertEqual(basic.capitalize().de_capitalize(), BasicVerb('eat', ))

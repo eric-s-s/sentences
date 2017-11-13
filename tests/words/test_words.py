@@ -213,10 +213,3 @@ class TestWord(unittest.TestCase):
 
         word = Word('Hi')
         self.assertEqual(word.capitalize(), word)
-
-    def test_de_capitalize(self):
-        word = Word('hi')
-        self.assertEqual(word.de_capitalize(), word)
-
-        word = Word(' HI ')
-        self.assertEqual(word.de_capitalize(), Word('hI'))

@@ -185,24 +185,6 @@ class TestNoun(unittest.TestCase):
         wacky = original.plural().capitalize().definite()
         self.assertEqual(wacky, Noun('the Bobs', base='bob'))
 
-    def test_de_capitalize_all(self):
-        original = Noun('bob')
-        basic = original.capitalize().de_capitalize()
-        self.assertEqual(basic, Noun('bob', base='bob'))
-        indefinite = original.indefinite().capitalize().de_capitalize()
-        self.assertEqual(indefinite, Noun('a bob', base='bob'))
-        definite = original.definite().capitalize().de_capitalize()
-        self.assertEqual(definite, Noun('the bob', base='bob'))
-        plural = original.plural().capitalize().de_capitalize()
-        self.assertEqual(plural, Noun('bobs', base='bob'))
-        definite_plural = original.definite().plural().capitalize().de_capitalize()
-        self.assertEqual(definite_plural, Noun('the bobs', base='bob'))
-        plural_definite = original.plural().definite().capitalize().de_capitalize()
-        self.assertEqual(plural_definite, Noun('the bobs', base='bob'))
-
-        wacky = original.plural().capitalize().definite().de_capitalize()
-        self.assertEqual(wacky, Noun('the Bobs', base='bob'))
-
     def test_repr(self):
         self.assertEqual(repr(Noun('bob')), "Noun('bob', '', 'bob')")
         self.assertEqual(repr(IndefiniteNoun('bob')), "IndefiniteNoun('bob', '', 'bob')")
