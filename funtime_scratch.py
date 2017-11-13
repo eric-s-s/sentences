@@ -23,3 +23,8 @@ for sentence in answer:
 import itertools
 
 print(wc.connect_words(itertools.chain.from_iterable(answer)))
+
+
+import sentences.grammarizer as grammar
+
+print(wc.convert_paragraph(grammar.Grammarizer(answer).generate_paragraph()))

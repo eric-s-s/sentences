@@ -20,6 +20,9 @@ class Verb(Word):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return super(Verb, self).__hash__()
+
     def __repr__(self):
         return '{}({!r}, {!r})'.format(self.__class__.__name__, self.value, self.infinitive)
 

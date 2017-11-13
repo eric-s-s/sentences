@@ -8,6 +8,7 @@ from sentences.words.punctuation import Punctuation
 from sentences.wordconnector import connect_words
 
 
+# TODO test two new func
 class TestWordConnector(unittest.TestCase):
     def test_connect_words_no_punctuation(self):
         lst = [Pronoun.I, Word('like'), Word('big'), Word('butts')]

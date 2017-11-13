@@ -16,10 +16,14 @@ i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
+
 class TestInvestigationTools(unittest.TestCase):
     def test_is_countable(self):
         self.assertTrue(is_countable(Noun('child', 'children')))
         self.assertFalse(is_countable(Noun('water', '')))
+        self.assertFalse(is_countable(he))
+        self.assertFalse(is_countable(BasicVerb('eat', 'ate')))
+        self.assertFalse(is_countable(Word('brick')))
 
     def test_is_countable_defaults_to_true_unless_in_loaded_uncountable_words(self):
         self.assertTrue(is_countable(Noun('not-in-the-list juice', '')))

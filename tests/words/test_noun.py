@@ -211,3 +211,6 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(original.definite().revert(), expected)
         self.assertEqual(original.definite().plural().revert(), expected)
         self.assertEqual(original.capitalize().plural().definite().revert(), expected)
+
+    def test_hash(self):
+        self.assertEqual(hash(Noun('bob')), hash("hash of Noun('bob', '', 'bob')"))

@@ -185,3 +185,8 @@ class TestVerb(unittest.TestCase):
         basic = BasicVerb('eat', 'ate')
         self.assertEqual(basic.capitalize().past_tense(), ConjugatedVerb('ate', 'eat'))
         self.assertEqual(basic.negative().capitalize().past_tense(), ConjugatedVerb('didn\'t eat', 'eat'))
+
+    def test_hash(self):
+        self.assertEqual(hash(Verb('eat', 'ate')), hash("hash of Verb('eat', 'ate')"))
+
+

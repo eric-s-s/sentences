@@ -47,6 +47,9 @@ class Noun(Word):
             return False
         return self.base_noun == other.base_noun and super(Noun, self).__eq__(other)
 
+    def __hash__(self):
+        return super(Noun, self).__hash__()
+
     def __repr__(self):
         return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self._plural, self.base_noun)
 

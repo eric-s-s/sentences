@@ -30,6 +30,8 @@ def is_third_person(word) -> bool:
 
 
 def is_countable(word) -> bool:
+    if not isinstance(word, Noun):
+        return False
     basic_uncountable = uncountable_nouns()
     definite_uncountable = [noun.definite() for noun in basic_uncountable]
     return word not in (basic_uncountable + definite_uncountable)
