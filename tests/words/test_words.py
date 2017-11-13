@@ -210,3 +210,6 @@ class TestWord(unittest.TestCase):
     def test_word_capitalize(self):
         word = Word(' my word ')
         self.assertEqual(word.capitalize(), Word('My word'))
+
+        word = Word('Hi')
+        self.assertEqual(word.capitalize(), word)
