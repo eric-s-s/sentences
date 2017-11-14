@@ -35,9 +35,16 @@ class Noun(Word):
         class_ = PluralNoun
         if isinstance(self, DefiniteNoun):
             class_ = DefinitePluralNoun
+
         if self._plural:
             return class_(self._plural, base=self.base_noun)
-        return class_(self.add_s().value, base=self.base_noun)
+        current = self.value
+        if any(current.endswith('{}fe'.format(vowel)) for vowel in 'aeiou'):
+            plural_val = current[:-2] + 'ves'
+        else:
+            plural_val = self.add_s().value
+
+        return class_(plural_val, base=self.base_noun)
 
     def revert(self) -> 'Noun':
         return Noun(self.base_noun)

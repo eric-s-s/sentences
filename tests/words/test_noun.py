@@ -167,6 +167,11 @@ class TestNoun(unittest.TestCase):
         self.assertIsInstance(answer, DefinitePluralNoun)
         self.assertEqual(answer, Noun('the bobses', base='bob'))
 
+    def test_plural_with_f_and_fe_ending_nouns(self):
+        self.assertEqual(Noun('life').plural(), Noun('lives', base='life'))
+        self.assertEqual(Noun('waif').plural(), Noun('waifs', base='waif'))
+        self.assertEqual(Noun('calf').plural(), Noun('calves', base='calf'))
+
     def test_capitalize_all(self):
         original = Noun('bob')
         basic = original.capitalize()

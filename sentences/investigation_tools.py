@@ -1,6 +1,7 @@
 from sentences.words.pronoun import Pronoun
 from sentences.words.verb import Verb
 from sentences.words.noun import Noun, PluralNoun
+from sentences.words.word import Word
 
 from sentences.loader import uncountable_nouns
 
@@ -26,7 +27,7 @@ def is_third_person(word) -> bool:
         return word in (Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT)
     if isinstance(word, Noun):
         return not isinstance(word, PluralNoun)
-    return False
+    return word in [Word('He'), Word('She'), Word('It')]
 
 
 def is_countable(word) -> bool:

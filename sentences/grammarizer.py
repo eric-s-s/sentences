@@ -1,11 +1,11 @@
 import random
 from typing import List, Union
 
-from sentences.investigation_tools import requires_third_person, is_word_in_sentence, is_countable, find_subject
+from sentences.investigation_tools import requires_third_person, is_countable, find_subject
 
 from sentences.words.word import Word
 from sentences.words.verb import BasicVerb
-from sentences.words.noun import Noun, IndefiniteNoun, DefiniteNoun, PluralNoun, DefinitePluralNoun
+from sentences.words.noun import Noun, PluralNoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
 
@@ -39,7 +39,7 @@ class Grammarizer(object):
             for element in sentence:
                 new_wd = element
 
-                if isinstance(element, Noun):
+                if isinstance(new_wd, Noun):
                     info = subj_info[element]
                     if info['plural']:
                         new_wd = new_wd.plural()
@@ -58,18 +58,19 @@ class Grammarizer(object):
                 new_sentence.append(new_wd)
             answer.append(new_sentence)
         for sentence in answer:
-            if requires_third_person(sentence):
-                verb_index = find_subject(sentence) + 1
-                sentence[verb_index] = sentence[verb_index].third_person()
+            verb_index = find_subject(sentence) + 1
+            if self._present_tense:
+                if requires_third_person(sentence):
+                    sentence[verb_index] = sentence[verb_index].third_person()
+            else:
+                sentence[verb_index] = sentence[verb_index].past_tense()
             sentence[0] = sentence[0].capitalize()
 
         return answer
 
 
-
 def normalize_probability(probability: float):
     return min(1.0, max(probability, 0))
-
 
 
 def get_nouns(paragraph: Paragraph) -> set:

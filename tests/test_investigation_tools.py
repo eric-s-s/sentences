@@ -66,6 +66,10 @@ class TestInvestigationTools(unittest.TestCase):
         for not_it in [i, me, you, we, us, they, them]:
             self.assertFalse(is_third_person(not_it))
 
+    def test_is_third_person_capitalized_pronouns_as_words(self):
+        for word in [Word('He'), Word('She'), Word('It')]:
+            self.assertTrue(is_third_person(word))
+
     def test_is_third_person_all_non_plural_nouns(self):
         noun = Noun('dog')
         self.assertTrue(is_third_person(noun))

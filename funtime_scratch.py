@@ -9,20 +9,19 @@ gener = sg.RawWordsRandomisation()
 
 paragrapher = para.RawParagraphRandomisation()
 
-answer = paragrapher.create_pool_paragraph(3, 10)
+# answer = paragrapher.create_pool_paragraph(3, 10)
+#
+# for sentence in answer:
+#     print(wc.connect_words(sentence))
+#
+# print()
 
-for sentence in answer:
-    print(wc.connect_words(sentence))
-
-print()
-
-answer = paragrapher.create_chain_paragraph(10)
-for sentence in answer:
-    print(wc.connect_words(sentence))
+answer = paragrapher.create_chain_paragraph(15)
+# for sentence in answer:
+#     print(wc.connect_words(sentence))
 
 import itertools
 
-print(wc.connect_words(itertools.chain.from_iterable(answer)))
 
 
 def line_print(big_str):
@@ -41,7 +40,28 @@ def line_print(big_str):
 
 
 import sentences.grammarizer as grammar
+import sentences.errormaker as error
 print()
-line_print(wc.convert_paragraph(grammar.Grammarizer(answer).generate_paragraph()))
+paragraph = grammar.Grammarizer(answer).generate_paragraph()
+line_print(wc.convert_paragraph(paragraph))
 print()
+e = error.ErrorMaker(paragraph, p_error=0.2)
+e.create_all_errors()
+line_print(wc.convert_paragraph(e.error_paragraph))
 print()
+
+correct_p = []
+error_p = []
+for _ in range(5):
+    answer = paragrapher.create_chain_paragraph(15)
+    paragraph = grammar.Grammarizer(answer).generate_paragraph()
+    e_maker = error.ErrorMaker(paragraph, p_error=0.2)
+    e_maker.create_all_errors()
+    correct_p.append(wc.convert_paragraph(e_maker.answer_paragraph))
+    error_p.append(wc.convert_paragraph(e_maker.error_paragraph))
+
+with open('correct.txt', 'w') as f:
+    f.write('\n\n'.join(correct_p))
+
+with open('mistake.txt', 'w') as f:
+    f.write('\n\n'.join(error_p))
