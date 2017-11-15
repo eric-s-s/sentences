@@ -41,7 +41,7 @@ class Word(object):
         return self.__class__(current_value + ending)
 
     def bold(self) -> 'Word':
-        return Word('**{}**'.format(self.value))
+        return Word('<bold>{}</bold>'.format(self.value))
 
     def __str__(self):
         return self.value

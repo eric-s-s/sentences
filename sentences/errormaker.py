@@ -68,7 +68,7 @@ class ErrorMaker(object):
 
 
 def fuck_with_noun(noun):
-    basic = noun.revert()
+    basic = noun.to_base_noun()
     uncountable = not is_countable(basic)
     if uncountable:
         choices = [basic.indefinite(), basic.plural()]

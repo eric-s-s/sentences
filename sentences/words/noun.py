@@ -46,7 +46,7 @@ class Noun(Word):
 
         return class_(plural_val, base=self.base_noun)
 
-    def revert(self) -> 'Noun':
+    def to_base_noun(self) -> 'Noun':
         return Noun(self.base_noun)
     
     def __eq__(self, other):

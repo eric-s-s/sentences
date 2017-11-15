@@ -14,8 +14,8 @@ class TestPunctuation(unittest.TestCase):
         self.assertEqual(question.value, '?')
 
     def test_bold(self):
-        self.assertEqual(comma.bold(), Word('**,**'))
-        self.assertEqual(period.bold(), Word('**.**'))
-        self.assertEqual(exclamation.bold(), Word('**!**'))
-        self.assertEqual(question.bold(), Word('**?**'))
+        self.assertEqual(comma.bold(), Word('<bold>,</bold>'))
+        self.assertEqual(period.bold(), Word('<bold>.</bold>'))
+        self.assertEqual(exclamation.bold(), Word('<bold>!</bold>'))
+        self.assertEqual(question.bold(), Word('<bold>?</bold>'))
 

@@ -64,7 +64,7 @@ class TestPronoun(unittest.TestCase):
         self.assertEqual(them.capitalize(), Word('Them'))
 
     def test_bold(self):
-        self.assertEqual(I.bold(), Word('**I**'))
+        self.assertEqual(I.bold(), Word('<bold>I</bold>'))
 
     def test_is_pair_non_pronoun(self):
         self.assertFalse(me.is_pair('me'))

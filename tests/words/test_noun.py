@@ -178,17 +178,39 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(basic, Noun('Bob', base='bob'))
         indefinite = original.indefinite().capitalize()
         self.assertEqual(indefinite, Noun('A bob', base='bob'))
+        self.assertIsInstance(indefinite, IndefiniteNoun)
         definite = original.definite().capitalize()
         self.assertEqual(definite, Noun('The bob', base='bob'))
+        self.assertIsInstance(definite, DefiniteNoun)
         plural = original.plural().capitalize()
         self.assertEqual(plural, Noun('Bobs', base='bob'))
+        self.assertIsInstance(plural, PluralNoun)
         definite_plural = original.definite().plural().capitalize()
         self.assertEqual(definite_plural, Noun('The bobs', base='bob'))
+        self.assertIsInstance(definite_plural, DefinitePluralNoun)
         plural_definite = original.plural().definite().capitalize()
         self.assertEqual(plural_definite, Noun('The bobs', base='bob'))
 
         wacky = original.plural().capitalize().definite()
         self.assertEqual(wacky, Noun('the Bobs', base='bob'))
+
+    def test_bold_all(self):
+        original = Noun('bob')
+        basic = original.bold()
+        self.assertEqual(basic, Noun('<bold>bob</bold>', base='bob'))
+        indefinite = original.indefinite().bold()
+        self.assertEqual(indefinite, Noun('<bold>bob</bold>', base='bob'))
+        definite = original.definite().bold()
+        self.assertEqual(definite, Noun('<bold>bob</bold>', base='bob'))
+        plural = original.plural().bold()
+        self.assertEqual(plural, Noun('<bold>bob</bold>', base='bob'))
+        definite_plural = original.definite().plural().bold()
+        self.assertEqual(definite_plural, Noun('<bold>bob</bold>', base='bob'))
+        plural_definite = original.plural().definite().bold()
+        self.assertEqual(plural_definite, Noun('<bold>bob</bold>', base='bob'))
+
+        wacky = original.plural().bold().definite()
+        self.assertEqual(wacky, Noun('the<bold>bobs</bold>', base='bob'))
 
     def test_repr(self):
         self.assertEqual(repr(Noun('bob')), "Noun('bob', '', 'bob')")
@@ -197,25 +219,25 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(repr(DefiniteNoun('bob')), "DefiniteNoun('bob', '', 'bob')")
         self.assertEqual(repr(DefinitePluralNoun('bob')), "DefinitePluralNoun('bob', '', 'bob')")
 
-    def test_revert_loses_plural_info(self):
-        self.assertEqual(Noun('bob', 'boba').revert(), Noun('bob'))
+    def test_to_base_noun_loses_plural_info(self):
+        self.assertEqual(Noun('bob', 'boba').to_base_noun(), Noun('bob'))
 
-    def test_revert_no_special_plural(self):
+    def test_to_base_noun_no_special_plural(self):
         original = Noun('bob')
-        self.assertEqual(original.plural().revert(), original)
-        self.assertEqual(original.indefinite().revert(), original)
-        self.assertEqual(original.definite().revert(), original)
-        self.assertEqual(original.definite().plural().revert(), original)
-        self.assertEqual(original.capitalize().plural().definite().revert(), original)
+        self.assertEqual(original.plural().to_base_noun(), original)
+        self.assertEqual(original.indefinite().to_base_noun(), original)
+        self.assertEqual(original.definite().to_base_noun(), original)
+        self.assertEqual(original.definite().plural().to_base_noun(), original)
+        self.assertEqual(original.capitalize().plural().definite().to_base_noun(), original)
 
-    def test_revert_special_plural(self):
+    def test_to_base_noun_special_plural(self):
         original = Noun('bob', 'boberino')
         expected = Noun('bob')
-        self.assertEqual(original.plural().revert(), expected)
-        self.assertEqual(original.indefinite().revert(), expected)
-        self.assertEqual(original.definite().revert(), expected)
-        self.assertEqual(original.definite().plural().revert(), expected)
-        self.assertEqual(original.capitalize().plural().definite().revert(), expected)
+        self.assertEqual(original.plural().to_base_noun(), expected)
+        self.assertEqual(original.indefinite().to_base_noun(), expected)
+        self.assertEqual(original.definite().to_base_noun(), expected)
+        self.assertEqual(original.definite().plural().to_base_noun(), expected)
+        self.assertEqual(original.capitalize().plural().definite().to_base_noun(), expected)
 
     def test_hash(self):
         self.assertEqual(hash(Noun('bob')), hash("hash of Noun('bob', '', 'bob')"))

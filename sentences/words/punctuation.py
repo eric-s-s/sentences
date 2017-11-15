@@ -10,4 +10,4 @@ class Punctuation(Enum):
     QUESTION = '?'
 
     def bold(self):
-        return Word('**{}**'.format(self.value))
+        return Word('<bold>{}</bold>'.format(self.value))

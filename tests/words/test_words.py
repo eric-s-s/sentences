@@ -216,4 +216,4 @@ class TestWord(unittest.TestCase):
 
     def test_word_bold(self):
         word = Word('hi')
-        self.assertEqual(word.bold(), Word('**hi**'))
+        self.assertEqual(word.bold(), Word('<bold>hi</bold>'))

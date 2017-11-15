@@ -27,7 +27,7 @@ class Pronoun(Enum):
         return Word(self.value.capitalize())
 
     def bold(self):
-        return Word('**{}**'.format(self.value))
+        return Word('<bold>{}</bold>'.format(self.value))
 
     def object(self):
         changes = {self.I: self.ME,
