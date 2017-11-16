@@ -1,8 +1,8 @@
-import sentences.raw_word_randomisation as sg
+import sentences.random_sentences as sg
 import sentences.wordconnector as wc
 import sentences.raw_paragraph_randomisation as para
 
-gener = sg.RawWordsRandomisation()
+gener = sg.RandomSentences()
 
 # for _ in range(10):
 #     print(wc.connect_words(gener.sentence()))

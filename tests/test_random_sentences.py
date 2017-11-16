@@ -2,7 +2,7 @@ import random
 import unittest
 from unittest.mock import patch
 
-from sentences.raw_word_randomisation import RawWordsRandomisation
+from sentences.random_sentences import RandomSentences
 
 from sentences.words.word import Word
 from sentences.words.noun import Noun
@@ -24,9 +24,13 @@ def with_preposition():
     return [{'verb': BasicVerb('jump'), 'preposition': Word('on'), 'objects': 1}]
 
 
+def three_nouns():
+    return [Noun('tom'), Noun('dick'), Noun('harry')]
+
+
 class TestRawWordsRandomisation(unittest.TestCase):
     def setUp(self):
-        self.generator = RawWordsRandomisation()
+        self.generator = RandomSentences()
 
     def test_subject_p_pronoun_zero(self):
         random.seed(10)
@@ -158,20 +162,20 @@ class TestRawWordsRandomisation(unittest.TestCase):
         answer = self.generator.sentence()
         self.assertEqual(answer, [Noun('pizza', ''), BasicVerb('surprise'), it, period])
 
-    @patch('sentences.raw_word_randomisation.verbs', with_preposition)
+    @patch('sentences.random_sentences.verbs', with_preposition)
     def test_assign_preposition(self):
         random.seed(10)
-        generator = RawWordsRandomisation()
+        generator = RandomSentences()
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('pony'), BasicVerb('jump'), Word('on'), Noun('elephant'), period])
 
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('stinky tofu'), BasicVerb('jump'), Word('on'), Noun('cow'), period])
 
-    @patch('sentences.raw_word_randomisation.verbs', two_subject_verbs)
+    @patch('sentences.random_sentences.verbs', two_subject_verbs)
     def test_two_subjects_second_subj_is_never_pronoun(self):
         random.seed(10)
-        generator = RawWordsRandomisation()
+        generator = RandomSentences()
         answer = generator.predicate(p_pronoun=0.8)
         self.assertEqual(answer, [BasicVerb('bring', 'brought'), us, Noun('shark'), period])
 
@@ -180,3 +184,23 @@ class TestRawWordsRandomisation(unittest.TestCase):
 
         answer = generator.predicate(p_pronoun=0.8)
         self.assertEqual(answer, [BasicVerb('bring', 'brought'), them, Noun('baby'), period])
+
+    @patch('sentences.random_sentences.verbs', two_subject_verbs)
+    @patch('sentences.random_sentences.countable_nouns', three_nouns)
+    @patch('sentences.random_sentences.uncountable_nouns', three_nouns)
+    def test_two_subjects_are_never_the_same(self):
+        random.seed(10)
+        generator = RandomSentences()
+
+        answer = generator.predicate(p_pronoun=0.0)
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'),  Noun('dick'), Noun('tom'), period])
+
+        answer = generator.predicate(p_pronoun=0.0)
+        self.assertEqual(answer,[BasicVerb('bring', 'brought'),  Noun('dick'), Noun('tom'), period])
+
+        answer = generator.predicate(p_pronoun=0.0)
+        self.assertEqual(answer,[BasicVerb('bring', 'brought'),  Noun('harry'), Noun('tom'), period])
+
+        answer = generator.predicate(p_pronoun=0.0)
+        self.assertEqual(answer,[BasicVerb('bring', 'brought'),  Noun('tom'), Noun('harry'), period])
+

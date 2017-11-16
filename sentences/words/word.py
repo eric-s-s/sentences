@@ -1,3 +1,7 @@
+from copy import deepcopy
+
+class Bold(object):
+    pass
 
 
 class Word(object):

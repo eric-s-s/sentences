@@ -10,4 +10,7 @@ It relies on Word, Noun and BasicVerb. They can call the methods return the clas
 give odd results.
 :code:`BasicVerb('eat', 'ate').capitalize().past_tense() != BasicVerb('eat', 'ate').past_tense().capitalize()`
 
+**Be more careful with Word.bold()!** It currently only ever returns a Word. It is only intended to be used as a last
+step.
+
 It is in its very early stages and this README will be updated if there's anything happening.

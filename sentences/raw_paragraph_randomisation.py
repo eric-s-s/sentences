@@ -1,5 +1,5 @@
 import random
-from sentences.raw_word_randomisation import RawWordsRandomisation
+from sentences.random_sentences import RandomSentences
 
 from sentences.investigation_tools import is_word_in_sentence
 from sentences.words.pronoun import Pronoun
@@ -9,7 +9,7 @@ from sentences.words.noun import Noun
 class RawParagraphRandomisation(object):
     def __init__(self, p_pronoun=0.2):
         self._p_pronoun = p_pronoun
-        self._word_maker = RawWordsRandomisation()
+        self._word_maker = RandomSentences()
 
     def get_subject_pool(self, size):
         pool = []

@@ -7,7 +7,7 @@ from sentences.investigation_tools import (requires_third_person, is_third_perso
 from sentences.words.noun import Noun
 from sentences.words.verb import BasicVerb
 from sentences.words.word import Word
-from sentences.raw_word_randomisation import RawWordsRandomisation
+from sentences.random_sentences import RandomSentences
 
 from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
@@ -33,7 +33,7 @@ class TestInvestigationTools(unittest.TestCase):
 
     def test_find_subject_on_standard_sentence(self):
         random.seed(5)
-        maker = RawWordsRandomisation()
+        maker = RandomSentences()
         sentence = maker.sentence()
 
         self.assertEqual(find_subject(sentence), 0)
@@ -43,7 +43,7 @@ class TestInvestigationTools(unittest.TestCase):
 
     def test_find_subject_on_standard_predicate(self):
         random.seed(10)
-        maker = RawWordsRandomisation()
+        maker = RandomSentences()
         predicate = maker.predicate()
 
         self.assertEqual(find_subject(predicate), -1)

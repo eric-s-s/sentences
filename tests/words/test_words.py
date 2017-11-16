@@ -1,6 +1,6 @@
 import unittest
 
-from sentences.words.word import Word, needs_es, is_y_as_long_vowel_sound, ends_with_short_vowel_and_consonant
+from sentences.words.word import Word, needs_es, is_y_as_long_vowel_sound, ends_with_short_vowel_and_consonant, Bold
 
 
 class TestWord(unittest.TestCase):

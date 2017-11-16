@@ -1,10 +1,11 @@
 import random
 
+from sentences.words.word import Word
 from sentences.words.verb import Verb
-from sentences.words.noun import Noun, DefiniteNoun, IndefiniteNoun, PluralNoun
+from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun
 from sentences.words.punctuation import Punctuation
 from sentences.grammarizer import normalize_probability
-from sentences.investigation_tools import is_countable, is_word_in_sentence, is_third_person, requires_third_person
+from sentences.investigation_tools import is_countable, requires_third_person
 
 
 def super_copy(lst_of_lst):
@@ -60,6 +61,19 @@ class ErrorMaker(object):
             if random.random() < self.p_error:
                 sentence[-1] = Punctuation.COMMA
                 self._answer[s_index][-1] = self._answer[s_index][-1].bold()
+        self._decapitalize_at_commas()
+
+    def _decapitalize_at_commas(self):
+        last_index = len(self._error_paragraph) - 1
+        for index, sentence in enumerate(self._error_paragraph):
+            if sentence[-1] == Punctuation.COMMA and index < last_index:
+                to_alter_index = index + 1
+                to_alter = self._error_paragraph[to_alter_index]
+                to_decapitalize = to_alter[0]
+                old_value = to_decapitalize.value
+                new_word = Word(old_value[0].lower() + old_value[1:])
+                to_alter[0] = new_word
+                self._answer[to_alter_index][0] = self._answer[to_alter_index][0].bold()
 
     def create_all_errors(self):
         self.create_noun_errors()
