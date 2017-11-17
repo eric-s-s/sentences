@@ -41,6 +41,8 @@ class Noun(Word):
         current = self.value
         if any(current.endswith('{}fe'.format(vowel)) for vowel in 'aeiou'):
             plural_val = current[:-2] + 'ves'
+        elif any(current.endswith('{}f'.format(vowel)) for vowel in 'al'):
+            plural_val = current[:-1] + 'ves'
         else:
             plural_val = self.add_s().value
 

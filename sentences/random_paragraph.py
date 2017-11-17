@@ -6,10 +6,10 @@ from sentences.words.pronoun import Pronoun
 from sentences.words.noun import Noun
 
 
-class RawParagraphRandomisation(object):
-    def __init__(self, p_pronoun=0.2):
+class RandomParagraph(object):
+    def __init__(self, p_pronoun=0.2, verb_file='', countable_file='', uncountable_file=''):
         self._p_pronoun = p_pronoun
-        self._word_maker = RandomSentences()
+        self._word_maker = RandomSentences(verb_file, countable_file, uncountable_file)
 
     def get_subject_pool(self, size):
         pool = []
@@ -23,6 +23,7 @@ class RawParagraphRandomisation(object):
         subjects = self.get_subject_pool(pool_size)
         paragraph = []
         safety_count = 0
+        too_many_excepts = 100 + num_sentences
         while len(paragraph) < num_sentences:
             predicate = self._word_maker.predicate(self._p_pronoun)
             try:
@@ -31,8 +32,8 @@ class RawParagraphRandomisation(object):
                 paragraph.append(predicate)
             except ValueError:
                 safety_count += 1
-                if safety_count > 100:
-                    raise OverflowError('you done fucked up but good')
+                if safety_count > too_many_excepts:
+                    raise OverflowError('Too many failures to find subj different from predicate.')
         return paragraph
 
     def create_chain_paragraph(self, num_sentences):

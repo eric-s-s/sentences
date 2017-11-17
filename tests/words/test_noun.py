@@ -171,6 +171,8 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(Noun('life').plural(), Noun('lives', base='life'))
         self.assertEqual(Noun('waif').plural(), Noun('waifs', base='waif'))
         self.assertEqual(Noun('calf').plural(), Noun('calves', base='calf'))
+        self.assertEqual(Noun('leaf').plural(), Noun('leaves', base='leaf'))
+        self.assertEqual(Noun('loaf').plural(), Noun('loaves', base='loaf'))
 
     def test_capitalize_all(self):
         original = Noun('bob')

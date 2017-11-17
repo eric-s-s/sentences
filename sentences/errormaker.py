@@ -102,7 +102,7 @@ def fuck_with_verb(verb, present_tense, third_person):
         basic = basic.negative()
 
     if present_tense and third_person:
-        choices = [basic] * 3 + [basic.past_tense()]
+        choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
     elif present_tense and not third_person:
         choices = [basic.third_person()] * 3 + [basic.past_tense()]
     else:

@@ -23,9 +23,6 @@ class Word(object):
         elif is_y_as_long_vowel_sound(current_value):
             current_value = current_value[:-1]
             ending = 'ies'
-        elif current_value.endswith('lf'):
-            current_value = current_value[:-2]
-            ending = 'lves'
         else:
             ending = 's'
         return self.__class__(current_value + ending)
@@ -45,7 +42,10 @@ class Word(object):
         return self.__class__(current_value + ending)
 
     def bold(self) -> 'Word':
-        return Word('<bold>{}</bold>'.format(self.value))
+        current_value = self.value
+        if current_value.endswith('</bold>') and current_value.startswith('<bold>'):
+            return self
+        return Word('<bold>{}</bold>'.format(current_value))
 
     def __str__(self):
         return self.value

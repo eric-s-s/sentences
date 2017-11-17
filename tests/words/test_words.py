@@ -182,9 +182,6 @@ class TestWord(unittest.TestCase):
         word = Word('fly')
         self.assertEqual(word.add_s(), Word('flies'))
 
-        word = Word('half')
-        self.assertEqual(word.add_s(), Word('halves'))
-
         word = Word('bake')
         self.assertEqual(word.add_s(), Word('bakes'))
 
@@ -217,3 +214,7 @@ class TestWord(unittest.TestCase):
     def test_word_bold(self):
         word = Word('hi')
         self.assertEqual(word.bold(), Word('<bold>hi</bold>'))
+
+    def test_word_bold_twice_is_just_bold(self):
+        word = Word('hi')
+        self.assertEqual(word.bold().bold(), Word('<bold>hi</bold>'))

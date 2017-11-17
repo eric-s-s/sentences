@@ -4,23 +4,29 @@ from sentences.words.word import Word
 
 
 def load_csv(filename):
-    with open('word_lists/' + filename, 'r') as f:
+    with open(filename, 'r') as f:
         lines = f.read().split('\n')
     return [line.split(', ') for line in lines[1:] if line]
 
 
-def countable_nouns():
-    raw_lines = load_csv('nouns.csv')
+def countable_nouns(filename=''):
+    if not filename:
+        filename = 'word_lists/nouns.csv'
+    raw_lines = load_csv(filename)
     return [Noun(*line) for line in raw_lines]
 
 
-def uncountable_nouns():
-    raw_lines = load_csv('uncountable.csv')
+def uncountable_nouns(filename=''):
+    if not filename:
+        filename = 'word_lists/uncountable.csv'
+    raw_lines = load_csv(filename)
     return [Noun(*line) for line in raw_lines]
 
 
-def verbs():
-    raw_lines = load_csv('verbs.csv')
+def verbs(filename=''):
+    if not filename:
+        filename = 'word_lists/verbs.csv'
+    raw_lines = load_csv(filename)
     return [get_verb_dict(verb_line) for verb_line in raw_lines]
 
 

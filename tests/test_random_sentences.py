@@ -1,6 +1,5 @@
 import random
 import unittest
-from unittest.mock import patch
 
 from sentences.random_sentences import RandomSentences
 
@@ -14,18 +13,6 @@ period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
-
-
-def two_subject_verbs():
-    return [{'verb': BasicVerb('bring', 'brought'), 'preposition': None, 'objects': 2}]
-
-
-def with_preposition():
-    return [{'verb': BasicVerb('jump'), 'preposition': Word('on'), 'objects': 1}]
-
-
-def three_nouns():
-    return [Noun('tom'), Noun('dick'), Noun('harry')]
 
 
 class TestRawWordsRandomisation(unittest.TestCase):
@@ -162,20 +149,20 @@ class TestRawWordsRandomisation(unittest.TestCase):
         answer = self.generator.sentence()
         self.assertEqual(answer, [Noun('pizza', ''), BasicVerb('surprise'), it, period])
 
-    @patch('sentences.random_sentences.verbs', with_preposition)
     def test_assign_preposition(self):
+        file_name = 'tests/test_files/jump_on.csv'
         random.seed(10)
-        generator = RandomSentences()
+        generator = RandomSentences(verb_file=file_name)
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('pony'), BasicVerb('jump'), Word('on'), Noun('elephant'), period])
 
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('stinky tofu'), BasicVerb('jump'), Word('on'), Noun('cow'), period])
 
-    @patch('sentences.random_sentences.verbs', two_subject_verbs)
     def test_two_subjects_second_subj_is_never_pronoun(self):
+        file_name = 'tests/test_files/bring.csv'
         random.seed(10)
-        generator = RandomSentences()
+        generator = RandomSentences(verb_file=file_name)
         answer = generator.predicate(p_pronoun=0.8)
         self.assertEqual(answer, [BasicVerb('bring', 'brought'), us, Noun('shark'), period])
 
@@ -185,22 +172,21 @@ class TestRawWordsRandomisation(unittest.TestCase):
         answer = generator.predicate(p_pronoun=0.8)
         self.assertEqual(answer, [BasicVerb('bring', 'brought'), them, Noun('baby'), period])
 
-    @patch('sentences.random_sentences.verbs', two_subject_verbs)
-    @patch('sentences.random_sentences.countable_nouns', three_nouns)
-    @patch('sentences.random_sentences.uncountable_nouns', three_nouns)
     def test_two_subjects_are_never_the_same(self):
+        verb_file = 'tests/test_files/bring.csv'
+        countable = 'tests/test_files/three_nouns.csv'
+        uncountable = 'tests/test_files/three_nouns.csv'
         random.seed(10)
-        generator = RandomSentences()
+        generator = RandomSentences(verb_file=verb_file, countable_file=countable, uncountable_file=uncountable)
 
         answer = generator.predicate(p_pronoun=0.0)
         self.assertEqual(answer, [BasicVerb('bring', 'brought'),  Noun('dick'), Noun('tom'), period])
 
         answer = generator.predicate(p_pronoun=0.0)
-        self.assertEqual(answer,[BasicVerb('bring', 'brought'),  Noun('dick'), Noun('tom'), period])
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'),  Noun('dick'), Noun('tom'), period])
 
         answer = generator.predicate(p_pronoun=0.0)
-        self.assertEqual(answer,[BasicVerb('bring', 'brought'),  Noun('harry'), Noun('tom'), period])
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'),  Noun('harry'), Noun('tom'), period])
 
         answer = generator.predicate(p_pronoun=0.0)
-        self.assertEqual(answer,[BasicVerb('bring', 'brought'),  Noun('tom'), Noun('harry'), period])
-
+        self.assertEqual(answer, [BasicVerb('bring', 'brought'),  Noun('tom'), Noun('harry'), period])

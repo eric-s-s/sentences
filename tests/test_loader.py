@@ -8,12 +8,12 @@ from sentences.words.word import Word
 
 class TestLoader(unittest.TestCase):
     def test_load_csv_nouns(self):
-        answer = load_csv('nouns.csv')
+        answer = load_csv('word_lists/nouns.csv')
         self.assertIn(['person', 'people'], answer)
         self.assertIn(['witch'], answer)
 
     def test_load_csv_verbs(self):
-        answer = load_csv('verbs.csv')
+        answer = load_csv('word_lists/verbs.csv')
         self.assertIn(['hit', 'hit', 'null'], answer)
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)

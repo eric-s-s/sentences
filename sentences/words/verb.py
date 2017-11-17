@@ -34,7 +34,7 @@ class Verb(Word):
 
 
 class ConjugatedVerb(Verb):
-    def __init__(self, word, infinitive):
+    def __init__(self, word, infinitive=''):
         super(ConjugatedVerb, self).__init__(word, infinitive)
 
 
@@ -68,7 +68,7 @@ class BasicVerb(Verb):
 
 
 class NegativeVerb(Verb):
-    def __init__(self, negative, infinitive):
+    def __init__(self, negative, infinitive=''):
         super(NegativeVerb, self).__init__(negative, infinitive)
 
     def past_tense(self) -> ConjugatedVerb:

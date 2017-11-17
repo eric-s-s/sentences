@@ -6,12 +6,12 @@ from sentences.loader import verbs, uncountable_nouns, countable_nouns
 
 
 class RandomSentences(object):
-    def __init__(self):
+    def __init__(self, verb_file='', countable_file='', uncountable_file=''):
         self._pronouns = [pronoun for pronoun in Pronoun]
         self._endings = [Punctuation.PERIOD, Punctuation.PERIOD, Punctuation.EXCLAMATION]
-        self._countable = countable_nouns()
-        self._verbs = verbs()
-        self._uncountable = uncountable_nouns()
+        self._countable = countable_nouns(countable_file)
+        self._verbs = verbs(verb_file)
+        self._uncountable = uncountable_nouns(uncountable_file)
 
     def sentence(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
