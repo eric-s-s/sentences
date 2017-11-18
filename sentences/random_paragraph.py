@@ -13,10 +13,16 @@ class RandomParagraph(object):
 
     def get_subject_pool(self, size):
         pool = []
+        safety_count = 0
+        safety_limit = 100 + size
         while len(pool) < size:
             new_subj = self._word_maker.subject(self._p_pronoun)
             if not is_word_in_sentence(new_subj, pool):
                 pool.append(new_subj)
+            else:
+                safety_count += 1
+                if safety_count > safety_limit:
+                    raise OverflowError('pool size is too large for available nouns loaded from file')
         return pool
 
     def create_pool_paragraph(self, pool_size, num_sentences):

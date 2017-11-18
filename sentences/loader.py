@@ -6,7 +6,11 @@ from sentences.words.word import Word
 def load_csv(filename):
     with open(filename, 'r') as f:
         lines = f.read().split('\n')
-    return [line.split(', ') for line in lines[1:] if line]
+    return [split_and_strip(line) for line in lines[1:] if line.strip()]
+
+
+def split_and_strip(line):
+    return [word.strip() for word in line.split(',')]
 
 
 def countable_nouns(filename=''):

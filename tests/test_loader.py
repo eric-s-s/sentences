@@ -1,12 +1,20 @@
 import unittest
 
-from sentences.loader import load_csv, countable_nouns, uncountable_nouns, verbs, get_verb_dict
+from sentences.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
 from sentences.words.noun import Noun
 from sentences.words.verb import BasicVerb
 from sentences.words.word import Word
 
 
 class TestLoader(unittest.TestCase):
+    def test_split_and_strip(self):
+        self.assertEqual(split_and_strip('  this , is , space words, and   commas'),
+                         ['this', 'is', 'space words', 'and   commas'])
+
+    def test_load_csv_ignores_blank_lines(self):
+        filename = 'tests/test_files/blank_lines.csv'
+        self.assertEqual(load_csv(filename), [['a', 'b'], ['c', 'd'], ['e', 'f']])
+
     def test_load_csv_nouns(self):
         answer = load_csv('word_lists/nouns.csv')
         self.assertIn(['person', 'people'], answer)
