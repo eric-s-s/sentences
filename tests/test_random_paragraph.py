@@ -65,6 +65,13 @@ class TestRandomParagraph(unittest.TestCase):
 
         self.assertRaises(OverflowError, rp.get_subject_pool, 11)
 
+    def test_create_pool_paragraph_is_correct_length(self):
+        rp = RandomParagraph()
+        for length in range(3, 11):
+            pool = length - 2
+            answer = rp.create_pool_paragraph(pool, length)
+            self.assertEqual(len(answer), length)
+
     def test_create_pool_paragraph_subjects_in_subject_pool_and_not_in_predicate(self):
         random.seed(20)
         rp = RandomParagraph()
@@ -81,7 +88,79 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(20)
         two_nouns = 'tests/test_files/two_nouns.csv'
         bring = 'tests/test_files/bring.csv'
-        rp = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, verb_file=bring, p_pronoun=0.0)
-        self.assertRaises(OverflowError, rp.create_pool_paragraph, 2, 10)
+        raise_error = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, verb_file=bring,
+                                      p_pronoun=0.0)
+        self.assertRaises(OverflowError, raise_error.create_pool_paragraph, 2, 10)
+        no_error = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, p_pronoun=0.0)
+        no_error.create_pool_paragraph(2, 100)
 
+    def test_create_pool_paragraph_output(self):
+        random.seed(100)
+        rp = RandomParagraph()
+        paragraph = rp.create_pool_paragraph(2, 5)
+        expected = [
+            [Pronoun.IT, BasicVerb('show'), Noun('octopus'), Noun('sand'), Punctuation.PERIOD],
+            [Noun('eagle'), BasicVerb('bring', 'brought'), Noun('fish', 'fish'), Noun('gold'), Punctuation.PERIOD],
+            [Pronoun.IT, BasicVerb('excite'), Noun('poop'), Punctuation.PERIOD],
+            [Noun('eagle'), BasicVerb('cook'),  Pronoun.HER,  Punctuation.PERIOD],
+            [Noun('eagle'), BasicVerb('use'), Noun('shark'),  Punctuation.EXCLAMATION]
+        ]
+        self.assertEqual(paragraph, expected)
 
+    def test_create_chain_paragraph_is_correct_length(self):
+        rp = RandomParagraph()
+        for length in range(3, 11):
+            answer = rp.create_chain_paragraph(length)
+            self.assertEqual(len(answer), length)
+
+    def test_create_chain_paragraph_loop_safety_finally_returns_paragraph_with_repeat_words(self):
+        random.seed(20)
+        two_nouns = 'tests/test_files/two_nouns.csv'
+        bring = 'tests/test_files/bring.csv'
+        repeats = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, verb_file=bring, p_pronoun=0.0)
+        paragraph = repeats.create_chain_paragraph(3)
+        expected = [
+            [Noun('joe'), BasicVerb('bring', 'brought'), Noun('bob'), Noun('joe'), Punctuation.PERIOD],
+            [Noun('joe'), BasicVerb('bring', 'brought'), Noun('joe'), Noun('bob'), Punctuation.PERIOD],
+            [Noun('bob'), BasicVerb('bring', 'brought'), Noun('joe'), Noun('bob'), Punctuation.EXCLAMATION],
+        ]
+        self.assertEqual(expected, paragraph)
+
+    def test_create_chain_paragraph_pronouns(self):
+        rp = RandomParagraph(p_pronoun=1.0, verb_file='tests/test_files/jump_on.csv')
+        answer = rp.create_chain_paragraph(10)
+        for back_index, sentence in enumerate(answer[1:]):
+            previous_obj = answer[back_index][-2]
+            current_subj = sentence[0]
+            self.assertEqual(previous_obj.subject(), current_subj)
+
+    def test_create_chain_paragraph_nouns(self):
+        rp = RandomParagraph(p_pronoun=0.0)
+        answer = rp.create_chain_paragraph(10)
+        for back_index, sentence in enumerate(answer[1:]):
+            previous_obj = answer[back_index][-2]
+            current_subj = sentence[0]
+            self.assertEqual(previous_obj, current_subj)
+
+    def test_create_chain_paragraph_assigns_random_subj_if_no_obj(self):
+        random.seed(11)
+        rp = RandomParagraph(verb_file='tests/test_files/intransitive.csv')
+        answer = rp.create_chain_paragraph(3)
+        expected = [
+            [Noun('uncle'), BasicVerb('die'), Punctuation.PERIOD],
+            [Noun('wife'), BasicVerb('live'), Punctuation.PERIOD],
+            [Noun('sheep', 'sheep'), BasicVerb('jump'), Punctuation.EXCLAMATION]
+        ]
+        self.assertEqual(expected, answer)
+
+    def test_create_chain_paragraph_output(self):
+        random.seed(4)
+        rp = RandomParagraph()
+        answer = rp.create_chain_paragraph(4)
+        expected = [
+            [Noun('box'), BasicVerb('sleep', 'slept'), Word('on'), Noun('child', 'children'), Punctuation.PERIOD],
+            [Noun('child', 'children'), BasicVerb('break', 'broke'), Pronoun.US, Punctuation.PERIOD],
+            [Pronoun.WE, BasicVerb('teach', 'taught'), Noun('banana'), Noun('tree'), Punctuation.PERIOD],
+            [Noun('tree'), BasicVerb('fight', 'fought'), Noun('stinky tofu'), Punctuation.PERIOD]
+        ]
+        self.assertEqual(answer, expected)

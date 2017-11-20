@@ -64,6 +64,7 @@ class RandomParagraph(object):
                 subj = subj_candidate
             else:
                 subj = self._word_maker.subject(self._p_pronoun)
+                predicate = self._word_maker.predicate(self._p_pronoun)
 
         return paragraph
 
