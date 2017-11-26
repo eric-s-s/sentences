@@ -1,13 +1,13 @@
 import random
+import string
 import unittest
 
 from sentences.grammarizer import normalize_probability, get_nouns, Grammarizer
 from sentences.random_paragraph import RandomParagraph
 from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
-from sentences.words.word import Word
-from sentences.words.verb import BasicVerb, ConjugatedVerb
-from sentences.words.noun import Noun
+from sentences.words.verb import Verb, BasicVerb, ConjugatedVerb, NegativeVerb
+from sentences.words.noun import Noun, DefiniteNoun
 
 
 class TestGrammarizer(unittest.TestCase):
@@ -163,3 +163,157 @@ class TestGrammarizer(unittest.TestCase):
 
         self.assertEqual(grammarizer.noun_info, noun_info)
 
+    def test_generate_paragraph_returns_sentences_with_capitals(self):
+        raw_paragraph = RandomParagraph().create_chain_paragraph(10)
+        grammarizer = Grammarizer(raw_paragraph)
+        paragraph = grammarizer.generate_paragraph()
+        for sentence in paragraph:
+            self.assertIn(sentence[0].value[0], string.ascii_uppercase)
+
+    def test_generate_paragraph_makes_nouns_indefinite_in_first_instance_and_definite_later(self):
+        raw_paragraph = 5 * [
+            [Noun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
+
+        ]
+        grammarizer = Grammarizer(raw_paragraph)
+        paragraph = grammarizer.generate_paragraph()
+        self.assertEqual(len(paragraph), 10)
+        indefinite_part = paragraph[:2]
+        definite_part = paragraph[2:]
+        for sentence in indefinite_part:
+            for word in sentence:
+                self.assertNotIsInstance(word, DefiniteNoun)
+
+        for sentence in definite_part:
+            for word in sentence:
+                if isinstance(word, Noun):
+                    self.assertIsInstance(word, DefiniteNoun)
+
+    def test_generate_paragraph_singular_countable_noun(self):
+        raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
+        paragraph = grammarizer.generate_paragraph()
+        expected = [[Noun('A cat', '', 'cat'), ConjugatedVerb('grabs', 'grab'), Noun('the cat', '', 'cat'),
+                     Punctuation.EXCLAMATION]]
+        self.assertEqual(paragraph, expected)
+
+    def test_generate_paragraph_plural_countable_noun(self):
+        raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
+        paragraph = grammarizer.generate_paragraph()
+        expected = [[Noun('Cats', '', 'cat'), BasicVerb('grab'), Noun('the cats', 'the catses', 'cat'),
+                     Punctuation.EXCLAMATION]]
+        self.assertEqual(paragraph, expected)
+
+    def test_generate_paragraph_uncountable_noun(self):
+        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('water'), Punctuation.EXCLAMATION]]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
+        paragraph = grammarizer.generate_paragraph()
+        expected = [[Noun('Water', '', 'water'), ConjugatedVerb('grabs', 'grab'), Noun('the water', '', 'water'),
+                     Punctuation.EXCLAMATION]]
+        self.assertEqual(paragraph, expected)
+
+    def test_generate_paragraph_present_tense_third_person_positive(self):
+        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('water'), Punctuation.EXCLAMATION],
+                         [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
+        paragraph = grammarizer.generate_paragraph()
+        target_verb = ConjugatedVerb('grabs', 'grab')
+        for sentence in paragraph:
+            self.assertEqual(sentence[1], target_verb)
+
+    def test_generate_paragraph_present_tense_third_person_negative(self):
+        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('water'), Punctuation.EXCLAMATION],
+                         [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=0.0)
+        paragraph = grammarizer.generate_paragraph()
+        target_verb = ConjugatedVerb("doesn't grab", 'grab')
+        for sentence in paragraph:
+            self.assertEqual(sentence[1], target_verb)
+
+    def test_generate_paragraph_present_tense_not_third_person_positive(self):
+        raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.I, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.YOU, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.WE, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.THEY, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
+        paragraph = grammarizer.generate_paragraph()
+        target_verb = BasicVerb('grab')
+        for sentence in paragraph:
+            self.assertEqual(sentence[1], target_verb)
+
+    def test_generate_paragraph_present_tense_not_third_person_negative(self):
+        raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.I, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.YOU, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.WE, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.THEY, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=1.0)
+        paragraph = grammarizer.generate_paragraph()
+        target_verb = NegativeVerb("don't grab", 'grab')
+        for sentence in paragraph:
+            self.assertEqual(sentence[1], target_verb)
+
+    def test_generate_paragraph_past_tense_positive(self):
+        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Noun('cat'), BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.I, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.YOU, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.WE, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.THEY, BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0, present_tense=False)
+        paragraph = grammarizer.generate_paragraph()
+        target_verbs = [ConjugatedVerb('grabbed', 'grab'), ConjugatedVerb('ate', 'eat'), ConjugatedVerb('sang', 'sing')]
+        for sentence in paragraph:
+            self.assertIn(sentence[1], target_verbs)
+
+    def test_generate_paragraph_past_tense_negative(self):
+        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Noun('cat'), BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.I, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.YOU, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.WE, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.THEY, BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=1.0, present_tense=False)
+        paragraph = grammarizer.generate_paragraph()
+        target_verbs = [ConjugatedVerb("didn't grab", 'grab'),
+                        ConjugatedVerb("didn't eat", 'eat'),
+                        ConjugatedVerb("didn't sing", 'sing')]
+        for sentence in paragraph:
+            self.assertIn(sentence[1], target_verbs)
+
+    def test_assign_negatives_all_negative(self):
+        raw_paragraph = 5 * [
+            [Noun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
+
+        ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0)
+        paragraph = grammarizer.generate_paragraph()
+        for sentence in paragraph:
+            for word in sentence:
+                if isinstance(word, Verb):
+                    value = word.value
+                    tests_true = value.startswith("don't ") or value.startswith("doesn't ")
+                    self.assertTrue(tests_true)
+
+    def test_assign_negatives_no_negative(self):
+        raw_paragraph = 5 * [
+            [Noun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
+
+        ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0)
+        paragraph = grammarizer.generate_paragraph()
+        for sentence in paragraph:
+            for word in sentence:
+                if isinstance(word, Verb):
+                    value = word.value
+                    tests_false = value.startswith("don't ") or value.startswith("doesn't ")
+                    self.assertFalse(tests_false)

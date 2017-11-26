@@ -8,7 +8,7 @@ from sentences.grammarizer import normalize_probability
 from sentences.investigation_tools import is_countable, requires_third_person
 
 
-def super_copy(lst_of_lst):
+def copy_paragraph(lst_of_lst):
     return [lst[:] for lst in lst_of_lst]
 
 
@@ -16,21 +16,21 @@ class ErrorMaker(object):
     def __init__(self, paragraph, p_error, present_tense=True):
         self.p_error = normalize_probability(p_error)
         self.present_tense = present_tense
-        self._paragraph = super_copy(paragraph)
-        self._error_paragraph = super_copy(paragraph)
-        self._answer = super_copy(paragraph)
+        self._paragraph = copy_paragraph(paragraph)
+        self._error_paragraph = copy_paragraph(paragraph)
+        self._answer = copy_paragraph(paragraph)
 
     @property
     def paragraph(self):
-        return super_copy(self._paragraph)
+        return copy_paragraph(self._paragraph)
 
     @property
     def error_paragraph(self):
-        return super_copy(self._error_paragraph)
+        return copy_paragraph(self._error_paragraph)
 
     @property
     def answer_paragraph(self):
-        return super_copy(self._answer)
+        return copy_paragraph(self._answer)
 
     def reset(self):
         self._error_paragraph = self.paragraph
