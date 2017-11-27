@@ -14,7 +14,15 @@ def flatten_paragraph(paragraph):
 def connect_words(word_list):
     answer = ''
     for word in word_list:
-        if isinstance(word, Punctuation):
+        if is_punctuation(word):
             answer = answer.rstrip()
         answer += word.value + ' '
     return answer.rstrip()
+
+
+def is_punctuation(word):
+    if isinstance(word, Punctuation):
+        return True
+
+    bolds = [value.bold() for value in Punctuation]
+    return word in bolds

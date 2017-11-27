@@ -1,4 +1,4 @@
-from sentences.words.noun import Noun
+from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.verb import BasicVerb
 from sentences.words.word import Word
 
@@ -24,7 +24,7 @@ def uncountable_nouns(filename=''):
     if not filename:
         filename = 'word_lists/uncountable.csv'
     raw_lines = load_csv(filename)
-    return [Noun(*line) for line in raw_lines]
+    return [UncountableNoun(*line) for line in raw_lines]
 
 
 def verbs(filename=''):

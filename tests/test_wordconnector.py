@@ -5,7 +5,7 @@ from sentences.words.verb import BasicVerb
 from sentences.words.noun import Noun
 from sentences.words.punctuation import Punctuation
 
-from sentences.wordconnector import connect_words, flatten_paragraph, convert_paragraph
+from sentences.wordconnector import connect_words, flatten_paragraph, convert_paragraph, is_punctuation
 
 
 class TestWordConnector(unittest.TestCase):
@@ -34,3 +34,29 @@ class TestWordConnector(unittest.TestCase):
                      [Word('and'), Pronoun.I, Word('cannot'), Word('lie'), Punctuation.EXCLAMATION]]
         self.assertEqual(convert_paragraph(paragraph),
                          'I like big butts, and I cannot lie!')
+
+    def test_convert_paragraph_bold(self):
+        paragraph = [[Pronoun.I, Word('like'), Word('big'), Word('butts'), Punctuation.COMMA],
+                     [Word('and'), Pronoun.I, Word('cannot'), Word('lie'), Punctuation.EXCLAMATION]]
+        paragraph = [[word.bold() for word in sentence] for sentence in paragraph]
+        self.assertEqual(
+            convert_paragraph(paragraph),
+            '<bold>I</bold> <bold>like</bold> <bold>big</bold> <bold>butts</bold><bold>,</bold> <bold>and</bold>' +
+            ' <bold>I</bold> <bold>cannot</bold> <bold>lie</bold><bold>!</bold>'
+        )
+
+    def test_is_punctuation(self):
+        punctuation = [p for p in Punctuation]
+        bold_punctuation = [p.bold() for p in Punctuation]
+        other = [Word('.'), Pronoun.I, Pronoun.I.bold(), Noun('.'), Noun('hi').bold(),
+                 BasicVerb('.'), BasicVerb('play').bold()]
+        false_positive = Word('.').bold()
+
+        for word in punctuation:
+            self.assertTrue(is_punctuation(word))
+        for word in bold_punctuation:
+            self.assertTrue(is_punctuation(word))
+        for word in other:
+            self.assertFalse(is_punctuation(word))
+
+        self.assertTrue(is_punctuation(false_positive))

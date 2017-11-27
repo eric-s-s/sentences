@@ -7,7 +7,7 @@ from sentences.random_paragraph import RandomParagraph
 from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
 from sentences.words.verb import Verb, BasicVerb, ConjugatedVerb, NegativeVerb
-from sentences.words.noun import Noun, DefiniteNoun
+from sentences.words.noun import Noun, DefiniteNoun, UncountableNoun
 
 
 class TestGrammarizer(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestGrammarizer(unittest.TestCase):
         random.seed(5)
 
         paragraph = [
-            [Noun('money'), BasicVerb('grab'), Noun('tea'), Punctuation.EXCLAMATION],
+            [UncountableNoun('money'), BasicVerb('grab'), UncountableNoun('tea'), Punctuation.EXCLAMATION],
             [Pronoun.IT, BasicVerb('have', 'had'), Noun('watch'), Punctuation.PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
@@ -53,9 +53,9 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(grammarizer.negative, 0.3)
         self.assertEqual(grammarizer.present_tense, True)
         noun_info = {
-            Noun('tea'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('tea'): {'plural': False, 'definite': False, 'countable': False},
             Noun('watch'): {'plural': False, 'definite': False, 'countable': True},
-            Noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(noun_info, grammarizer.noun_info)
 
@@ -116,7 +116,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_grammarizer_set_nouns(self):
         paragraph = [
-            [Noun('money'), BasicVerb('grab'), Noun('witch'), Punctuation.EXCLAMATION],
+            [UncountableNoun('money'), BasicVerb('grab'), Noun('witch'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('play'), Noun('watch'), Punctuation.PERIOD]
         ]
         grammarizer = Grammarizer(paragraph, p_plural=0.5)
@@ -127,7 +127,7 @@ class TestGrammarizer(unittest.TestCase):
         noun_info = {
             Noun('watch'): {'plural': True, 'definite': False, 'countable': True},
             Noun('witch'): {'plural': False, 'definite': False, 'countable': True},
-            Noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(grammarizer.noun_info, noun_info)
 
@@ -135,7 +135,7 @@ class TestGrammarizer(unittest.TestCase):
         noun_info = {
             Noun('watch'): {'plural': True, 'definite': False, 'countable': True},
             Noun('witch'): {'plural': False, 'definite': False, 'countable': True},
-            Noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(grammarizer.noun_info, noun_info)
 
@@ -143,22 +143,22 @@ class TestGrammarizer(unittest.TestCase):
         noun_info = {
             Noun('watch'): {'plural': False, 'definite': False, 'countable': True},
             Noun('witch'): {'plural': False, 'definite': False, 'countable': True},
-            Noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(grammarizer.noun_info, noun_info)
 
     def test_grammarizer_set_nouns_never_sets_uncountable_nouns_to_plural(self):
         paragraph = [
-            [Noun('money'), BasicVerb('grab'), Noun('tea'), Punctuation.EXCLAMATION],
+            [UncountableNoun('money'), BasicVerb('grab'), UncountableNoun('tea'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('have', 'had'), Noun('watch'), Punctuation.PERIOD]
         ]
         grammarizer = Grammarizer(paragraph, p_plural=1.0)
         grammarizer.set_nouns()
         noun_info = {
-            Noun('tea'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('tea'): {'plural': False, 'definite': False, 'countable': False},
             Noun('watch'): {'plural': True, 'definite': False, 'countable': True},
             Noun('witch'): {'plural': True, 'definite': False, 'countable': True},
-            Noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            UncountableNoun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
 
         self.assertEqual(grammarizer.noun_info, noun_info)
@@ -207,16 +207,17 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_uncountable_noun(self):
-        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('water'), Punctuation.EXCLAMATION]]
+        raw_paragraph = [[UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.PERIOD]]
         grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[Noun('Water', '', 'water'), ConjugatedVerb('grabs', 'grab'), Noun('the water', '', 'water'),
-                     Punctuation.EXCLAMATION]]
+                     Punctuation.PERIOD]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_present_tense_third_person_positive(self):
-        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('water'), Punctuation.EXCLAMATION],
-                         [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        raw_paragraph = [
+            [UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.EXCLAMATION],
+            [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = ConjugatedVerb('grabs', 'grab')
@@ -224,8 +225,9 @@ class TestGrammarizer(unittest.TestCase):
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_present_tense_third_person_negative(self):
-        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('water'), Punctuation.EXCLAMATION],
-                         [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        raw_paragraph = [
+            [UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.EXCLAMATION],
+            [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=0.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = ConjugatedVerb("doesn't grab", 'grab')
@@ -259,7 +261,7 @@ class TestGrammarizer(unittest.TestCase):
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_past_tense_positive(self):
-        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+        raw_paragraph = [[UncountableNoun('water'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Noun('cat'), BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.I, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.YOU, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
@@ -273,7 +275,7 @@ class TestGrammarizer(unittest.TestCase):
             self.assertIn(sentence[1], target_verbs)
 
     def test_generate_paragraph_past_tense_negative(self):
-        raw_paragraph = [[Noun('water'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+        raw_paragraph = [[UncountableNoun('water'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Noun('cat'), BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.I, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.YOU, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
@@ -290,7 +292,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_assign_negatives_all_negative(self):
         raw_paragraph = 5 * [
-            [Noun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [UncountableNoun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
 
         ]
@@ -305,7 +307,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_assign_negatives_no_negative(self):
         raw_paragraph = 5 * [
-            [Noun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [UncountableNoun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
 
         ]

@@ -28,6 +28,9 @@ class Noun(Word):
         class_ = DefiniteNoun
         if isinstance(self, PluralNoun):
             class_ = DefinitePluralNoun
+        if isinstance(self, UncountableNoun):
+            class_ = DefiniteUncountableNoun
+
         article = 'the '
         return class_(article + self.value, article + self.plural().value, self.base_noun)
 
@@ -76,4 +79,12 @@ class IndefiniteNoun(Noun):
 
 
 class DefinitePluralNoun(DefiniteNoun, PluralNoun):
+    pass
+
+
+class UncountableNoun(Noun):
+    pass
+
+
+class DefiniteUncountableNoun(UncountableNoun, DefiniteNoun):
     pass

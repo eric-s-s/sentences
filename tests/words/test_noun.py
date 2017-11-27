@@ -1,7 +1,8 @@
 import unittest
 import string
 
-from sentences.words.noun import Noun, Word, PluralNoun, DefiniteNoun, IndefiniteNoun, DefinitePluralNoun
+from sentences.words.noun import (Noun, Word, PluralNoun, DefiniteNoun, IndefiniteNoun, DefinitePluralNoun,
+                                  UncountableNoun, DefiniteUncountableNoun)
 
 
 class TestNoun(unittest.TestCase):
@@ -12,6 +13,8 @@ class TestNoun(unittest.TestCase):
         self.assertNotIsInstance(noun, DefiniteNoun)
         self.assertNotIsInstance(noun, PluralNoun)
         self.assertNotIsInstance(noun, DefinitePluralNoun)
+        self.assertNotIsInstance(noun, UncountableNoun)
+        self.assertNotIsInstance(noun, DefiniteUncountableNoun)
 
     def test_indefinite_noun_typing(self):
         noun = IndefiniteNoun('bbo')
@@ -20,6 +23,8 @@ class TestNoun(unittest.TestCase):
         self.assertNotIsInstance(noun, DefiniteNoun)
         self.assertNotIsInstance(noun, PluralNoun)
         self.assertNotIsInstance(noun, DefinitePluralNoun)
+        self.assertNotIsInstance(noun, UncountableNoun)
+        self.assertNotIsInstance(noun, DefiniteUncountableNoun)
 
     def test_definite_noun_typing(self):
         noun = DefiniteNoun('bbo')
@@ -28,6 +33,8 @@ class TestNoun(unittest.TestCase):
         self.assertIsInstance(noun, DefiniteNoun)
         self.assertNotIsInstance(noun, PluralNoun)
         self.assertNotIsInstance(noun, DefinitePluralNoun)
+        self.assertNotIsInstance(noun, UncountableNoun)
+        self.assertNotIsInstance(noun, DefiniteUncountableNoun)
 
     def test_plural_noun_typing(self):
         noun = PluralNoun('bbo')
@@ -36,6 +43,8 @@ class TestNoun(unittest.TestCase):
         self.assertNotIsInstance(noun, DefiniteNoun)
         self.assertIsInstance(noun, PluralNoun)
         self.assertNotIsInstance(noun, DefinitePluralNoun)
+        self.assertNotIsInstance(noun, UncountableNoun)
+        self.assertNotIsInstance(noun, DefiniteUncountableNoun)
 
     def test_definite_plural_noun_typing(self):
         noun = DefinitePluralNoun('bbo')
@@ -44,6 +53,28 @@ class TestNoun(unittest.TestCase):
         self.assertIsInstance(noun, DefiniteNoun)
         self.assertIsInstance(noun, PluralNoun)
         self.assertIsInstance(noun, DefinitePluralNoun)
+        self.assertNotIsInstance(noun, UncountableNoun)
+        self.assertNotIsInstance(noun, DefiniteUncountableNoun)
+
+    def test_uncountable_noun_typing(self):
+        noun = UncountableNoun('bbo')
+        self.assertIsInstance(noun, Noun)
+        self.assertNotIsInstance(noun, IndefiniteNoun)
+        self.assertNotIsInstance(noun, DefiniteNoun)
+        self.assertNotIsInstance(noun, PluralNoun)
+        self.assertNotIsInstance(noun, DefinitePluralNoun)
+        self.assertIsInstance(noun, UncountableNoun)
+        self.assertNotIsInstance(noun, DefiniteUncountableNoun)
+
+    def test_definite_uncountable_noun_typing(self):
+        noun = DefiniteUncountableNoun('bbo')
+        self.assertIsInstance(noun, Noun)
+        self.assertNotIsInstance(noun, IndefiniteNoun)
+        self.assertIsInstance(noun, DefiniteNoun)
+        self.assertNotIsInstance(noun, PluralNoun)
+        self.assertNotIsInstance(noun, DefinitePluralNoun)
+        self.assertIsInstance(noun, UncountableNoun)
+        self.assertIsInstance(noun, DefiniteUncountableNoun)
 
     def test_capitalize_is_still_noun(self):
         noun = Noun('dog').capitalize()
@@ -119,6 +150,14 @@ class TestNoun(unittest.TestCase):
         self.assertIsInstance(answer, IndefiniteNoun)
         self.assertEqual(answer, Noun('a the bobs', base='bob'))
 
+        answer = UncountableNoun('bob', base='bob').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('a bob', base='bob'))
+
+        answer = DefiniteUncountableNoun('the bob', base='bob').indefinite()
+        self.assertIsInstance(answer, IndefiniteNoun)
+        self.assertEqual(answer, Noun('a the bob', base='bob'))
+
     def test_definite_returns_definite_noun(self):
         answer = Noun('bob').definite()
         self.assertIsInstance(answer, DefiniteNoun)
@@ -142,6 +181,14 @@ class TestNoun(unittest.TestCase):
         answer = DefinitePluralNoun('the bobs', base='bob').definite()
         self.assertIsInstance(answer, DefinitePluralNoun)
         self.assertEqual(answer, Noun('the the bobs', base='bob'))
+
+        answer = UncountableNoun('bob', base='bob').definite()
+        self.assertIsInstance(answer, DefiniteUncountableNoun)
+        self.assertEqual(answer, Noun('the bob', base='bob'))
+
+        answer = DefiniteUncountableNoun('the bob', base='bob').definite()
+        self.assertIsInstance(answer, DefiniteUncountableNoun)
+        self.assertEqual(answer, Noun('the the bob', base='bob'))
 
     def test_plural_returns_plural_noun(self):
         answer = Noun('bob').plural()
@@ -178,6 +225,12 @@ class TestNoun(unittest.TestCase):
         original = Noun('bob')
         basic = original.capitalize()
         self.assertEqual(basic, Noun('Bob', base='bob'))
+        uncountable = UncountableNoun('bob').capitalize()
+        self.assertEqual(uncountable, Noun('Bob', base='bob'))
+        self.assertIsInstance(uncountable, UncountableNoun)
+        definite_uncountable = UncountableNoun('bob').definite().capitalize()
+        self.assertEqual(definite_uncountable, Noun('The bob', base='bob'))
+        self.assertIsInstance(definite_uncountable, DefiniteUncountableNoun)
         indefinite = original.indefinite().capitalize()
         self.assertEqual(indefinite, Noun('A bob', base='bob'))
         self.assertIsInstance(indefinite, IndefiniteNoun)
@@ -196,48 +249,14 @@ class TestNoun(unittest.TestCase):
         wacky = original.plural().capitalize().definite()
         self.assertEqual(wacky, Noun('the Bobs', base='bob'))
 
-    # def test_bold_all(self):
-    #     original = Noun('bob')
-    #     basic = original.bold()
-    #     self.assertEqual(basic, Noun('<bold>bob</bold>', base='bob'))
-    #     indefinite = original.indefinite().bold()
-    #     self.assertEqual(indefinite, Noun('<bold>bob</bold>', base='bob'))
-    #     definite = original.definite().bold()
-    #     self.assertEqual(definite, Noun('<bold>bob</bold>', base='bob'))
-    #     plural = original.plural().bold()
-    #     self.assertEqual(plural, Noun('<bold>bob</bold>', base='bob'))
-    #     definite_plural = original.definite().plural().bold()
-    #     self.assertEqual(definite_plural, Noun('<bold>bob</bold>', base='bob'))
-    #     plural_definite = original.plural().definite().bold()
-    #     self.assertEqual(plural_definite, Noun('<bold>bob</bold>', base='bob'))
-    #
-    #     wacky = original.plural().bold().definite()
-    #     self.assertEqual(wacky, Noun('the<bold>bobs</bold>', base='bob'))
-
-    # def test_bold_all(self):
-    #     original = Noun('bob')
-    #     basic = original.bold()
-    #     self.assertEqual(basic, Noun('bob', base='bob'))
-    #     indefinite = original.indefinite().bold()
-    #     self.assertEqual(indefinite, Noun('a bob', base='bob'))
-    #     definite = original.definite().bold()
-    #     self.assertEqual(definite, Noun('the bob', base='bob'))
-    #     plural = original.plural().bold()
-    #     self.assertEqual(plural, Noun('bobs', base='bob'))
-    #     definite_plural = original.definite().plural().bold()
-    #     self.assertEqual(definite_plural, Noun('the bobs', base='bob'))
-    #     plural_definite = original.plural().definite().bold()
-    #     self.assertEqual(plural_definite, Noun('the bobs', base='bob'))
-    #
-    #     wacky = original.plural().bold().definite()
-    #     self.assertEqual(wacky, Noun('the bobs', base='bob'))
-
     def test_repr(self):
         self.assertEqual(repr(Noun('bob')), "Noun('bob', '', 'bob')")
         self.assertEqual(repr(IndefiniteNoun('bob')), "IndefiniteNoun('bob', '', 'bob')")
         self.assertEqual(repr(PluralNoun('bob')), "PluralNoun('bob', '', 'bob')")
         self.assertEqual(repr(DefiniteNoun('bob')), "DefiniteNoun('bob', '', 'bob')")
         self.assertEqual(repr(DefinitePluralNoun('bob')), "DefinitePluralNoun('bob', '', 'bob')")
+        self.assertEqual(repr(UncountableNoun('bob')), "UncountableNoun('bob', '', 'bob')")
+        self.assertEqual(repr(DefiniteUncountableNoun('bob')), "DefiniteUncountableNoun('bob', '', 'bob')")
 
     def test_to_base_noun_loses_plural_info(self):
         self.assertEqual(Noun('bob', 'boba').to_base_noun(), Noun('bob'))
@@ -261,3 +280,4 @@ class TestNoun(unittest.TestCase):
 
     def test_hash(self):
         self.assertEqual(hash(Noun('bob')), hash("hash of Noun('bob', '', 'bob')"))
+        self.assertEqual(hash(DefiniteNoun('bob')), hash("hash of DefiniteNoun('bob', '', 'bob')"))
