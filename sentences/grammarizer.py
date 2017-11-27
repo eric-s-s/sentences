@@ -2,11 +2,11 @@ from copy import deepcopy
 import random
 from typing import List, Union
 
-from sentences.investigation_tools import requires_third_person, is_countable, find_subject
+from sentences.investigation_tools import requires_third_person, find_subject
 
 from sentences.words.word import Word
 from sentences.words.verb import BasicVerb
-from sentences.words.noun import Noun, PluralNoun
+from sentences.words.noun import Noun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
 
@@ -55,7 +55,7 @@ class Grammarizer(object):
         pool = {}
         for noun in nouns:
             use_plural = False
-            countable = is_countable(noun)
+            countable = not isinstance(noun, UncountableNoun)
             if countable and random.random() < self._plural:
                 use_plural = True
             pool[noun] = {'plural': use_plural, 'definite': False, 'countable': countable}
@@ -121,4 +121,3 @@ def get_nouns(paragraph: Paragraph) -> list:
             if isinstance(word, Noun) and word not in answer:
                 answer.append(word)
     return answer
-

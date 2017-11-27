@@ -2,10 +2,10 @@ import random
 
 from sentences.words.word import Word
 from sentences.words.verb import Verb
-from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun
+from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
 from sentences.grammarizer import normalize_probability
-from sentences.investigation_tools import is_countable, requires_third_person
+from sentences.investigation_tools import requires_third_person
 
 
 def copy_paragraph(lst_of_lst):
@@ -40,7 +40,7 @@ class ErrorMaker(object):
             for index, word in enumerate(sentence):
                 if isinstance(word, Noun):
                     if random.random() < self.p_error:
-                        new_noun = fuck_with_noun(word)
+                        new_noun = make_noun_error(word)
                         if index == 0:
                             new_noun = new_noun.capitalize()
                         sentence[index] = new_noun
@@ -52,7 +52,7 @@ class ErrorMaker(object):
                 if isinstance(word, Verb):
                     if random.random() < self.p_error:
                         third_person = requires_third_person(sentence)
-                        new_verb = fuck_with_verb(word, self.present_tense, third_person)
+                        new_verb = make_verb_error(word, self.present_tense, third_person)
                         sentence[index] = new_verb
                         self._answer[s_index][index] = self._answer[s_index][index].bold()
 
@@ -81,10 +81,9 @@ class ErrorMaker(object):
         self.create_period_errors()
 
 
-def fuck_with_noun(noun):
+def make_noun_error(noun):
     basic = noun.to_base_noun()
-    uncountable = not is_countable(basic)
-    if uncountable:
+    if isinstance(noun, UncountableNoun):
         choices = [basic.indefinite(), basic.plural()]
     elif isinstance(noun, IndefiniteNoun):
         choices = [basic] * 3 + [basic.plural().indefinite(), basic.plural()]
@@ -96,7 +95,7 @@ def fuck_with_noun(noun):
     return random.choice(choices)
 
 
-def fuck_with_verb(verb, present_tense, third_person):
+def make_verb_error(verb, present_tense, third_person):
     basic = verb.to_basic_verb()
     if is_negative_verb(verb):
         basic = basic.negative()
