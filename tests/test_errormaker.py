@@ -5,7 +5,7 @@ import random
 from sentences.errormaker import copy_paragraph, make_verb_error, make_noun_error, is_negative_verb, ErrorMaker
 
 from sentences.words.word import Word
-from sentences.words.noun import Noun, PluralNoun, IndefiniteNoun, UncountableNoun, DefiniteUncountableNoun
+from sentences.words.noun import Noun, PluralNoun, UncountableNoun
 from sentences.words.verb import BasicVerb, ConjugatedVerb
 from sentences.words.punctuation import Punctuation
 
@@ -412,7 +412,6 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker = ErrorMaker(paragraph, p_error=0.5)
         random.seed(1)
         all_error_maker.create_period_errors()
-        print(all_error_maker.error_paragraph)
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
             [Word('the cats'), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -434,7 +433,6 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker = ErrorMaker(paragraph, p_error=1.0)
         random.seed(1)
         all_error_maker.create_all_errors()
-        print(all_error_maker.error_paragraph)
         error_paragraph = [
             [dog.capitalize(), grab.past_tense(), cat.indefinite(), Punctuation.COMMA],
         ]
