@@ -51,6 +51,7 @@ def create_pdf(location, file_name, paragraphs):
 
 def get_file_prefix():
     current = os.listdir('./pdfs')
+    current = [file_name for file_name in current if '_' in file_name and file_name[0].isdigit()]
     if not current:
         return '01_'
     current.sort()

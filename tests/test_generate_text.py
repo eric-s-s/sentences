@@ -240,34 +240,130 @@ class TestGenerateText(unittest.TestCase):
         self.assertEqual(past[0], past_answer)
         self.assertEqual(past[1], past_error)
 
-        print(present[0][0])
-        print(present[1][0])
-        print(past[0][0])
-        print(past[1][0])
+    def test_p_plural(self):
+        empty = 'tests/test_files/empty.csv'
+        random.seed(123)
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0, p_plural=1.0,
+                                      uncountable_file=empty)
+        self.assertEqual(present[0][0], "<bold>Books</bold> surprise boxes. -- error count: 1")
 
-    # def test_p_plural(self):
-    #     raise NotImplementedError
-    #
-    # def test_p_negative(self):
-    #     raise NotImplementedError
-    #
-    # def test_p_error(self):
-    #     raise NotImplementedError
-    #
-    # def test_noun_errors(self):
-    #     raise NotImplementedError
-    #
-    # def test_verb_errors(self):
-    #     raise NotImplementedError
-    #
-    # def test_period_errors(self):
-    #     raise NotImplementedError
-    #
-    # def test_verb_file(self):
-    #     raise NotImplementedError
-    #
-    # def test_countable_file(self):
-    #     raise NotImplementedError
-    #
-    # def test_uncountable_file(self):
-    #     raise NotImplementedError
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0, p_plural=0.0,
+                                      uncountable_file=empty)
+        self.assertEqual(present[0][0], "A box bites a child. -- error count: 0")
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0, p_plural=0.65,
+                                      uncountable_file=empty)
+        self.assertEqual(present[0][0], "A leaf <bold>arrests</bold> teachers. -- error count: 1")
+
+    def test_p_negative(self):
+        random.seed(123)
+        present, past = generate_text(num_paragraphs=2, paragraph_size=1, p_negative=1.0)
+        self.assertEqual(present[0],
+                         ["I don't surprise <bold>a box</bold><bold>.</bold> -- error count: 2",
+                          "We <bold>don't have</bold> her! -- error count: 1"])
+        self.assertEqual(past[0],
+                         ["I didn't surprise a box. -- error count: 0",
+                          "We <bold>didn't have</bold> her! -- error count: 1"])
+
+        present, past = generate_text(num_paragraphs=2, paragraph_size=1, p_negative=0.0)
+        self.assertEqual(present[0],
+                         ['A sheep uses him. -- error count: 0',
+                          'Tea kisses <bold>a pineapple</bold>. -- error count: 1'])
+        self.assertEqual(past[0],
+                         ['A sheep <bold>used</bold> him. -- error count: 1',
+                          'Tea kissed <bold>a pineapple</bold>. -- error count: 1'])
+
+        present, past = generate_text(num_paragraphs=2, paragraph_size=1, p_negative=0.5)
+        self.assertEqual(present[0],
+                         ['An apple draws tea! -- error count: 0', "An eagle doesn't cook schools. -- error count: 0"])
+        self.assertEqual(past[0],
+                         ['An apple drew <bold>tea</bold>! -- error count: 1',
+                          "An eagle <bold>didn't cook</bold> schools. -- error count: 1"])
+
+    def test_p_error(self):
+        random.seed(5613)
+
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=1.0)
+        answer = "<bold>A baby</bold> <bold>brings</bold> them <bold>sand</bold><bold>.</bold> -- error count: 4"
+        self.assertEqual(present[0][0], answer)
+        self.assertEqual(present[1][0], "Baby bringed them sands,")
+        answer = "<bold>A baby</bold> <bold>didn't bring</bold> them <bold>sand</bold><bold>.</bold> -- error count: 4"
+        self.assertEqual(past[0][0], answer)
+        self.assertEqual(past[1][0], "Baby doesn't bring them a sand,")
+
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=0.0)
+        self.assertEqual(present[0][0], "You find babies. -- error count: 0")
+        self.assertEqual(present[1][0], "You find babies.")
+        self.assertEqual(past[0][0], "You found babies. -- error count: 0")
+        self.assertEqual(past[1][0], "You found babies.")
+
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=0.5)
+        self.assertEqual(present[0][0],
+                         "He <bold>doesn't wear</bold> <bold>a fire fighter</bold><bold>.</bold> -- error count: 3")
+        self.assertEqual(present[1][0], "He don't wear fire fighter,")
+        self.assertEqual(past[0][0], "He wore <bold>a fire fighter</bold><bold>.</bold> -- error count: 2")
+        self.assertEqual(past[1][0], "He wore fire fighter,")
+
+    def test_noun_errors(self):
+        random.seed(4589)
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=1.0, p_pronoun=0.0,
+                                      noun_errors=True,
+                                      verb_errors=False, period_errors=False)
+        self.assertEqual(present[0][0], "<bold>Octopuses</bold> freeze <bold>husbands</bold>. -- error count: 2")
+        self.assertEqual(present[1][0], "Octopus freeze husband.")
+        self.assertEqual(past[0][0], "<bold>Octopuses</bold> froze <bold>husbands</bold>. -- error count: 2")
+        self.assertEqual(past[1][0], "The octopus froze a husband.")
+
+    def test_verb_errors(self):
+        random.seed(456132)
+        present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=1.0, p_pronoun=0.0,
+                                      verb_errors=True,
+                                      noun_errors=False, period_errors=False)
+        self.assertEqual(present[0][0], "Tigers <bold>sell</bold> pineapples! -- error count: 1")
+        self.assertEqual(present[1][0], "Tigers sells pineapples!")
+        self.assertEqual(past[0][0], "Tigers <bold>didn't sell</bold> pineapples! -- error count: 1")
+        self.assertEqual(past[1][0], "Tigers don't sell pineapples!")
+
+    def test_period_errors(self):
+        random.seed(4561)
+        present, past = generate_text(num_paragraphs=1, paragraph_size=2, p_error=1.0, p_pronoun=0.0,
+                                      period_errors=True,
+                                      noun_errors=False, verb_errors=False)
+        answer = "A table owns hair<bold>.</bold> <bold>The hair</bold> holds a fish<bold>.</bold> -- error count: 2"
+        self.assertEqual(present[0][0], answer)
+        self.assertEqual(present[1][0], "A table owns hair, the hair holds a fish,")
+        answer = ("A table owned hair<bold>.</bold> <bold>The hair</bold> didn't hold a fish<bold>.</bold>" +
+                  " -- error count: 2")
+        self.assertEqual(past[0][0], answer)
+        self.assertEqual(past[1][0], "A table owned hair, the hair didn't hold a fish,")
+
+    def test_verb_file(self):
+        random.seed(459821)
+        file_name = 'tests/test_files/bring.csv'
+        present, past = generate_text(num_paragraphs=5, paragraph_size=1, p_error=0.0, verb_file=file_name)
+        brings = ['Witches bring husbands sand.', 'We bring husbands homework!', 'We bring gold eggs.',
+                  'Cows bring stinky tofu bananas!', "Stinky tofu doesn't bring tea boxes."]
+        broughts = ['Witches brought husbands sand.', 'We brought husbands homework!', "We didn't bring gold eggs.",
+                    'Cows brought stinky tofu bananas!', "Stinky tofu didn't bring tea boxes."]
+        self.assertEqual(present[1], brings)
+        self.assertEqual(past[1], broughts)
+
+    def test_countable_file(self):
+        random.seed(9871)
+        file_name = 'tests/test_files/two_nouns.csv'
+        empty = 'tests/test_files/empty.csv'
+        present, past = generate_text(num_paragraphs=5, paragraph_size=1, p_error=0.0, p_pronoun=0.0,
+                                      countable_file=file_name, uncountable_file=empty)
+        self.assertEqual(present[1],
+                         ['A bob arrests a joe.', "A joe doesn't bang a bob.", "A bob doesn't freeze joes!",
+                          "Bobs don't hold joes.", "A bob doesn't kick a joe."])
+
+    def test_uncountable_file(self):
+        random.seed(4591)
+        file_name = 'tests/test_files/two_nouns.csv'
+        empty = 'tests/test_files/empty.csv'
+        present, past = generate_text(num_paragraphs=5, paragraph_size=1, p_error=0.0, p_pronoun=0.0,
+                                      countable_file=empty, uncountable_file=file_name)
+        # Uncountable nouns don't "s", "a", "an"
+        self.assertEqual(present[1],
+                         ["Joe doesn't wear bob.", "Joe doesn't find bob.", 'Bob bores joe.', 'Joe bores bob.',
+                          'Joe excites bob.'])
