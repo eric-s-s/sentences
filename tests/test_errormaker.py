@@ -441,3 +441,21 @@ class TestErrorMaker(unittest.TestCase):
 
         self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
         self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+
+    def test_error_count_and_reset(self):
+        dog = Noun('dog')
+        cat = Noun('cat')
+        grab = BasicVerb('grab')
+        paragraph = [
+            [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION]
+        ]
+        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
+        self.assertEqual(all_error_maker.error_count, 0)
+        all_error_maker.create_all_errors()
+        self.assertEqual(all_error_maker.error_count, 4)
+        all_error_maker.reset()
+        self.assertEqual(all_error_maker.error_count, 0)
+        self.assertEqual(all_error_maker.error_paragraph, paragraph)
+
+        all_error_maker.create_noun_errors()
+        self.assertEqual(all_error_maker.error_count, 2)

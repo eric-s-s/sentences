@@ -19,6 +19,7 @@ class ErrorMaker(object):
         self._paragraph = copy_paragraph(paragraph)
         self._error_paragraph = copy_paragraph(paragraph)
         self._answer = copy_paragraph(paragraph)
+        self._error_count = 0
 
     @property
     def paragraph(self):
@@ -30,16 +31,24 @@ class ErrorMaker(object):
 
     @property
     def answer_paragraph(self):
-        return copy_paragraph(self._answer)
+        answer = copy_paragraph(self._answer)
+        return answer
+
+    @property
+    def error_count(self):
+        return self._error_count
 
     def reset(self):
         self._error_paragraph = self.paragraph
+        self._error_count = 0
 
     def create_noun_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
                 if isinstance(word, Noun):
                     if random.random() < self.p_error:
+                        self._error_count += 1
+
                         new_noun = make_noun_error(word)
                         if index == 0:
                             new_noun = new_noun.capitalize()
@@ -51,6 +60,8 @@ class ErrorMaker(object):
             for index, word in enumerate(sentence):
                 if isinstance(word, Verb):
                     if random.random() < self.p_error:
+                        self._error_count += 1
+
                         third_person = requires_third_person(sentence)
                         new_verb = make_verb_error(word, self.present_tense, third_person)
                         sentence[index] = new_verb
@@ -59,6 +70,8 @@ class ErrorMaker(object):
     def create_period_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             if random.random() < self.p_error:
+                self._error_count += 1
+
                 sentence[-1] = Punctuation.COMMA
                 self._answer[s_index][-1] = self._answer[s_index][-1].bold()
         self._decapitalize_at_commas()

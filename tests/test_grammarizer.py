@@ -319,3 +319,38 @@ class TestGrammarizer(unittest.TestCase):
                     value = word.value
                     tests_false = value.startswith("don't ") or value.startswith("doesn't ")
                     self.assertFalse(tests_false)
+
+    def test_assign_negatives_some_negative(self):
+        random.seed(3)
+        raw_paragraph = 10 * [
+            [UncountableNoun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+        ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.5)
+        paragraph = grammarizer.generate_paragraph()
+        negatives = [1, 4, 5, 7, 8]
+        for index, sentence in enumerate(paragraph):
+            for word in sentence:
+                if isinstance(word, Verb):
+                    value = word.value
+                    is_negative = value.startswith("don't ") or value.startswith("doesn't ")
+                    if index in negatives:
+                        self.assertTrue(is_negative)
+                    else:
+                        self.assertFalse(is_negative)
+
+    def test_generate_paragraph_multiple_times_resets_indefinte(self):
+        raw_paragraph = [
+            [UncountableNoun('money'), BasicVerb('grab'), UncountableNoun('money'), Punctuation.EXCLAMATION],
+            [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+        ]
+        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
+        paragraph_1 = grammarizer.generate_paragraph()
+        paragraph_2 = grammarizer.generate_paragraph()
+        answer = [
+            [UncountableNoun('money').capitalize(), ConjugatedVerb('grabs', 'grab'),
+             UncountableNoun('the money', base='money'), Punctuation.EXCLAMATION],
+            [Noun('A cat', base='cat'), ConjugatedVerb('grabs', 'grab'),
+             Noun('the cat', base='cat'), Punctuation.EXCLAMATION]
+        ]
+        self.assertEqual(answer, paragraph_1)
+        self.assertEqual(answer, paragraph_2)

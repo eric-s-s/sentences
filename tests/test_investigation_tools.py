@@ -36,10 +36,10 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertEqual(find_subject(predicate), -1)
 
     def test_find_subject_limitations(self):
-        sentence = [Word('to'), Word('boldly'), BasicVerb('go')]
+        sentence = [Word('to'), Word('boldly'), BasicVerb('create_pdf')]
         self.assertEqual(find_subject(sentence), 1)
 
-        sentence = [Word('to'), Word('boldly'), Word('go')]
+        sentence = [Word('to'), Word('boldly'), Word('create_pdf')]
         self.assertEqual(find_subject(sentence), -1)
 
     def test_is_third_person_fails_on_word(self):

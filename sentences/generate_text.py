@@ -40,20 +40,13 @@ def generate_text(num_paragraphs=4, paragraph_size=15, subject_pool=0,
             for_present.create_period_errors()
             for_past.create_period_errors()
 
-        present_answers.append(convert_paragraph(for_present.answer_paragraph))
+        error_count = ' -- error count: {}'
+        present_answer = convert_paragraph(for_present.answer_paragraph) + error_count.format(for_present.error_count)
+        past_answer = convert_paragraph(for_past.answer_paragraph) + error_count.format(for_past.error_count)
+
+        present_answers.append(present_answer)
         present_errors.append(convert_paragraph(for_present.error_paragraph))
-        past_answers.append(convert_paragraph(for_past.answer_paragraph))
+        past_answers.append(past_answer)
         past_errors.append(convert_paragraph(for_past.error_paragraph))
 
     return (present_answers, present_errors), (past_answers, past_errors)
-
-
-if __name__ == '__main__':
-
-    present, past = generate_text()
-
-    with open('correct.txt', 'w') as f:
-        f.write('\n\n'.join(present[0]))
-
-    with open('mistake.txt', 'w') as f:
-        f.write('\n\n'.join(present[1]))

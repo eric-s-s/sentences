@@ -62,6 +62,7 @@ class Grammarizer(object):
         self._noun_info = pool
 
     def generate_paragraph(self):
+        self.reset_definite_nouns()
         answer = []
         for sentence in self._raw:
             new_sentence = []
