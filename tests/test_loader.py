@@ -38,26 +38,40 @@ class TestLoader(unittest.TestCase):
 
     def test_get_verb_dict_intransitive(self):
         answer = get_verb_dict(['fly', 'flew', 'null', '100'], True)
-        self.assertEqual(answer, {'verb': BasicVerb('fly', 'flew'), 'preposition': None, 'objects': 0})
+        self.assertEqual(
+            answer,
+            {'verb': BasicVerb('fly', 'flew'), 'preposition': None, 'objects': 0, 'insert_preposition': False})
 
     def test_get_verb_dict_no_object_num(self):
         answer = get_verb_dict(['fly', 'flew', 'null'])
-        self.assertEqual(answer, {'verb': BasicVerb('fly', 'flew'), 'preposition': None, 'objects': 1})
+        self.assertEqual(
+            answer,
+            {'verb': BasicVerb('fly', 'flew'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
 
     def test_get_verb_dict_null_values(self):
         answer = get_verb_dict(['fly', 'null', 'null'])
-        self.assertEqual(answer, {'verb': BasicVerb('fly', ''), 'preposition': None, 'objects': 1})
+        self.assertEqual(
+            answer,
+            {'verb': BasicVerb('fly', ''), 'preposition': None, 'objects': 1, 'insert_preposition': False})
 
     def test_get_verb_dict_no_null_values(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
-        self.assertEqual(answer, {'verb': BasicVerb('fly', ''), 'preposition': Word('with'), 'objects': 2})
+        self.assertEqual(
+            answer,
+            {'verb': BasicVerb('fly', ''), 'preposition': Word('with'), 'objects': 2, 'insert_preposition': False})
 
     def test_verbs(self):
         answer = verbs()
-        give = {'verb': BasicVerb('give', 'gave'), 'preposition': None, 'objects': 2}
-        grab = {'verb': BasicVerb('grab', ''), 'preposition': None, 'objects': 1}
-        fall = {'verb': BasicVerb('fall', 'fell'), 'preposition': Word('on'), 'objects': 1}
+        give = {'verb': BasicVerb('give', 'gave'), 'preposition': None, 'objects': 2, 'insert_preposition': False}
+        grab = {'verb': BasicVerb('grab', ''), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        fall = {'verb': BasicVerb('fall', 'fell'), 'preposition': Word('on'), 'objects': 1, 'insert_preposition': False}
 
         self.assertIn(give, answer)
         self.assertIn(grab, answer)
         self.assertIn(fall, answer)
+
+    def test_load_verbs_with_insert_preposition(self):
+        answer = verbs('tests/test_files/bring_to.csv')
+        bring_to = {'verb': BasicVerb('bring', 'brought'), 'preposition': Word('to'),
+                    'objects': 2, 'insert_preposition': True}
+        self.assertEqual(answer, [bring_to])

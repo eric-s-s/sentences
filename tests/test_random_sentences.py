@@ -159,6 +159,19 @@ class TestRawWordsRandomisation(unittest.TestCase):
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('stinky tofu'), BasicVerb('jump'), Word('on'), Noun('cow'), period])
 
+    def test_assign_preposition_insert_preposition_true(self):
+        file_name = 'tests/test_files/bring_to.csv'
+        random.seed(10)
+        generator = RandomSentences(verb_file=file_name)
+        answer = generator.sentence()
+        self.assertEqual(answer, [Noun('pony'), BasicVerb('bring', 'brought'), Noun('elephant'),
+                                  Word('to'), Noun('table'), period])
+
+        answer = generator.sentence()
+        print(answer)
+        self.assertEqual(answer, [Noun('cow'), BasicVerb('bring', 'brought'), Noun('leaf'),
+                                  Word('to'), Noun('money'), period])
+
     def test_two_subjects_second_subj_is_never_pronoun(self):
         file_name = 'tests/test_files/bring.csv'
         random.seed(10)

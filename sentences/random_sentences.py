@@ -24,7 +24,7 @@ class RandomSentences(object):
     def predicate(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
 
-        action, object_count = self._get_verb_list_and_object_count()
+        action, object_count, insert_preposition = self._get_verb_list_and_object_count()
 
         objects = []
         object_position = 0
@@ -38,6 +38,8 @@ class RandomSentences(object):
                 objects.append(new_obj)
                 object_position += 1
 
+        if insert_preposition:
+            action.insert(-1, objects.pop(0))
         action = action + objects
 
         action.append(random.choice(self._endings))
@@ -49,7 +51,7 @@ class RandomSentences(object):
         prep = verb_grp['preposition']
         if prep is not None:
             action.append(prep)
-        return action, verb_grp['objects']
+        return action, verb_grp['objects'], verb_grp['insert_preposition']
 
     def subject(self, p_pronoun):
         if random.random() < p_pronoun:

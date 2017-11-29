@@ -1,10 +1,11 @@
-# infinitive, past tense, preposition, number of objects
+# infinitive, past tense, preposition, number of objects, preposition between objects
 arrest, null, null
 bang, null, null
 bite, bit, null
 bore, null, null
 break, broke, null
 bring, brought, null, 2
+# bring, brought, to, 2, true
 build, built, null
 buy, bought, null
 catch, caught, null

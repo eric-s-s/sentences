@@ -6,7 +6,7 @@ from sentences.words.word import Word
 def load_csv(filename):
     with open(filename, 'r') as f:
         lines = f.read().split('\n')
-    return [split_and_strip(line) for line in lines[1:] if line.strip()]
+    return [split_and_strip(line) for line in lines if line.strip() and not line.startswith('#')]
 
 
 def split_and_strip(line):
@@ -54,4 +54,9 @@ def get_verb_dict(str_lst, intransitive=False):
     else:
         obj_num = 1
 
-    return {'verb': verb, 'preposition': preposition, 'objects': obj_num}
+    if len(str_lst) >= 5 and str_lst[4].lower() == 'true':
+        insert_preposition = True
+    else:
+        insert_preposition = False
+
+    return {'verb': verb, 'preposition': preposition, 'objects': obj_num, 'insert_preposition': insert_preposition}
