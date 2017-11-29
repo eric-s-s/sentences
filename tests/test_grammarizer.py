@@ -20,7 +20,7 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(normalize_probability(1.2), 1.0)
 
     def test_get_nouns_no_nouns(self):
-        random.seed(5)
+        random.seed(4)
         rp = RandomParagraph(p_pronoun=1.0)
         raw_paragraph = rp.create_chain_paragraph(3)
         self.assertEqual(get_nouns(raw_paragraph), [])

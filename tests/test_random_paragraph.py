@@ -99,11 +99,11 @@ class TestRandomParagraph(unittest.TestCase):
         rp = RandomParagraph()
         paragraph = rp.create_pool_paragraph(2, 5)
         expected = [
-            [Pronoun.IT, BasicVerb('show'), Noun('octopus'), Noun('sand'), Punctuation.PERIOD],
-            [Noun('eagle'), BasicVerb('bring', 'brought'), Noun('fish', 'fish'), Noun('gold'), Punctuation.PERIOD],
-            [Pronoun.IT, BasicVerb('excite'), Noun('poop'), Punctuation.PERIOD],
-            [Noun('eagle'), BasicVerb('cook'),  Pronoun.HER,  Punctuation.PERIOD],
-            [Noun('eagle'), BasicVerb('use'), Noun('shark'),  Punctuation.EXCLAMATION]
+            [Pronoun.IT, BasicVerb('ride', 'rode'), Noun('octopus'), Punctuation.PERIOD],
+            [Noun('eagle'), BasicVerb('kiss'), Pronoun.THEM, Punctuation.PERIOD],
+            [Noun('eagle'), BasicVerb('bore'), Noun('gold'), Punctuation.PERIOD],
+            [Pronoun.IT, BasicVerb('draw', 'drew'), Noun('poop'), Punctuation.PERIOD],
+            [Noun('eagle'), BasicVerb('catch', 'caught'), Pronoun.HER, Punctuation.PERIOD]
         ]
         self.assertEqual(paragraph, expected)
 
@@ -158,9 +158,9 @@ class TestRandomParagraph(unittest.TestCase):
         rp = RandomParagraph()
         answer = rp.create_chain_paragraph(4)
         expected = [
-            [Noun('box'), BasicVerb('sleep', 'slept'), Word('on'), Noun('child', 'children'), Punctuation.PERIOD],
+            [Noun('box'), BasicVerb('see', 'saw'), Noun('child', 'children'), Punctuation.PERIOD],
             [Noun('child', 'children'), BasicVerb('break', 'broke'), Pronoun.US, Punctuation.PERIOD],
-            [Pronoun.WE, BasicVerb('teach', 'taught'), Noun('banana'), Noun('tree'), Punctuation.PERIOD],
-            [Noun('tree'), BasicVerb('fight', 'fought'), Noun('stinky tofu'), Punctuation.PERIOD]
+            [Pronoun.WE, BasicVerb('sleep', 'slept'), Word('on'),Noun('banana'), Punctuation.PERIOD],
+            [Noun('banana'), BasicVerb('kill'), Noun('house'), Punctuation.PERIOD]
         ]
         self.assertEqual(answer, expected)

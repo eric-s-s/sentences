@@ -130,24 +130,24 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_predicate(self):
         random.seed(5)
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('pull', ''), Noun('octopus', ''), exclamation])
+        self.assertEqual(answer, [BasicVerb('marry', ''), Noun('octopus', ''), exclamation])
 
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('use'), Noun('tiger', ''), period])
+        self.assertEqual(answer, [BasicVerb('wash'), Noun('gold', ''), exclamation])
 
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('use'), Noun('fire fighter', ''), exclamation])
+        self.assertEqual(answer, [BasicVerb('bang'), Noun('poop', ''), period])
 
     def test_sentence(self):
         random.seed(1)
         answer = self.generator.sentence()
-        self.assertEqual(answer, [i, BasicVerb('feed', 'fed'), it, period])
+        self.assertEqual(answer, [i, BasicVerb('excite'), it, period])
 
         answer = self.generator.sentence()
-        self.assertEqual(answer, [Noun('rice', ''), BasicVerb('eat', 'ate'), me, period])
+        self.assertEqual(answer, [Noun('rice', ''), BasicVerb('disgust'), me, period])
 
         answer = self.generator.sentence()
-        self.assertEqual(answer, [Noun('pizza', ''), BasicVerb('surprise'), it, period])
+        self.assertEqual(answer, [Noun('pizza', ''), BasicVerb('shake', 'shook'), it, period])
 
     def test_assign_preposition(self):
         file_name = 'tests/test_files/jump_on.csv'
@@ -168,7 +168,6 @@ class TestRawWordsRandomisation(unittest.TestCase):
                                   Word('to'), Noun('table'), period])
 
         answer = generator.sentence()
-        print(answer)
         self.assertEqual(answer, [Noun('cow'), BasicVerb('bring', 'brought'), Noun('leaf'),
                                   Word('to'), Noun('money'), period])
 

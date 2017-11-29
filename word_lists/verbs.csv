@@ -5,12 +5,13 @@ bite, bit, null
 bore, null, null
 break, broke, null
 bring, brought, null, 2
-# bring, brought, to, 2, true
+bring, brought, to, 2, true
 build, built, null
 buy, bought, null
 catch, caught, null
 cook, null, null
 cut, cut, null
+cut, cut, with, 2, true
 disgust, null, null
 draw, drew, null
 eat, ate, null
@@ -26,6 +27,7 @@ grab, null, null
 hate, null, null
 have, had, null
 hit, hit, null
+hit, hit, with, 2, true
 hold, held, null
 interest, null, null
 jump, null, on
@@ -35,6 +37,7 @@ kiss, null, null
 like, null, null
 love, null, null
 make, made, null
+make, made, out of, 2, true
 marry, null, null
 own, null, null
 pick, null, up
@@ -44,6 +47,7 @@ push, null, null
 ride, rode, null
 see, saw, null
 sell, sold, null
+sell, sold, to, 2, true
 shake, shook, null
 show, null, null, 2
 sleep, slept, on
@@ -53,6 +57,7 @@ surprise, null, null
 take, took, null
 teach, taught, null, 2
 throw, threw, null
+throw, threw, at, 2, true
 use, null, null
 wash, null, null
 wear, wore, null

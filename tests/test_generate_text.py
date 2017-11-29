@@ -24,98 +24,105 @@ class TestGenerateText(unittest.TestCase):
         present, past = generate_text()
 
         present_answer = [
-            ("<bold>A tree</bold> <bold>catches</bold> a witch<bold>.</bold> <bold>The witch</bold> uses an uncle." +
-             " The uncle <bold>draws</bold> a sheep<bold>!</bold> <bold>The sheep</bold> uses a person! <bold>The " +
-             "person</bold> doesn't wear them. They wear a pen! The pen arrests a bicycle. The bicycle doesn't ste" +
-             "al a baby. <bold>The baby</bold> <bold>doesn't surprise</bold> him. He plays with the pen! The pen t" +
-             "akes the person<bold>!</bold> <bold>The person</bold> doesn't teach a car boxes. The boxes catch a f" +
-             "ish! The fish interests thunder. The thunder <bold>doesn't hold</bold> the pen! -- error count: 10"),
-            ("We freeze an apple! The apple makes apple juice. The apple juice <bold>doesn't give</bold> us rice. " +
-             "The rice grabs buses! The buses <bold>don't throw</bold> him. He teaches me watches. The watches bor" +
-             "e a fire fighter. The fire fighter pulls a pony. The pony kills <bold>stinky tofu</bold><bold>.</bol" +
-             "d> <bold>The stinky tofu</bold> washes you. You don't buy it<bold>.</bold> <bold>It</bold> <bold>doe" +
-             "sn't wash</bold> a teacher! The teacher <bold>doesn't kiss</bold> leaves. The leaves grab <bold>a pe" +
-             "n</bold>! The pen freezes an egg<bold>.</bold> -- error count: 9"),
-            ("You don't interest me<bold>.</bold> <bold>I</bold> bring husbands a school! The school <bold>sleeps<" +
-             "/bold> on an ant. The ant gives <bold>a pen</bold> <bold>elephants</bold><bold>!</bold> <bold>The el" +
-             "ephants</bold> don't pick up a table. <bold>The table</bold> doesn't catch a bus. The bus loves a bo" +
-             "x! <bold>The box</bold> shakes poop<bold>.</bold> <bold>The poop</bold> <bold>steals</bold> hair! Th" +
-             "e hair doesn't see sand. The sand doesn't build a nose<bold>!</bold> <bold>The nose</bold> <bold>doe" +
-             "sn't own</bold> the bus! The bus doesn't kiss a banana! The banana finds a watch! <bold>The watch</b" +
-             "old> <bold>doesn't disgust</bold> milk! -- error count: 13"),
-            ("An octopus gets them. They bring an ant homework. The homework bangs me. I bore us. We <bold>don't d" +
-             "raw</bold> pizza<bold>.</bold> <bold>The pizza</bold> <bold>gives</bold> the octopus <bold>babies</b" +
-             "old>. The babies don't freeze cake. <bold>The cake</bold> brings <bold>eagles</bold> a bus! The bus " +
-             "has a tree! <bold>The tree</bold> <bold>surprises</bold> the eagles! The eagles wear tea! The tea do" +
-             "esn't grab oranges<bold>.</bold> <bold>The oranges</bold> don't jump on poop! The poop kills <bold>s" +
-             "tinky tofu</bold><bold>.</bold> <bold>The stinky tofu</bold> likes a witch<bold>!</bold> -- error co" +
-             "unt: 13")
+            ("<bold>A tree</bold> <bold>buys</bold> witches<bold>.</bold> <bold>The witches</bold> throw fish at a" +
+             "n egg! The egg interests <bold>an uncle</bold>. The uncle hates a child. The child <bold>doesn't own" +
+             "</bold> us. We sell me. I don't sell a baby to an apple. The apple interests a pen! The pen shows pe" +
+             "ople a watch. The watch doesn't wear an orange. The orange bites him<bold>.</bold> <bold>He</bold> w" +
+             "ears <bold>poop</bold>! The poop <bold>surprises</bold> a teacher<bold>.</bold> <bold>The teacher</b" +
+             "old> loves wives. The wives <bold>make</bold> <bold>noses</bold>! -- error count: 11"),
+            ("<bold>Sand</bold> <bold>shows</bold> him a tree. The tree cooks a house. The house smells a table! <" +
+             "bold>The table</bold> doesn't love a banana. The banana eats a tiger<bold>!</bold> <bold>The tiger</" +
+             "bold> hits her. She doesn't surprise you<bold>.</bold> <bold>You</bold> <bold>build</bold> it. It <b" +
+             "old>surprises</bold> a teacher! <bold>The teacher</bold> jumps on a leaf. The leaf gets <bold>a pen<" +
+             "/bold><bold>!</bold> <bold>The pen</bold> fights <bold>an egg</bold>. The egg hits us. We ride <bold" +
+             ">rice</bold>. The rice doesn't love her. -- error count: 12"),
+            ("He steals a baby. The baby hits homework with <bold>an apple</bold>. The apple doesn't freeze a tabl" +
+             "e. The table doesn't disgust <bold>money</bold>. The money doesn't hate her. She <bold>doesn't teach" +
+             "</bold> hair a school! The school throws a tiger at oranges! The oranges don't shake the school<bold" +
+             ">.</bold> <bold>The school</bold> plays with gold. The gold brings a nose to a tree! <bold>The tree<" +
+             "/bold> <bold>builds</bold> a teacher. <bold>The teacher</bold> <bold>bores</bold> the homework<bold>" +
+             "!</bold> <bold>The homework</bold> loves <bold>the gold</bold>! <bold>The gold</bold> sees eagles<bo" +
+             "ld>.</bold> <bold>The eagles</bold> <bold>don't teach</bold> <bold>sharks</bold> an uncle. -- error " +
+             "count: 15"),
+            ("Cake doesn't wash a husband. The husband surprises a teacher. The teacher doesn't like homework. <bo" +
+             "ld>The homework</bold> doesn't cut water! The water doesn't grab <bold>an uncle</bold>. <bold>The un" +
+             "cle</bold> uses her. She draws ice cream. The ice cream gets a cow! The cow sees <bold>lightning</bo" +
+             "ld><bold>!</bold> <bold>The lightning</bold> grabs babies<bold>.</bold> <bold>The babies</bold> <bol" +
+             "d>cook</bold> an apple. <bold>The apple</bold> brings the homework a leaf<bold>.</bold> <bold>The le" +
+             "af</bold> makes gold out of apple juice. The apple juice hits the water with a nose. The nose doesn'" +
+             "t arrest her. -- error count: 10")
         ]
         present_error = [
-            ("Tree catched a witch, the witch uses an uncle. The uncle draweds a sheep, the sheep uses a person! A" +
-             " person doesn't wear them. They wear a pen! The pen arrests a bicycle. The bicycle doesn't steal a b" +
-             "aby. Babies doesn't surprise him. He plays with the pen! The pen takes the person, the person doesn'" +
-             "t teach a car boxes. The boxes catch a fish! The fish interests thunder. The thunder don't hold the " +
-             "pen!"),
-            ("We freeze an apple! The apple makes apple juice. The apple juice didn't give us rice. The rice grabs" +
-             " buses! The buses doesn't throw him. He teaches me watches. The watches bore a fire fighter. The fir" +
-             "e fighter pulls a pony. The pony kills a stinky tofu, the stinky tofu washes you. You don't buy it, " +
-             "it don't wash a teacher! The teacher didn't kisses leaves. The leaves grab pens! The pen freezes an " +
-             "egg,"),
-            ("You don't interest me, i bring husbands a school! The school sleep on an ant. The ant gives pens an " +
-             "elephant, the elephants don't pick up a table. Table doesn't catch a bus. The bus loves a box! A box" +
-             " shakes poop, the poop stealed hair! The hair doesn't see sand. The sand doesn't build a nose, the n" +
-             "ose didn't own the bus! The bus doesn't kiss a banana! The banana finds a watch! A watches don't dis" +
-             "gust milk!"),
-            ("An octopus gets them. They bring an ant homework. The homework bangs me. I bore us. We doesn't draw " +
-             "pizza, the pizza give the octopus baby. The babies don't freeze cake. Cakes brings an eagle a bus! T" +
-             "he bus has a tree! A tree surprise the eagles! The eagles wear tea! The tea doesn't grab oranges, th" +
-             "e orange don't jump on poop! The poop kills a stinky tofu, the stinky tofu likes a witch,")
+            ("A trees buy witches, the witches throw fish at an egg! The egg interests uncles. The uncle hates a c" +
+             "hild. The child didn't owns us. We sell me. I don't sell a baby to an apple. The apple interests a p" +
+             "en! The pen shows people a watch. The watch doesn't wear an orange. The orange bites him, he wears p" +
+             "oops! The poop surpriseds a teacher, the teacher loves wives. The wives makes nose!"),
+            ("A sand show him a tree. The tree cooks a house. The house smells a table! Table doesn't love a banan" +
+             "a. The banana eats a tiger, the tiger hits her. She doesn't surprise you, you builds it. It surprise" +
+             "ds a teacher! Teachers jumps on a leaf. The leaf gets pen, the pen fights egg. The egg hits us. We r" +
+             "ide a rice. The rice doesn't love her."),
+            ("He steals a baby. The baby hits homework with apple. The apple doesn't freeze a table. The table doe" +
+             "sn't disgust moneys. The money doesn't hate her. She don't teach hair a school! The school throws a " +
+             "tiger at oranges! The oranges don't shake the school, the school plays with gold. The gold brings a " +
+             "nose to a tree! A trees build a teacher. A teachers bored the homework, a homework loves golds! Gold" +
+             "s sees eagles, the eagles doesn't teach shark an uncle."),
+            ("Cake doesn't wash a husband. The husband surprises a teacher. The teacher doesn't like homework. A h" +
+             "omework doesn't cut water! The water doesn't grab uncle. Uncle uses her. She draws ice cream. The ic" +
+             "e cream gets a cow! The cow sees a lightning, the lightning grabs babies, baby cook an apple. Apple " +
+             "brings the homework a leaf, the leaf makes gold out of apple juice. The apple juice hits the water w" +
+             "ith a nose. The nose doesn't arrest her.")
         ]
         past_answer = [
-            ("A tree didn't catch <bold>a witch</bold>. The witch used an uncle. The uncle drew a sheep! The sheep" +
-             " didn't use <bold>a person</bold>! The person wore them. They didn't wear <bold>a pen</bold><bold>!<" +
-             "/bold> <bold>The pen</bold> <bold>arrested</bold> a bicycle. The bicycle stole a baby<bold>.</bold> " +
-             "<bold>The baby</bold> surprised him. He played with the pen! The pen took the person<bold>!</bold> <" +
-             "bold>The person</bold> taught a car boxes. <bold>The boxes</bold> caught a fish! <bold>The fish</bol" +
-             "d> didn't interest thunder<bold>.</bold> <bold>The thunder</bold> held the pen! -- error count: 10"),
-            ("We didn't freeze <bold>an apple</bold>! The apple didn't make <bold>apple juice</bold>. The apple ju" +
-             "ice didn't give us <bold>rice</bold>. The rice grabbed <bold>buses</bold>! The buses threw him<bold>" +
-             ".</bold> <bold>He</bold> taught me watches. The watches bored a fire fighter. The fire fighter didn'" +
-             "t pull a pony. The pony killed stinky tofu. The stinky tofu <bold>washed</bold> you<bold>.</bold> <b" +
-             "old>You</bold> bought it. It washed a teacher! The teacher kissed leaves<bold>.</bold> <bold>The lea" +
-             "ves</bold> grabbed a pen! The pen didn't freeze an egg<bold>.</bold> -- error count: 9"),
-            ("You interested me. I brought <bold>husbands</bold> a school<bold>!</bold> <bold>The school</bold> sl" +
-             "ept on an ant. The ant gave a pen elephants<bold>!</bold> <bold>The elephants</bold> picked up a tab" +
-             "le. The table caught <bold>a bus</bold>. The bus <bold>didn't love</bold> <bold>a box</bold>! The bo" +
-             "x shook poop. The poop stole <bold>hair</bold>! The hair didn't see sand. The sand built <bold>a nos" +
-             "e</bold>! The nose <bold>owned</bold> <bold>the bus</bold>! The bus <bold>kissed</bold> a banana! Th" +
-             "e banana found a watch! The watch didn't disgust milk<bold>!</bold> -- error count: 14"),
-            ("<bold>An octopus</bold> got them. They <bold>brought</bold> <bold>an ant</bold> homework<bold>.</bol" +
-             "d> <bold>The homework</bold> banged me. I bored us. We didn't draw pizza. The pizza gave <bold>the o" +
-             "ctopus</bold> babies. The babies froze cake. The cake brought eagles <bold>a bus</bold>! The bus did" +
-             "n't have a tree! The tree surprised the eagles! The eagles didn't wear tea! The tea didn't grab oran" +
-             "ges. The oranges didn't jump on poop! <bold>The poop</bold> killed stinky tofu. The stinky tofu like" +
-             "d a witch! -- error count: 7")
+            ("A tree bought <bold>witches</bold><bold>.</bold> <bold>The witches</bold> didn't throw fish at an eg" +
+             "g! The egg didn't interest an uncle. The uncle didn't hate a child<bold>.</bold> <bold>The child</bo" +
+             "ld> didn't own us. We didn't sell me<bold>.</bold> <bold>I</bold> <bold>sold</bold> a baby to an app" +
+             "le. The apple <bold>interested</bold> <bold>a pen</bold>! The pen showed <bold>people</bold> a watch" +
+             "<bold>.</bold> <bold>The watch</bold> didn't wear an orange. <bold>The orange</bold> didn't bite him" +
+             "<bold>.</bold> <bold>He</bold> wore poop! <bold>The poop</bold> surprised a teacher<bold>.</bold> <b" +
+             "old>The teacher</bold> loved wives<bold>.</bold> <bold>The wives</bold> made noses! -- error count: " +
+             "14"),
+            ("<bold>Sand</bold> showed him a tree<bold>.</bold> <bold>The tree</bold> didn't cook a house. The hou" +
+             "se smelled a table! The table loved a banana. The banana ate a tiger! The tiger <bold>hit</bold> her" +
+             "<bold>.</bold> <bold>She</bold> surprised you. You built it. It surprised a teacher<bold>!</bold> <b" +
+             "old>The teacher</bold> didn't jump on a leaf. The leaf got a pen<bold>!</bold> <bold>The pen</bold> " +
+             "didn't fight an egg<bold>.</bold> <bold>The egg</bold> didn't hit us<bold>.</bold> <bold>We</bold> r" +
+             "ode <bold>rice</bold><bold>.</bold> <bold>The rice</bold> didn't love her. -- error count: 10"),
+            ("He stole <bold>a baby</bold><bold>.</bold> <bold>The baby</bold> <bold>hit</bold> homework with an a" +
+             "pple. <bold>The apple</bold> didn't freeze a table<bold>.</bold> <bold>The table</bold> disgusted mo" +
+             "ney. <bold>The money</bold> <bold>hated</bold> her. She taught hair a school<bold>!</bold> <bold>The" +
+             " school</bold> <bold>threw</bold> a tiger at oranges! The oranges <bold>didn't shake</bold> the scho" +
+             "ol. The school played with gold. <bold>The gold</bold> brought a nose to a tree! The tree <bold>buil" +
+             "t</bold> a teacher. The teacher bored <bold>the homework</bold>! The homework loved the gold! <bold>" +
+             "The gold</bold> <bold>didn't see</bold> eagles. The eagles taught <bold>sharks</bold> an uncle. -- e" +
+             "rror count: 16"),
+            ("Cake washed <bold>a husband</bold>. The husband <bold>surprised</bold> a teacher. The teacher liked " +
+             "homework. The homework <bold>didn't cut</bold> water! The water <bold>grabbed</bold> an uncle. <bold" +
+             ">The uncle</bold> <bold>didn't use</bold> her<bold>.</bold> <bold>She</bold> didn't draw <bold>ice c" +
+             "ream</bold><bold>.</bold> <bold>The ice cream</bold> got a cow<bold>!</bold> <bold>The cow</bold> sa" +
+             "w <bold>lightning</bold>! The lightning grabbed babies<bold>.</bold> <bold>The babies</bold> didn't " +
+             "cook an apple. The apple brought the homework <bold>a leaf</bold>. The leaf made gold out of apple j" +
+             "uice. The apple juice hit the water with a nose. The nose arrested her. -- error count: 13")
         ]
         past_error = [
-            ("A tree didn't catch witch. The witch used an uncle. The uncle drew a sheep! The sheep didn't use per" +
-             "son! The person wore them. They didn't wear pen, the pen arrests a bicycle. The bicycle stole a baby" +
-             ", the baby surprised him. He played with the pen! The pen took the person, the person taught a car b" +
-             "oxes. The box caught a fish! Fishes didn't interest thunder, the thunder held the pen!"),
-            ("We didn't freeze apple! The apple didn't make apple juices. The apple juice didn't give us a rice. T" +
-             "he rice grabbed bus! The buses threw him, he taught me watches. The watches bored a fire fighter. Th" +
-             "e fire fighter didn't pull a pony. The pony killed stinky tofu. The stinky tofu washes you, you boug" +
-             "ht it. It washed a teacher! The teacher kissed leaves, the leaves grabbed a pen! The pen didn't free" +
-             "ze an egg,"),
-            ("You interested me. I brought a husbands a school, schools slept on an ant. The ant gave a pen elepha" +
-             "nts, elephant picked up a table. The table caught bus. The bus don't love box! The box shook poop. T" +
-             "he poop stole hairs! The hair didn't see sand. The sand built noses! The nose own bus! The bus kisse" +
-             "s a banana! The banana found a watch! The watch didn't disgust milk,"),
-            ("Octopus got them. They brings ant homework, the homework banged me. I bored us. We didn't draw pizza" +
-             ". The pizza gave octopuses babies. The babies froze cake. The cake brought eagles bus! The bus didn'" +
-             "t have a tree! The tree surprised the eagles! The eagles didn't wear tea! The tea didn't grab orange" +
-             "s. The oranges didn't jump on poop! Poops killed stinky tofu. The stinky tofu liked a witch!")
+            ("A tree bought witch, the witches didn't throw fish at an egg! The egg didn't interest an uncle. The " +
+             "uncle didn't hate a child, the child didn't own us. We didn't sell me, i sells a baby to an apple. T" +
+             "he apple interest pens! The pen showed the person a watch, the watch didn't wear an orange. An orang" +
+             "e didn't bite him, he wore poop! Poops surprised a teacher, the teacher loved wives, the wives made " +
+             "noses!"),
+            ("A sand showed him a tree, the tree didn't cook a house. The house smelled a table! The table loved a" +
+             " banana. The banana ate a tiger! The tiger hits her, she surprised you. You built it. It surprised a" +
+             " teacher, the teacher didn't jump on a leaf. The leaf got a pen, the pen didn't fight an egg, the eg" +
+             "g didn't hit us, we rode rices, the rice didn't love her."),
+            ("He stole baby, the baby hit homework with an apple. Apple didn't freeze a table, the table disgusted" +
+             " money. A money hate her. She taught hair a school, the school throws a tiger at oranges! The orange" +
+             "s don't shake the school. The school played with gold. A gold brought a nose to a tree! The tree bui" +
+             "lds a teacher. The teacher bored homeworks! The homework loved the gold! Golds don't see eagles. The" +
+             " eagles taught shark an uncle."),
+            ("Cake washed husbands. The husband surprise a teacher. The teacher liked homework. The homework don't" +
+             " cut water! The water grab an uncle. Uncle doesn't use her, she didn't draw an ice cream, the ice cr" +
+             "eam got a cow, the cow saw a lightning! The lightning grabbed babies, the babies didn't cook an appl" +
+             "e. The apple brought the homework leaf. The leaf made gold out of apple juice. The apple juice hit t" +
+             "he water with a nose. The nose arrested her.")
         ]
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
@@ -127,31 +134,31 @@ class TestGenerateText(unittest.TestCase):
         present, past = generate_text(paragraph_size=2)
 
         present_answer = [
-            "It surprises her<bold>!</bold> <bold>She</bold> doesn't grab sand<bold>.</bold> -- error count: 2",
-            "<bold>An elephant</bold> doesn't hit uncles. The uncles take a cow! -- error count: 1",
-            "A sheep hits <bold>stinky tofu</bold>. <bold>The stinky tofu</bold> freezes a fish. -- error count: 2",
-            ("A bus sleeps on a baby. <bold>The baby</bold> <bold>sleeps</bold> on a person<bold>!</bold> -- error" +
-             " count: 3"),
+            "It doesn't wash lightning. The lightning sees a teacher. -- error count: 0",
+            "Thunder picks up eagles. The eagles make <bold>poop</bold> out of cows. -- error count: 1",
+            "Thunder smells <bold>lightning</bold>. The lightning doesn't shake <bold>sand</bold>. -- error count: 2",
+            ("We <bold>disgust</bold> them<bold>.</bold> <bold>They</bold> hate <bold>a child</bold><bold>!</bold>" +
+             " -- error count: 4")
         ]
         present_error = [
-            "It surprises her, she doesn't grab sand,",
-            "Elephant doesn't hit uncles. The uncles take a cow!",
-            "A sheep hits stinky tofus. Stinky tofus freezes a fish.",
-            "A bus sleeps on a baby. Baby sleeped on a person,"
+            "It doesn't wash lightning. The lightning sees a teacher.",
+            "Thunder picks up eagles. The eagles make a poop out of cows.",
+            "Thunder smells lightnings. The lightning doesn't shake a sand.",
+            "We disgusts them, they hate a childs,"
         ]
         past_answer = [
-            "It surprised her! She didn't grab sand. -- error count: 0",
-            "An elephant didn't hit uncles. The uncles didn't take <bold>a cow</bold>! -- error count: 1",
-            "<bold>A sheep</bold> hit stinky tofu. The stinky tofu froze a fish. -- error count: 1",
-            ("<bold>A bus</bold> slept on <bold>a baby</bold>. <bold>The baby</bold> didn't sleep on a person! -- " +
-             "error count: 3"),
+            "It didn't wash lightning. The lightning saw <bold>a teacher</bold>. -- error count: 1",
+            "Thunder picked up eagles. The eagles made poop out of cows. -- error count: 0",
+            "Thunder didn't smell lightning. The lightning shook sand. -- error count: 0",
+            "We <bold>didn't disgust</bold> them. They <bold>hated</bold> a child! -- error count: 2",
         ]
         past_error = [
-            "It surprised her! She didn't grab sand.",
-            "An elephant didn't hit uncles. The uncles didn't take cow!",
-            "Sheep hit stinky tofu. The stinky tofu froze a fish.",
-            "Bus slept on baby. Baby didn't sleep on a person!"
+            "It didn't wash lightning. The lightning saw teacher.",
+            "Thunder picked up eagles. The eagles made poop out of cows.",
+            "Thunder didn't smell lightning. The lightning shook sand.",
+            "We don't disgust them. They hate a child!"
         ]
+
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
         self.assertEqual(past[0], past_answer)
@@ -161,14 +168,13 @@ class TestGenerateText(unittest.TestCase):
         random.seed(5)
         present, past = generate_text(num_paragraphs=2, paragraph_size=1)
 
-        present_answer = [
-            "Money <bold>grabs</bold> tea! -- error count: 1",
-            "Milk eats <bold>eagles</bold>. -- error count: 1"
-        ]
-        present_error = ["Money grabbed tea!", "Milk eats eagle."]
-        past_answer = ['Money grabbed <bold>tea</bold><bold>!</bold> -- error count: 2',
-                       "Milk <bold>didn't eat</bold> <bold>eagles</bold>. -- error count: 2"]
-        past_error = ['Money grabbed a tea,', "Milk don't eat eagle."]
+        present_answer = ['Money <bold>gets</bold> tea! -- error count: 1',
+                          'Milk disgusts <bold>eagles</bold>. -- error count: 1']
+        present_error = ['Money getted tea!', 'Milk disgusts eagle.']
+        past_answer = ['Money got <bold>tea</bold><bold>!</bold> -- error count: 2',
+                       "Milk <bold>didn't disgust</bold> <bold>eagles</bold>. -- error count: 2"]
+        past_error = ['Money got a tea,', "Milk don't disgust eagle."]
+
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
         self.assertEqual(past[0], past_answer)
@@ -179,23 +185,23 @@ class TestGenerateText(unittest.TestCase):
         present, past = generate_text(num_paragraphs=1, paragraph_size=5, subject_pool=1)
 
         present_answer = [
-            ("A house hates <bold>fire fighters</bold>! The house kills a nose. The house doesn't make homework<bo" +
-             "ld>!</bold> <bold>The house</bold> brings octopuses an egg. The house wears a witch! -- error count:" +
-             " 2")
+            ("A house gives a fire fighter poop. The house brings a finger a book<bold>.</bold> <bold>The house</b" +
+             "old> doesn't get an octopus. The house doesn't draw her! The house throws cake. -- error count: 1")
         ]
         present_error = [
-            ("A house hates the fire fighter! The house kills a nose. The house doesn't make homework, the house b" +
-             "rings octopuses an egg. The house wears a witch!")
+            ("A house gives a fire fighter poop. The house brings a finger a book, the house doesn't get an octopu" +
+             "s. The house doesn't draw her! The house throws cake.")
         ]
         past_answer = [
-            ("A house hated fire fighters! The house <bold>killed</bold> a nose. <bold>The house</bold> didn't mak" +
-             "e homework! The house brought octopuses an egg. <bold>The house</bold> wore <bold>a witch</bold>! --" +
-             " error count: 4")
+            ("A house <bold>gave</bold> a fire fighter poop. The house didn't bring <bold>a finger</bold> a book. " +
+             "The house got an octopus. The house didn't draw her! <bold>The house</bold> threw <bold>cake</bold>." +
+             " -- error count: 4")
         ]
         past_error = [
-            ("A house hated fire fighters! The house kill a nose. Houses didn't make homework! The house brought o" +
-             "ctopuses an egg. House wore witches!")
+            ("A house give a fire fighter poop. The house didn't bring fingers a book. The house got an octopus. T" +
+             "he house didn't draw her! House threw cakes.")
         ]
+
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
         self.assertEqual(past[0], past_answer)
@@ -204,11 +210,12 @@ class TestGenerateText(unittest.TestCase):
     def test_p_pronoun_one(self):
         random.seed(215)
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=1.0)
+        # The second object is never a pronoun
+        present_answer = ['She brings him to a baby! -- error count: 0']
+        present_error = ['She brings him to a baby!']
+        past_answer = ['She <bold>brought</bold> him to a baby! -- error count: 1']
+        past_error = ['She brings him to a baby!']
 
-        present_answer = ["She builds him. -- error count: 0"]
-        present_error = ["She builds him."]
-        past_answer = ["She <bold>built</bold> him. -- error count: 1"]
-        past_error = ["She build him."]
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
         self.assertEqual(past[0], past_answer)
@@ -218,10 +225,10 @@ class TestGenerateText(unittest.TestCase):
         random.seed(2000)
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0)
 
-        present_answer = ["Poop kills tea. -- error count: 0"]
-        present_error = ["Poop kills tea."]
-        past_answer = ["Poop didn't kill tea. -- error count: 0"]
-        past_error = ["Poop didn't kill tea."]
+        present_answer = ["Poop interests tea. -- error count: 0"]
+        present_error = ["Poop interests tea."]
+        past_answer = ["Poop didn't interest tea. -- error count: 0"]
+        past_error = ["Poop didn't interest tea."]
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
         self.assertEqual(past[0], past_answer)
@@ -231,10 +238,10 @@ class TestGenerateText(unittest.TestCase):
         random.seed(2105)
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.5)
 
-        present_answer = ["She <bold>uses</bold> <bold>water</bold>. -- error count: 2"]
-        present_error = ["She use waters."]
-        past_answer = ["She <bold>used</bold> water. -- error count: 1"]
-        past_error = ["She uses water."]
+        present_answer = ["She <bold>steals</bold> <bold>water</bold>. -- error count: 2"]
+        present_error = ["She steal waters."]
+        past_answer = ["She <bold>stole</bold> water. -- error count: 1"]
+        past_error = ["She steals water."]
         self.assertEqual(present[0], present_answer)
         self.assertEqual(present[1], present_error)
         self.assertEqual(past[0], past_answer)
@@ -245,39 +252,41 @@ class TestGenerateText(unittest.TestCase):
         random.seed(123)
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0, p_plural=1.0,
                                       uncountable_file=empty)
-        self.assertEqual(present[0][0], "<bold>Books</bold> surprise boxes. -- error count: 1")
+        self.assertEqual(present[0][0], "<bold>Books</bold> shake boxes. -- error count: 1")
 
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0, p_plural=0.0,
                                       uncountable_file=empty)
-        self.assertEqual(present[0][0], "A box bites a child. -- error count: 0")
+        self.assertEqual(present[0][0], "A box throws a child. -- error count: 0")
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_pronoun=0.0, p_plural=0.65,
                                       uncountable_file=empty)
+
         self.assertEqual(present[0][0], "A leaf <bold>arrests</bold> teachers. -- error count: 1")
 
     def test_p_negative(self):
         random.seed(123)
         present, past = generate_text(num_paragraphs=2, paragraph_size=1, p_negative=1.0)
         self.assertEqual(present[0],
-                         ["I don't surprise <bold>a box</bold><bold>.</bold> -- error count: 2",
-                          "We <bold>don't have</bold> her! -- error count: 1"])
+                         ["I don't shake <bold>a box</bold><bold>.</bold> -- error count: 2",
+                          "We <bold>don't grab</bold> her! -- error count: 1"])
         self.assertEqual(past[0],
-                         ["I didn't surprise a box. -- error count: 0",
-                          "We <bold>didn't have</bold> her! -- error count: 1"])
+                         ["I didn't shake a box. -- error count: 0",
+                          "We <bold>didn't grab</bold> her! -- error count: 1"])
 
         present, past = generate_text(num_paragraphs=2, paragraph_size=1, p_negative=0.0)
         self.assertEqual(present[0],
-                         ['A sheep uses him. -- error count: 0',
-                          'Tea kisses <bold>a pineapple</bold>. -- error count: 1'])
+                         ['A sheep steals him. -- error count: 0',
+                          'Tea jumps on <bold>a pineapple</bold>. -- error count: 1'])
         self.assertEqual(past[0],
-                         ['A sheep <bold>used</bold> him. -- error count: 1',
-                          'Tea kissed <bold>a pineapple</bold>. -- error count: 1'])
+                         ['A sheep <bold>stole</bold> him. -- error count: 1',
+                          'Tea jumped on <bold>a pineapple</bold>. -- error count: 1'])
 
         present, past = generate_text(num_paragraphs=2, paragraph_size=1, p_negative=0.5)
         self.assertEqual(present[0],
-                         ['An apple draws tea! -- error count: 0', "An eagle doesn't cook schools. -- error count: 0"])
+                         ['<bold>An apple</bold> <bold>cuts</bold> tea with an ant. -- error count: 2',
+                          "He doesn't bang <bold>octopuses</bold>! -- error count: 1"])
         self.assertEqual(past[0],
-                         ['An apple drew <bold>tea</bold>! -- error count: 1',
-                          "An eagle <bold>didn't cook</bold> schools. -- error count: 1"])
+                         ['An apple cut tea with an ant<bold>.</bold> -- error count: 1',
+                          "He <bold>didn't bang</bold> octopuses! -- error count: 1"])
 
     def test_p_error(self):
         random.seed(5613)
@@ -291,50 +300,50 @@ class TestGenerateText(unittest.TestCase):
         self.assertEqual(past[1][0], "Baby doesn't bring them a sand,")
 
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=0.0)
-        self.assertEqual(present[0][0], "You find babies. -- error count: 0")
-        self.assertEqual(present[1][0], "You find babies.")
-        self.assertEqual(past[0][0], "You found babies. -- error count: 0")
-        self.assertEqual(past[1][0], "You found babies.")
+        self.assertEqual(present[0][0], "You feed babies. -- error count: 0")
+        self.assertEqual(present[1][0], "You feed babies.")
+        self.assertEqual(past[0][0], "You fed babies. -- error count: 0")
+        self.assertEqual(past[1][0], "You fed babies.")
 
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=0.5)
         self.assertEqual(present[0][0],
-                         "He <bold>doesn't wear</bold> <bold>a fire fighter</bold><bold>.</bold> -- error count: 3")
-        self.assertEqual(present[1][0], "He don't wear fire fighter,")
-        self.assertEqual(past[0][0], "He wore <bold>a fire fighter</bold><bold>.</bold> -- error count: 2")
-        self.assertEqual(past[1][0], "He wore fire fighter,")
+                         "He <bold>doesn't take</bold> <bold>a fire fighter</bold><bold>.</bold> -- error count: 3")
+        self.assertEqual(present[1][0], "He don't take fire fighter,")
+        self.assertEqual(past[0][0], "He took <bold>a fire fighter</bold><bold>.</bold> -- error count: 2")
+        self.assertEqual(past[1][0], "He took fire fighter,")
 
     def test_noun_errors(self):
         random.seed(4589)
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=1.0, p_pronoun=0.0,
                                       noun_errors=True,
                                       verb_errors=False, period_errors=False)
-        self.assertEqual(present[0][0], "<bold>Octopuses</bold> freeze <bold>husbands</bold>. -- error count: 2")
-        self.assertEqual(present[1][0], "Octopus freeze husband.")
-        self.assertEqual(past[0][0], "<bold>Octopuses</bold> froze <bold>husbands</bold>. -- error count: 2")
-        self.assertEqual(past[1][0], "The octopus froze a husband.")
+        self.assertEqual(present[0][0], "<bold>Octopuses</bold> fight <bold>husbands</bold>. -- error count: 2")
+        self.assertEqual(present[1][0], "Octopus fight husband.")
+        self.assertEqual(past[0][0], "<bold>Octopuses</bold> fought <bold>husbands</bold>. -- error count: 2")
+        self.assertEqual(past[1][0], "The octopus fought a husband.")
 
     def test_verb_errors(self):
         random.seed(456132)
         present, past = generate_text(num_paragraphs=1, paragraph_size=1, p_error=1.0, p_pronoun=0.0,
                                       verb_errors=True,
                                       noun_errors=False, period_errors=False)
-        self.assertEqual(present[0][0], "Tigers <bold>sell</bold> pineapples! -- error count: 1")
-        self.assertEqual(present[1][0], "Tigers sells pineapples!")
-        self.assertEqual(past[0][0], "Tigers <bold>didn't sell</bold> pineapples! -- error count: 1")
-        self.assertEqual(past[1][0], "Tigers don't sell pineapples!")
+        self.assertEqual(present[0][0], "Tigers <bold>pull</bold> pineapples! -- error count: 1")
+        self.assertEqual(present[1][0], "Tigers pulls pineapples!")
+        self.assertEqual(past[0][0], "Tigers <bold>didn't pull</bold> pineapples! -- error count: 1")
+        self.assertEqual(past[1][0], "Tigers don't pull pineapples!")
 
     def test_period_errors(self):
         random.seed(4561)
         present, past = generate_text(num_paragraphs=1, paragraph_size=2, p_error=1.0, p_pronoun=0.0,
                                       period_errors=True,
                                       noun_errors=False, verb_errors=False)
-        answer = "A table owns hair<bold>.</bold> <bold>The hair</bold> holds a fish<bold>.</bold> -- error count: 2"
+        answer = "A table loves hair<bold>.</bold> <bold>The hair</bold> has a fish<bold>.</bold> -- error count: 2"
         self.assertEqual(present[0][0], answer)
-        self.assertEqual(present[1][0], "A table owns hair, the hair holds a fish,")
-        answer = ("A table owned hair<bold>.</bold> <bold>The hair</bold> didn't hold a fish<bold>.</bold>" +
-                  " -- error count: 2")
+        self.assertEqual(present[1][0], "A table loves hair, the hair has a fish,")
+        answer = ("A table loved hair<bold>.</bold> <bold>The hair</bold> didn't have a fish<bold>.</bold> -- " +
+                  "error count: 2")
         self.assertEqual(past[0][0], answer)
-        self.assertEqual(past[1][0], "A table owned hair, the hair didn't hold a fish,")
+        self.assertEqual(past[1][0], "A table loved hair, the hair didn't have a fish,")
 
     def test_verb_file(self):
         random.seed(459821)
@@ -354,8 +363,8 @@ class TestGenerateText(unittest.TestCase):
         present, past = generate_text(num_paragraphs=5, paragraph_size=1, p_error=0.0, p_pronoun=0.0,
                                       countable_file=file_name, uncountable_file=empty)
         self.assertEqual(present[1],
-                         ['A bob arrests a joe.', "A joe doesn't bang a bob.", "A bob doesn't freeze joes!",
-                          "Bobs don't hold joes.", "A bob doesn't kick a joe."])
+                         ["Bobs don't kill joes!", 'Joes see a bob!', 'A joe pulls a bob!', 'Bobs kill joes!',
+                          'A joe draws a bob.'])
 
     def test_uncountable_file(self):
         random.seed(4591)
@@ -365,5 +374,5 @@ class TestGenerateText(unittest.TestCase):
                                       countable_file=empty, uncountable_file=file_name)
         # Uncountable nouns don't "s", "a", "an"
         self.assertEqual(present[1],
-                         ["Joe doesn't wear bob.", "Joe doesn't find bob.", 'Bob bores joe.', 'Joe bores bob.',
-                          'Joe excites bob.'])
+                         ["Joe doesn't take bob.", 'Joe sleeps on bob.', 'Bob cuts joe.', 'Joe bores bob.',
+                          'Joe freezes bob.'])
