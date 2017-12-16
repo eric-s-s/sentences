@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sentences',
-      version='0.1.0',
+      version='0.1.6',
       description='sentence generator',
       long_description=readme(),
       keywords='',
@@ -26,11 +26,14 @@ setup(name='sentences',
       entry_points={
           'console_scripts': ['gen_pdf=sentences.text_to_pdf:main'],
       },
-      data_files=[('word_lists', ['word_lists/empty.csv',
-                                  'word_lists/empty_proper_nouns.csv',
-                                  'word_lists/nouns.csv',
-                                  'word_lists/uncountable.csv',
-                                  'word_lists/verbs.csv'])],
-      install_requires=[],
+      package_data={
+          '': ['word_lists/*.csv']
+      },
+      # data_files=[('word_lists', ['word_lists/empty.csv',
+      #                             'word_lists/empty_proper_nouns.csv',
+      #                             'word_lists/nouns.csv',
+      #                             'word_lists/uncountable.csv',
+      #                             'word_lists/verbs.csv'])],
+      install_requires=['reportlab'],
       include_package_data=True,
       zip_safe=False)
