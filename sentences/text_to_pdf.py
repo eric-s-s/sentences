@@ -16,6 +16,17 @@ PAGE_WIDTH = A4[0]
 styles = getSampleStyleSheet()
 
 
+def get_target_dir():
+    user_path = os.path.expanduser('~')
+    app_folder = os.path.join(user_path, 'sentence_mangler')
+    folder = os.path.join(app_folder, 'pdfs')
+    if not os.path.exists(app_folder):
+        os.mkdir(app_folder)
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    return folder
+
+
 def insert_footer(canvas, doc):
     canvas.saveState()
     canvas.setFont('Times-Roman', 9)
@@ -26,11 +37,8 @@ def insert_footer(canvas, doc):
 def create_pdf(location, file_name, paragraphs):
     head_foot = 1.0*cm
     margin = 1.3*cm
-    if '\\' in location:
-        sep = '\\'
-    else:
-        sep = '/'
-    full_filename = '{}{}{}'.format(location, sep, file_name)
+
+    full_filename = os.path.join(location, file_name)
 
     doc = SimpleDocTemplate(full_filename, pagesize=A4, rightMargin=margin, leftMargin=margin,
                             bottomMargin=head_foot, topMargin=head_foot, title=file_name)
@@ -49,8 +57,8 @@ def create_pdf(location, file_name, paragraphs):
     doc.build(Story, onFirstPage=insert_footer, onLaterPages=insert_footer)
 
 
-def get_file_prefix():
-    current = os.listdir('./pdfs')
+def get_file_prefix(folder):
+    current = os.listdir(folder)
     current = [file_name for file_name in current if '_' in file_name and file_name[0].isdigit()]
     if not current:
         return '01_'
@@ -61,14 +69,21 @@ def get_file_prefix():
     return '{}_'.format(next_num)
 
 
-if __name__ == "__main__":
+def main():
+
     present, past = generate_text()
-    prefix = get_file_prefix()
-    folder = './pdfs'
+    folder = get_target_dir()
+
+    prefix = get_file_prefix(folder)
+
     answer = prefix + 'answer.pdf'
     error = prefix + 'error.pdf'
     create_pdf(folder, answer, present[0])
     create_pdf(folder, error, present[1])
+
+
+if __name__ == "__main__":
+    main()
 
     # past_answer = prefix + 'past_answer.pdf'
     # past_error = prefix + 'past_error.pdf'

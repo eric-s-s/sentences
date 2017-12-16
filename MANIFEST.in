@@ -1,0 +1,3 @@
+include *.txt
+include word_lists/*.csv
+include sentence_mangler.cfg
