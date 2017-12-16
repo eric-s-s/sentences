@@ -1,6 +1,6 @@
 import os
 
-PACKAGE_DATA_LOC = os.path.join(os.path.dirname(__file__), 'word_lists')
+from sentences import DATA_PATH
 
 from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.verb import BasicVerb
@@ -18,27 +18,27 @@ def split_and_strip(line):
 
 
 def countable_nouns(filename=''):
-    if not filename:
-        # filename = 'word_lists/nouns.csv'
-        filename = os.path.join(PACKAGE_DATA_LOC, 'nouns.csv')
-    raw_lines = load_csv(filename)
+    new_filename = _default_or_file_name(filename, 'nouns.csv')
+    raw_lines = load_csv(new_filename)
     return [Noun(*line) for line in raw_lines]
 
 
 def uncountable_nouns(filename=''):
-    if not filename:
-        # filename = 'word_lists/nouns.csv'
-        filename = os.path.join(PACKAGE_DATA_LOC, 'uncountable.csv')
-    raw_lines = load_csv(filename)
+    new_filename = _default_or_file_name(filename, 'uncountable.csv')
+    raw_lines = load_csv(new_filename)
     return [UncountableNoun(*line) for line in raw_lines]
 
 
 def verbs(filename=''):
-    if not filename:
-        # filename = 'word_lists/nouns.csv'
-        filename = os.path.join(PACKAGE_DATA_LOC, 'verbs.csv')
-    raw_lines = load_csv(filename)
+    new_filename = _default_or_file_name(filename, 'verbs.csv')
+    raw_lines = load_csv(new_filename)
     return [get_verb_dict(verb_line) for verb_line in raw_lines]
+
+
+def _default_or_file_name(file_name, default_name):
+    if not file_name:
+        file_name = os.path.join(DATA_PATH, default_name)
+    return file_name
 
 
 def get_verb_dict(str_lst, intransitive=False):

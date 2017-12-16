@@ -1,11 +1,12 @@
 import os
 
+from sentences import DATA_PATH, APP_NAME
+
 from sentences.text_to_pdf import create_pdf, get_file_prefix
 from sentences.generate_text import generate_text
 
-APP_NAME = 'sentence_mangler'
+CONFIG_NAME = APP_NAME + '.cfg'
 
-FILE_NAME = APP_NAME + '.cfg'
 
 def get_default_dir():
     base_dir = os.path.expanduser('~')
@@ -27,9 +28,11 @@ class ConfigLoader(object):
 
     @staticmethod
     def _create_config(location):
-        with open('./' + FILE_NAME, 'r') as r_file:
+        default_config_file = os.path.join(DATA_PATH, 'default.cfg')
+        target = os.path.join(location, CONFIG_NAME)
+        with open(default_config_file, 'r') as r_file:
             text = r_file.read()
-        with open(full_file_name(location), 'w') as w_file:
+        with open(target, 'w') as w_file:
             w_file.write(text)
 
     @property
@@ -37,7 +40,7 @@ class ConfigLoader(object):
         return self._dir
 
     def get_text(self):
-        with open(full_file_name(self._dir), 'r') as f:
+        with open(os.path.join(self._dir, CONFIG_NAME), 'r') as f:
             text = f.read()
         return text
 
@@ -45,16 +48,5 @@ class ConfigLoader(object):
 def config_file_exists(directory):
     if not directory:
         return False
-    file_name = full_file_name(directory)
+    file_name = os.path.join(directory, CONFIG_NAME)
     return os.path.exists(file_name)
-
-
-def full_file_name(directory):
-    if '\\' in directory and not directory.endswith('\\'):
-        file_name = directory + '\\' + FILE_NAME
-    elif '/' in directory and not directory.endswith('/'):
-        file_name = directory + '/' + FILE_NAME
-    else:
-        file_name = directory + FILE_NAME
-    return file_name
-

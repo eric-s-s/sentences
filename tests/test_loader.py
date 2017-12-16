@@ -16,12 +16,12 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(load_csv(filename), [['a', 'b'], ['c', 'd'], ['e', 'f']])
 
     def test_load_csv_nouns(self):
-        answer = load_csv('word_lists/nouns.csv')
+        answer = load_csv('sentences/data/nouns.csv')
         self.assertIn(['person', 'people'], answer)
         self.assertIn(['witch'], answer)
 
     def test_load_csv_verbs(self):
-        answer = load_csv('word_lists/verbs.csv')
+        answer = load_csv('sentences/data/verbs.csv')
         self.assertIn(['hit', 'hit', 'null'], answer)
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)
