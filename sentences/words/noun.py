@@ -25,19 +25,13 @@ class Noun(Word):
         return IndefiniteNoun(article + self.value, article + self.plural().value, self.base_noun)
 
     def definite(self) -> 'Noun':
-        class_ = DefiniteNoun
-        if isinstance(self, PluralNoun):
-            class_ = DefinitePluralNoun
-        if isinstance(self, UncountableNoun):
-            class_ = DefiniteUncountableNoun
+        class_ = _get_definite_class(self)
 
         article = 'the '
         return class_(article + self.value, article + self.plural().value, self.base_noun)
 
     def plural(self) -> 'Noun':
-        class_ = PluralNoun
-        if isinstance(self, DefiniteNoun):
-            class_ = DefinitePluralNoun
+        class_ = _get_plural_class(self)
 
         if self._plural:
             return class_(self._plural, base=self.base_noun)
@@ -88,3 +82,21 @@ class UncountableNoun(Noun):
 
 class DefiniteUncountableNoun(UncountableNoun, DefiniteNoun):
     pass
+
+
+def _get_definite_class(noun):
+    current_class = noun.__class__
+    if isinstance(noun, DefiniteNoun):
+        return current_class
+    to_definite = {
+        UncountableNoun: DefiniteUncountableNoun,
+        PluralNoun: DefinitePluralNoun,
+
+    }
+    return to_definite.get(current_class, DefiniteNoun)
+
+
+def _get_plural_class(noun):
+    if isinstance(noun, DefiniteNoun):
+        return DefinitePluralNoun
+    return PluralNoun

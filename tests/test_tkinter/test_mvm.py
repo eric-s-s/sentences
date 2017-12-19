@@ -5,6 +5,7 @@ from sentences.tkinter.mvm import ConfigLoader, APP_NAME
 
 from sentences import DATA_PATH
 
+
 class TestConfigLoader(unittest.TestCase):
 
     def setUp(self):
