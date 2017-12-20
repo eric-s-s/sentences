@@ -1,2 +1,6 @@
 .idea/
 *.pyc
+build/*
+dist/
+pdfs/
+sentences/tk_scratch.py

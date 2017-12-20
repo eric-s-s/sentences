@@ -7,12 +7,20 @@ PYTHON_INSTALL_DIR = os.path.dirname(os.path.dirname(os.__file__))
 os.environ['TCL_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tcl8.6')
 os.environ['TK_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tk8.6')
 
+DLLS = ''
+for directory in sys.path:
+    if directory.endswith('DLLs'):
+        DLLS = directory
+# original_python = os.path.dirname(DLLS)
+# os.environ['TCL_LIBRARY'] = os.path.join(original_python, 'tcl', 'tcl8.6')
+# os.environ['TK_LIBRARY'] = os.path.join(original_python, 'tcl', 'tk8.6')
+
 
 options = {
     'build_exe': {
         'include_files': [
-            os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'),
-            os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll'),
+            os.path.join(DLLS, 'tk86t.dll'),
+            os.path.join(DLLS, 'tcl86t.dll'),
          ],
     },
 }
@@ -24,11 +32,11 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 executables = [
-    Executable('sentences/tkinter/go.py', base=base, shortcutName='GOOOOO')
+    Executable('sentences/tkinter/go.py', base=base, shortcutName='It\'s Go TIME!', shortcutDir='DesktopFolder')
 ]
 
 setup(name='test_cx',
-      version='1.1',
+      version='1.4',
       description='a simple cx_freeze test',
       options=options,
       executables=executables,
@@ -50,12 +58,7 @@ setup(name='test_cx',
       package_data={
           '': ['data/*.csv', 'data/*.cfg']
       },
-      install_requires=['reportlab', 'cx_freeze'],
+      install_requires=['reportlab'],
       include_package_data=True,
       zip_safe=False
       )
-
-
-
-
-

@@ -2,6 +2,7 @@
 # From the FAQ at reportlab.org/oss/rl-toolkit/faq/#1.1
 
 import os
+from datetime import datetime
 
 from sentences.generate_text import generate_text
 
@@ -30,7 +31,9 @@ def get_target_dir():
 def insert_footer(canvas, doc):
     canvas.saveState()
     canvas.setFont('Times-Roman', 9)
-    canvas.drawString(cm, 0.75 * cm, "{} : page {}".format(doc.title, doc.page))
+    canvas.drawString(cm, 0.75 * cm, "{} : page {}, {}".format(doc.title,
+                                                               doc.page,
+                                                               datetime.now().strftime('%Y/%m/%d-%H:%M')))
     canvas.restoreState()
 
 
