@@ -32,7 +32,7 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 executables = [
-    Executable('sentences/tkinter/go.py', base=base, shortcutName='It\'s Go TIME!', shortcutDir='DesktopFolder')
+    Executable('sentences/gui/go.py', base=base, shortcutName='It\'s Go TIME!', shortcutDir='DesktopFolder')
 ]
 
 setup(name='test_cx',
@@ -53,7 +53,7 @@ setup(name='test_cx',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words', 'sentences.tkinter'],
+      packages=['sentences', 'sentences.words', 'sentences.gui'],
 
       package_data={
           '': ['data/*.csv', 'data/*.cfg']

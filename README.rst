@@ -14,3 +14,8 @@ give odd results.
 step.
 
 It is in its very early stages and this README will be updated if there's anything happening.
+
+note to self on cx_freeze.  see this stack_overflow thing.
+
+https://stackoverflow.com/questions/24195311/how-to-set-shortcut-working-directory-in-cx-freeze-msi-bundle
+
