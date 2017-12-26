@@ -30,14 +30,14 @@ class ParagraphType(tk.Frame):
         self.paragraph_type = tk.StringVar()
         self._init_spin_box()
 
-        # to remove
+        # TODO DELETE
         self.get_button = tk.Button(master=self, text='get some', command=self.get_num)
         self.label_var = tk.StringVar()
         self.label_output = tk.Label(master=self, textvariable=self.label_var)
 
         self.label_output.grid(row=3, columnspan=2)
         self.get_button.grid(row=4, columnspan=2)
-        # to remove
+        # TODO DELETE
 
         np_label.grid(row=0)
         self.num_paragraphs.grid(row=0, column=1)
@@ -59,11 +59,11 @@ class ParagraphType(tk.Frame):
 
     def get_values(self):
         """
-        num_paragraphs=4
-        paragraph_size=15
-        # if subject_pool is 0, creates chain paragraph, else, creates a random pool of subjects for each paragraph.
-        subject_pool=0
-        :return:
+        :keys:
+        - num_paragraphs
+        - paragraph_size
+        - subject_pool
+        - paragraph_type
         """
         return {
             'num_paragraphs': self._get_int('num_paragraphs'),
@@ -89,9 +89,10 @@ class ParagraphType(tk.Frame):
         return answer
 
     def get_num(self):
-        self.label_var.set('{}'.format(self.get_values()))
+        self.label_var.set('{}'.format(self.get_values()).replace(',', '\n'))
 
 
+# TODO DELETE
 def main():
     thing = tk.Tk()
     p_type = ParagraphType(master=thing)
