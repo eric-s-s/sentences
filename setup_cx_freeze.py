@@ -22,6 +22,7 @@ options = {
             os.path.join(DLLS, 'tk86t.dll'),
             os.path.join(DLLS, 'tcl86t.dll'),
          ],
+        'excludes': ['PyQt5']
     },
 }
 
@@ -32,7 +33,12 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 executables = [
-    Executable('sentences/gui/go.py', base=base, shortcutName='It\'s Go TIME!', shortcutDir='DesktopFolder')
+    Executable('sentences/gui/go.py',
+               base=base,
+               shortcutName='It\'s Go TIME!',
+               shortcutDir='DesktopFolder',
+               icon='sentences/data/Picture_3a.ico',
+               )
 ]
 
 setup(name='test_cx',
@@ -56,7 +62,7 @@ setup(name='test_cx',
       packages=['sentences', 'sentences.words', 'sentences.gui'],
 
       package_data={
-          '': ['data/*.csv', 'data/*.cfg']
+          '': ['data/*.csv', 'data/*.cfg', 'data/*.ico']
       },
       install_requires=['reportlab'],
       include_package_data=True,

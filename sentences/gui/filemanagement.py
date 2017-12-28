@@ -1,9 +1,9 @@
-from functools import partial
 import os
 import tkinter as tk
-from tkinter.filedialog import askdirectory, askopenfilename
 
 from sentences import APP_NAME, DATA_PATH
+
+from sentences.gui.gui_tools import FilenameVar, DirectoryVar
 
 NOUN_CSV = 'nouns.csv'
 UNCOUNTABLE_CSV = 'uncountable.csv'
@@ -12,14 +12,25 @@ VERBS_CSV = 'verbs.csv'
 DEFAULT_CSVS = (NOUN_CSV, UNCOUNTABLE_CSV, VERBS_CSV)
 
 
+def get_documents_folder():
+    user_location = os.path.expanduser('~')
+    user_folder = os.listdir(user_location)
+    if 'My Documents' in user_folder:
+        return os.path.join(user_location, 'My Documents')
+    elif 'Documents' in user_folder:
+        return os.path.join(user_location, 'Documents')
+    else:
+        return user_location
+
+
 class FileManagement(tk.Frame):
     def __init__(self, *args, **kwargs):
         super(FileManagement, self).__init__(*args, **kwargs)
-        self.home_folder = tk.StringVar()
-        self.save_folder = tk.StringVar()
-        self.noun_file = tk.StringVar()
-        self.verb_file = tk.StringVar()
-        self.uncountable_file = tk.StringVar()
+        self.home_folder = DirectoryVar('home folder:')
+        self.save_folder = DirectoryVar('save folder:')
+        self.noun_file = FilenameVar('countable nouns:')
+        self.verb_file = FilenameVar('uncountable nouns:')
+        self.uncountable_file = FilenameVar('verbs:')
 
         self._set_defaults()
 
@@ -36,25 +47,16 @@ class FileManagement(tk.Frame):
 
     def _setup_file_area(self):
         file_area = tk.Frame(master=self)
-        titles = ['home folder:', 'save folder:', 'countable nouns:', 'uncountable nouns:', 'verbs:']
         values = [self.home_folder, self.save_folder, self.noun_file, self.uncountable_file, self.verb_file]
-        for row, title, value in zip(range(len(titles)), titles, values):
-            tk.Label(master=file_area, text=title).grid(row=row, column=1, sticky=tk.W)
-            tk.Label(master=file_area, textvar=value).grid(row=row, column=2, sticky=tk.W)
-            cmd = partial(self._set_location, value, title)
-            tk.Button(master=file_area, text='SET', command=cmd).grid(row=row, column=0, padx=10, pady=5)
+        for row, popup_var in enumerate(values):
+            tk.Label(master=file_area, text=popup_var.popup_title).grid(row=row, column=1, sticky=tk.W)
+            tk.Label(master=file_area, textvar=popup_var).grid(row=row, column=2, sticky=tk.W)
+            tk.Button(master=file_area, text='SET', command=popup_var.set_with_popup).grid(row=row, column=0,
+                                                                                           padx=10, pady=5)
         file_area.pack()
 
-    def _set_location(self, string_var, title):
-        if string_var in (self.save_folder, self.home_folder):
-            new_location = askdirectory(initialdir=os.path.expanduser('~'), title=title)
-        else:
-            new_location = askopenfilename(initialdir=os.path.expanduser('~'), title=title)
-        if new_location:
-            string_var.set(new_location)
-
     def _set_defaults(self):
-        default_home = os.path.join(os.path.expanduser('~'), APP_NAME)
+        default_home = os.path.join(get_documents_folder(), APP_NAME)
         default_save = os.path.join(default_home, 'pdfs')
         if not os.path.exists(default_home):
             os.mkdir(default_home)

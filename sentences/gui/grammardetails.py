@@ -1,13 +1,14 @@
+
+
 import tkinter as tk
 
-
-def validate_int(new_val):
-    return new_val.isdigit() or new_val == ''
+from sentences.gui.gui_tools import PctSpinBox
 
 
 class GrammarDetails(tk.Frame):
 
     def __init__(self, *args, **kwargs):
+
         """
         present_tense = true
         probability_plural_noun = 0.3
@@ -15,23 +16,15 @@ class GrammarDetails(tk.Frame):
         probability_pronoun = 0.2
         """
         super(GrammarDetails, self).__init__(*args, **kwargs)
-        check_int = (self.register(validate_int), '%P')
 
-        self.num_paragraphs_range = (1, 10)
-        self.paragraph_size_range = (1, 20)
-        self.subject_pool_range = (2, 15)
+        self.plural_noun = PctSpinBox(master=self)
+        self.negative_verb = PctSpinBox(master=self)
+        self.pronoun = PctSpinBox(master=self)
+        plu_label = tk.Label(master=self, text='% chance of plural noun')
+        neg_label = tk.Label(master=self, text='% chance of negative verb')
+        pro_label = tk.Label(master=self, text='% chance of pronoun')
 
-        self.num_paragraphs = tk.Spinbox(master=self, validate='key', vcmd=check_int,
-                                         from_=self.num_paragraphs_range[0], to=self.num_paragraphs_range[1])
-        self.paragraph_size = tk.Spinbox(master=self, validate='key', vcmd=check_int,
-                                         from_=self.paragraph_size_range[0], to=self.paragraph_size_range[1])
-        self.subject_pool = tk.Spinbox(master=self, validate='key', vcmd=check_int,
-                                       from_=self.subject_pool_range[0], to=self.subject_pool_range[1])
-        np_label = tk.Label(master=self, text='number of paragraphs')
-        ns_label = tk.Label(master=self, text='sentences per paragraph')
-        sp_label = tk.Label(master=self, text='subject pool size')
-
-        self.paragraph_type = tk.StringVar()
+        self.tense = tk.StringVar()
         self._init_radio_button()
 
         # TODO DELETE
@@ -43,54 +36,38 @@ class GrammarDetails(tk.Frame):
         self.get_button.grid(row=4, columnspan=2)
         # TODO DELETE
 
-        np_label.grid(row=0)
-        self.num_paragraphs.grid(row=0, column=1)
-        ns_label.grid(row=1)
-        self.paragraph_size.grid(row=1, column=1)
-        sp_label.grid(row=2)
-        self.subject_pool.grid(row=2, column=1)
+        plu_label.grid(row=0)
+        self.plural_noun.grid(row=0, column=1)
+        neg_label.grid(row=1)
+        self.negative_verb.grid(row=1, column=1)
+        pro_label.grid(row=2)
+        self.pronoun.grid(row=2, column=1)
 
     def _init_radio_button(self):
-        self.paragraph_type.set('chain')
+        self.tense.set('simple_present')
         radio_button_frame = tk.Frame(master=self, borderwidth=10, relief=tk.GROOVE)
-        tk.Label(master=radio_button_frame, text='choose a paragraph type').pack(anchor=tk.W)
-        button_choices = [('chain paragraph', 'chain'), ('subject pool paragraph', 'pool')]
+        tk.Label(master=radio_button_frame, text='choose a tense').pack(anchor=tk.W)
+        button_choices = [('simple present', 'simple_present'), ('simple past', 'simple_past')]
         for text, value in button_choices:
             b = tk.Radiobutton(master=radio_button_frame, text=text,
-                               variable=self.paragraph_type, value=value)
+                               variable=self.tense, value=value)
             b.pack(anchor=tk.W)
         radio_button_frame.grid(rowspan=len(button_choices) + 1, column=2, padx=10)
 
     def get_values(self):
         """
         :keys:
-        - num_paragraphs
-        - paragraph_size
-        - subject_pool
-        - paragraph_type
+        - tense
+        - probability_plural_noun
+        - probability_negative_verb
+        - probability_pronoun
         """
         return {
-            'num_paragraphs': self._get_pct('num_paragraphs'),
-            'paragraph_size': self._get_pct('paragraph_size'),
-            'subject_pool': self._get_pct('subject_pool'),
-            'paragraph_type': self.paragraph_type.get()
+            'tense': self.tense.get(),
+            'probability_plural_noun': self.plural_noun.get_probability(),
+            'probability_negative_verb': self.negative_verb.get_probability(),
+            'probability_pronoun': self.pronoun.get_probability()
         }
-
-    def _get_pct(self, key):
-        container_range = {
-            'num_paragraphs': (self.num_paragraphs, self.num_paragraphs_range),
-            'paragraph_size': (self.paragraph_size, self.paragraph_size_range),
-            'subject_pool': (self.subject_pool, self.subject_pool_range)
-        }
-        container, ranges = container_range[key]
-        base_val = container.get()
-        if not base_val:
-            answer = ranges[0]
-        else:
-            answer = min(ranges[1], max(ranges[0], int(base_val)))
-        container.delete(0, tk.END)
-        container.insert(0, answer)
-        return answer
 
     def get_num(self):
         self.label_var.set('{}'.format(self.get_values()).replace(',', '\n'))

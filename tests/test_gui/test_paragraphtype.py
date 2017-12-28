@@ -4,6 +4,7 @@ import tkinter as tk
 from sentences.gui.paragraphtype import ParagraphType
 from sentences.gui.gui_tools import IntSpinBox
 
+
 class TestParagraphType(unittest.TestCase):
     def setUp(self):
         self.frame = ParagraphType()
@@ -51,5 +52,3 @@ class TestParagraphType(unittest.TestCase):
             'subject_pool': 15,
             'paragraph_type': 'pool'
         })
-
-

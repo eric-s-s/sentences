@@ -1,0 +1,51 @@
+import unittest
+import tkinter as tk
+
+from sentences.gui.grammardetails import GrammarDetails
+from sentences.gui.gui_tools import PctSpinBox
+
+
+class TestParagraphType(unittest.TestCase):
+    def setUp(self):
+        self.frame = GrammarDetails()
+
+    def test_init(self):
+        answer = self.frame.get_values()
+        self.assertEqual(answer, {
+            'tense': 'simple_present',
+            'probability_plural_noun': 0.0,
+            'probability_negative_verb': 0.0,
+            'probability_pronoun': 0.0
+        })
+
+        self.assertIsInstance(self.frame.plural_noun, PctSpinBox)
+        self.assertIsInstance(self.frame.negative_verb, PctSpinBox)
+        self.assertIsInstance(self.frame.pronoun, PctSpinBox)
+
+        self.assertEqual(self.frame.tense.get(), 'simple_present')
+
+    def test_radio_button(self):
+        expected_values = ['simple_present', 'simple_past']
+        radio_frame = None
+        for child in self.frame.winfo_children():
+            if isinstance(child, tk.Frame):
+                radio_frame = child
+                break
+        for child in radio_frame.winfo_children():
+            if isinstance(child, tk.Radiobutton):
+                value = child.cget('value')
+                self.assertIn(value, expected_values)
+                child.select()
+                self.assertEqual(value, self.frame.tense.get())
+
+    def test_set_get_values(self):
+        self.frame.tense.set('simple_past')
+        self.frame.plural_noun.insert(0, '2')
+        self.frame.negative_verb.insert(0, '5')
+        self.frame.pronoun.insert(0, '100')
+        self.assertEqual(self.frame.get_values(), {
+            'tense': 'simple_past',
+            'probability_plural_noun': 0.2,
+            'probability_negative_verb': 0.5,
+            'probability_pronoun': 1.0
+        })

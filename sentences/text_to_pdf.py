@@ -18,14 +18,25 @@ styles = getSampleStyleSheet()
 
 
 def get_target_dir():
-    user_path = os.path.expanduser('~')
-    app_folder = os.path.join(user_path, 'sentence_mangler')
+    documents_path = get_documents_folder()
+    app_folder = os.path.join(documents_path, 'sentence_mangler')
     folder = os.path.join(app_folder, 'pdfs')
     if not os.path.exists(app_folder):
         os.mkdir(app_folder)
     if not os.path.exists(folder):
         os.mkdir(folder)
     return folder
+
+
+def get_documents_folder():
+    user_location = os.path.expanduser('~')
+    user_folder = os.listdir(user_location)
+    if 'My Documents' in user_folder:
+        return os.path.join(user_location, 'My Documents')
+    elif 'Documents' in user_folder:
+        return os.path.join(user_location, 'Documents')
+    else:
+        return user_location
 
 
 def insert_footer(canvas, doc):

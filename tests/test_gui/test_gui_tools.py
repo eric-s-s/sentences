@@ -1,8 +1,10 @@
 import unittest
 
+import os
 import tkinter as tk
+from tkinter.filedialog import askopenfilename, askdirectory
 
-from sentences.gui.gui_tools import validate_int, IntSpinBox
+from sentences.gui.gui_tools import validate_int, IntSpinBox, PctSpinBox, FilenameVar, DirectoryVar, PopupSelectVar
 
 
 class TestGuiTools(unittest.TestCase):
@@ -99,3 +101,51 @@ class TestGuiTools(unittest.TestCase):
         answer = box.get_int()
         self.assertEqual(answer, 7)
         self.assertEqual(box.get(), '7')
+
+    def test_PctSpinBox(self):
+        box = PctSpinBox()
+        self.assertEqual(box.range, (0, 100))
+        box.insert(0, '2')
+        self.assertEqual(box.get_int(), 20)
+        self.assertEqual(box.get_probability(), 0.2)
+
+    def test_PopupSelectVar_empty_value(self):
+        def mock_dialog(initialdir, title):
+            return 'dir: {}, title: {}'.format(initialdir, title)
+
+        new_var = PopupSelectVar(popup_title='omg')
+        new_var.popup_func = mock_dialog
+
+        new_var.set_with_popup()
+        self.assertEqual(new_var.get(), 'dir: {}, title: omg'.format(os.path.expanduser('~')))
+
+    def test_PopupSelectVar_bad_value(self):
+        def mock_dialog(initialdir, title):
+            return 'dir: {}, title: {}'.format(initialdir, title)
+
+        new_var = PopupSelectVar(popup_title='omg')
+        new_var.popup_func = mock_dialog
+        new_var.set('this could not possibly be a directory.')
+
+        new_var.set_with_popup()
+        self.assertEqual(new_var.get(), 'dir: {}, title: omg'.format(os.path.expanduser('~')))
+
+    def test_PopupSelectVar_correct_value(self):
+        def mock_dialog(initialdir, title):
+            return 'dir: {}, title: {}'.format(initialdir, title)
+
+        new_var = PopupSelectVar(popup_title='omg')
+        new_var.popup_func = mock_dialog
+        new_var.set('.')
+
+        new_var.set_with_popup()
+        self.assertEqual(new_var.get(), 'dir: ., title: omg')
+
+    def test_FilenameVar(self):
+        new_var = FilenameVar()
+        self.assertEqual(new_var.popup_func, askopenfilename)
+
+    def test_DirectoryVar(self):
+        new_var = DirectoryVar()
+        self.assertEqual(new_var.popup_func, askdirectory)
+
