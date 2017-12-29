@@ -2,10 +2,10 @@
 
 import tkinter as tk
 
-from sentences.gui.gui_tools import PctSpinBox
+from sentences.gui.gui_tools import PctSpinBox, SetVariablesFrame
 
 
-class GrammarDetails(tk.Frame):
+class GrammarDetails(SetVariablesFrame):
 
     def __init__(self, *args, **kwargs):
 
@@ -17,9 +17,9 @@ class GrammarDetails(tk.Frame):
         """
         super(GrammarDetails, self).__init__(*args, **kwargs)
 
-        self.plural_noun = PctSpinBox(master=self)
-        self.negative_verb = PctSpinBox(master=self)
-        self.pronoun = PctSpinBox(master=self)
+        self.probability_plural_noun = PctSpinBox(master=self)
+        self.probability_negative_verb = PctSpinBox(master=self)
+        self.probability_pronoun = PctSpinBox(master=self)
         plu_label = tk.Label(master=self, text='% chance of plural noun')
         neg_label = tk.Label(master=self, text='% chance of negative verb')
         pro_label = tk.Label(master=self, text='% chance of pronoun')
@@ -37,11 +37,11 @@ class GrammarDetails(tk.Frame):
         # TODO DELETE
 
         plu_label.grid(row=0)
-        self.plural_noun.grid(row=0, column=1)
+        self.probability_plural_noun.grid(row=0, column=1)
         neg_label.grid(row=1)
-        self.negative_verb.grid(row=1, column=1)
+        self.probability_negative_verb.grid(row=1, column=1)
         pro_label.grid(row=2)
-        self.pronoun.grid(row=2, column=1)
+        self.probability_pronoun.grid(row=2, column=1)
 
     def _init_radio_button(self):
         self.tense.set('simple_present')
@@ -64,9 +64,9 @@ class GrammarDetails(tk.Frame):
         """
         return {
             'tense': self.tense.get(),
-            'probability_plural_noun': self.plural_noun.get_probability(),
-            'probability_negative_verb': self.negative_verb.get_probability(),
-            'probability_pronoun': self.pronoun.get_probability()
+            'probability_plural_noun': self.probability_plural_noun.get_probability(),
+            'probability_negative_verb': self.probability_negative_verb.get_probability(),
+            'probability_pronoun': self.probability_pronoun.get_probability()
         }
 
     def get_num(self):

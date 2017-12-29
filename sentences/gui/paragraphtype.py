@@ -1,10 +1,10 @@
 
 import tkinter as tk
 
-from sentences.gui.gui_tools import IntSpinBox
+from sentences.gui.gui_tools import IntSpinBox, SetVariablesFrame
 
 
-class ParagraphType(tk.Frame):
+class ParagraphType(SetVariablesFrame):
 
     def __init__(self, *args, **kwargs):
         super(ParagraphType, self).__init__(*args, **kwargs)

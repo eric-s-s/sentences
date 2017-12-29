@@ -3,6 +3,7 @@ import os
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 
+
 def validate_int(new_val):
     return new_val.isdigit() or new_val == ''
 
@@ -27,6 +28,10 @@ class IntSpinBox(tk.Spinbox):
         self.insert(0, answer)
         return answer
 
+    def set_int(self, num):
+        self.delete(0, tk.END)
+        self.insert(0, str(num))
+
 
 class PctSpinBox(IntSpinBox):
     def __init__(self, *args, **kwargs):
@@ -35,6 +40,10 @@ class PctSpinBox(IntSpinBox):
 
     def get_probability(self):
         return self.get_int()/100.
+
+    def set_probability(self, probability):
+        pct = int(probability * 100)
+        self.set_int(pct)
 
 
 class PopupSelectVar(tk.StringVar):
@@ -61,3 +70,19 @@ class FilenameVar(PopupSelectVar):
 
 class DirectoryVar(PopupSelectVar):
     popup_func = askdirectory
+
+
+class SetVariablesFrame(tk.Frame):
+    def __init__(self, *args, **kwargs):
+        super(SetVariablesFrame, self).__init__(*args, **kwargs)
+
+    def set_variable(self, key, value):
+        variable = getattr(self, key)
+        if isinstance(variable, PctSpinBox) and isinstance(value, float):
+            variable.set_probability(value)
+        elif isinstance(variable, IntSpinBox) and isinstance(value, int):
+            variable.set_int(value)
+        elif isinstance(variable, tk.IntVar) and isinstance(value, bool):
+            variable.set(int(value))
+        else:
+            variable.set(value)

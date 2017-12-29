@@ -18,9 +18,9 @@ class TestParagraphType(unittest.TestCase):
             'probability_pronoun': 0.0
         })
 
-        self.assertIsInstance(self.frame.plural_noun, PctSpinBox)
-        self.assertIsInstance(self.frame.negative_verb, PctSpinBox)
-        self.assertIsInstance(self.frame.pronoun, PctSpinBox)
+        self.assertIsInstance(self.frame.probability_plural_noun, PctSpinBox)
+        self.assertIsInstance(self.frame.probability_negative_verb, PctSpinBox)
+        self.assertIsInstance(self.frame.probability_pronoun, PctSpinBox)
 
         self.assertEqual(self.frame.tense.get(), 'simple_present')
 
@@ -40,9 +40,9 @@ class TestParagraphType(unittest.TestCase):
 
     def test_set_get_values(self):
         self.frame.tense.set('simple_past')
-        self.frame.plural_noun.insert(0, '2')
-        self.frame.negative_verb.insert(0, '5')
-        self.frame.pronoun.insert(0, '100')
+        self.frame.probability_plural_noun.insert(0, '2')
+        self.frame.probability_negative_verb.insert(0, '5')
+        self.frame.probability_pronoun.insert(0, '100')
         self.assertEqual(self.frame.get_values(), {
             'tense': 'simple_past',
             'probability_plural_noun': 0.2,

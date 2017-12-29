@@ -4,7 +4,8 @@ import os
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 
-from sentences.gui.gui_tools import validate_int, IntSpinBox, PctSpinBox, FilenameVar, DirectoryVar, PopupSelectVar
+from sentences.gui.gui_tools import (validate_int, IntSpinBox, PctSpinBox, FilenameVar, DirectoryVar, PopupSelectVar,
+                                     SetVariablesFrame)
 
 
 class TestGuiTools(unittest.TestCase):
@@ -102,12 +103,51 @@ class TestGuiTools(unittest.TestCase):
         self.assertEqual(answer, 7)
         self.assertEqual(box.get(), '7')
 
+    def test_IntSpinBox_set_int(self):
+        box = IntSpinBox(range_=(3, 5))
+        box.set_int(-2)
+        self.assertEqual(box.get_int(), 3)
+
+        box.set_int(100)
+        self.assertEqual(box.get_int(), 5)
+
+        box.set_int(3)
+        self.assertEqual(box.get_int(), 3)
+
+        box.set_int(4)
+        self.assertEqual(box.get_int(), 4)
+
+        box.set_int(5)
+        self.assertEqual(box.get_int(), 5)
+
     def test_PctSpinBox(self):
         box = PctSpinBox()
         self.assertEqual(box.range, (0, 100))
         box.insert(0, '2')
         self.assertEqual(box.get_int(), 20)
         self.assertEqual(box.get_probability(), 0.2)
+
+    def test_PctSpinBox_get_probability_sets_to_max_or_min(self):
+        box = PctSpinBox()
+        box.insert(0, '500')
+        self.assertEqual(box.get_probability(), 1.0)
+        self.assertEqual(box.get(), '100')
+
+        box.delete(0, tk.END)
+        self.assertEqual(box.get_probability(), 0.0)
+        self.assertEqual(box.get(), '0')
+
+    def test_PctSpinBox_set_probability(self):
+        box = PctSpinBox()
+        box.set_probability(0.22)
+        self.assertEqual(box.get_probability(), 0.22)
+        self.assertEqual(box.get(), '22')
+
+        box.set_probability(1.1)
+        self.assertEqual(box.get_probability(), 1.0)
+
+        box.set_probability(-0.2)
+        self.assertEqual(box.get_probability(), 0.0)
 
     def test_PopupSelectVar_empty_value(self):
         def mock_dialog(initialdir, title):
@@ -148,4 +188,42 @@ class TestGuiTools(unittest.TestCase):
     def test_DirectoryVar(self):
         new_var = DirectoryVar()
         self.assertEqual(new_var.popup_func, askdirectory)
+
+    def test_SetVariableFrame_raise_attribute_error(self):
+        frame = SetVariablesFrame()
+        self.assertRaises(AttributeError, frame.set_variable, 'not_there', 2)
+
+    def test_SetVariableFrame_PctSpinBox_and_float(self):
+        frame = SetVariablesFrame()
+        frame.pct = PctSpinBox()
+        frame.set_variable('pct', 0.3)
+        self.assertEqual(frame.pct.get_probability(), 0.3)
+
+    def test_SetVariableFrame_IntBox_and_int(self):
+        frame = SetVariablesFrame()
+        frame.int = IntSpinBox(range_=(2, 10))
+        frame.set_variable('int', 11)
+        self.assertEqual(frame.int.get_int(), 10)
+
+    def test_SetVariableFrame_IntVar_and_bool(self):
+        frame = SetVariablesFrame()
+        frame.boolean = tk.IntVar()
+        frame.set_variable('boolean', True)
+        self.assertEqual(frame.boolean.get(), 1)
+        frame.set_variable('boolean', False)
+        self.assertEqual(frame.boolean.get(), 0)
+
+    def test_SetVariableFrame_PopupSelectVar_str(self):
+        frame = SetVariablesFrame()
+        frame.selector = PopupSelectVar()
+        frame.set_variable('selector', 'new_value')
+        self.assertEqual(frame.selector.get(), 'new_value')
+
+    def test_SetVariableFrame_unanticipated_value_defaults_to_set(self):
+        frame = SetVariablesFrame()
+        frame.fail = PctSpinBox()
+        frame.succeed = tk.IntVar()
+        frame.set_variable('succeed', -2)
+        self.assertEqual(frame.succeed.get(), -2)
+        self.assertRaises(AttributeError, frame.set_variable, 'fail', '1')
 
