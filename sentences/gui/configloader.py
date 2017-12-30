@@ -1,63 +1,23 @@
 import os
 
+from sentences.gui.gui_tools import SetVariablesFrame
 from sentences import DATA_PATH, APP_NAME
 
+DEFAULT_SAVE_DIR = 'pdfs'
+COUNTABLE_NOUNS_CSV = 'nouns.csv'
+UNCOUNTABLE_NOUNS_CSV = 'uncountable.csv'
+VERBS_CSV = 'verbs.csv'
 
-
-"""
-    def generate_default_csv_files(self):
-        self.move_old_files_to_new_location()
-        for filename in DEFAULT_CSVS:
-            default_filename = os.path.join(DATA_PATH, filename)
-            target_filename = os.path.join(self.home_directory.get(), filename)
-            with open(default_filename, 'r') as read_file:
-                with open(target_filename, 'w') as write_file:
-                    write_file.write(read_file.read())
-        self._set_default_csv_values()
-
-    def move_old_files_to_new_location(self):
-        home_folder = self.home_directory.get()
-        for filename in DEFAULT_CSVS:
-            try:
-                with open(os.path.join(home_folder, filename), 'r') as original:
-                    original_text = original.read()
-            except (IOError, FileNotFoundError, OSError):
-                continue
-
-            base_filename = os.path.join(home_folder, filename.replace('.csv', '_old_{}.csv'))
-            counter = 0
-            while os.path.exists(base_filename.format(counter)):
-                counter += 1
-
-            with open(base_filename.format(counter), 'w') as target:
-                target.write(original_text)
-
-"""
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
-
-
-def has_config_file():
-    return os.path.exists(CONFIG_FILE)
+DEFAULT_CONFIG = os.path.join(DATA_PATH, 'default.cfg')
 
 
 def create_default_config():
-    default_location = os.path.join(DATA_PATH, 'default.cfg')
-    with open(default_location, 'r') as default_file:
+    with open(DEFAULT_CONFIG, 'r') as default_file:
         default_text = default_file.read()
 
     with open(CONFIG_FILE, 'w') as target:
         target.write(default_text)
-
-
-def get_documents_folder():
-    user_location = os.path.expanduser('~')
-    user_folder = os.listdir(user_location)
-    if 'My Documents' in user_folder:
-        return os.path.join(user_location, 'My Documents')
-    elif 'Documents' in user_folder:
-        return os.path.join(user_location, 'Documents')
-    else:
-        return user_location
 
 
 def get_key_value_list(config_file):
@@ -74,7 +34,7 @@ def get_key_value_list(config_file):
 
 def get_key_value(line):
     if not line.strip():
-        return None, None
+        return '', None
     key, value = line.split('=')
     key = key.strip()
     value = value.strip()
@@ -92,9 +52,114 @@ def get_key_value(line):
     except KeyError:
         return key, value
 
-# class ConfigLoader(object):
-#     def __init__(self):
-#         if not has_config_file():
-#             create_default_config()
-#
-#         self.dictionary = self._load_config
+
+def save_config(dictionary):
+    lines = get_key_value_list(DEFAULT_CONFIG)
+    to_write = []
+    for key, value in lines:
+        if not key or key.startswith('#'):
+            to_write.append(key)
+        else:
+            if key in dictionary:
+                value = dictionary[key]
+            to_write.append(create_line(key, value))
+    with open(CONFIG_FILE, 'w') as f:
+        f.write('\n'.join(to_write))
+
+
+def create_line(key, value):
+    value_str = str(value)
+    if value_str in ['True', 'False', 'None']:
+        value_str = value_str.lower()
+    line = ' = '.join((key, value_str))
+    return line
+
+
+def load_config(config_file):
+    key_val_list = get_key_value_list(config_file)
+    return {key: value for key, value in key_val_list if key and not key.startswith('#')}
+
+
+class ConfigLoader(object):
+    def __init__(self):
+        try:
+            self._dictionary = load_config(CONFIG_FILE)
+        except (ValueError, OSError):
+            create_default_config()
+            self._dictionary = load_config(CONFIG_FILE)
+
+        self._set_up_directories()
+        self._set_up_word_files()
+
+    def _set_up_directories(self):
+        home_dir = self._dictionary['home_directory']
+        save_dir = self._dictionary['save_directory']
+
+        if home_dir is None:
+            home_dir = os.path.join(get_documents_folder(), APP_NAME)
+        if save_dir is None:
+            save_dir = os.path.join(home_dir, DEFAULT_SAVE_DIR)
+
+        if not os.path.exists(home_dir):
+            os.mkdir(home_dir)
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+
+        self._dictionary['home_directory'] = home_dir
+        self._dictionary['save_directory'] = save_dir
+
+    def _set_up_word_files(self):
+        home_dir = self._dictionary['home_directory']
+        file_keys = ['countable_nouns', 'uncountable_nouns', 'verbs']
+        default_names = [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]
+        for key, default_name in zip(file_keys, default_names):
+            full_default_name = os.path.join(home_dir, default_name)
+
+            filename = self._dictionary[key]
+            if filename is None:
+                filename = full_default_name
+
+            while not os.path.exists(filename):
+                if filename == full_default_name:
+                    with open(os.path.join(DATA_PATH, default_name), 'r') as read_file:
+                        with open(filename, 'w') as write_file:
+                            write_file.write(read_file.read())
+                else:
+                    filename = full_default_name
+            self._dictionary[key] = filename
+
+    def reload(self):
+        self._dictionary = load_config(CONFIG_FILE)
+        self._set_up_directories()
+        self._set_up_word_files()
+
+    def save_and_reload(self, config_dict):
+        save_config(config_dict)
+        self.reload()
+
+    def factory_reset(self):
+        app_folder = os.path.join(get_documents_folder(), APP_NAME)
+        for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
+            full_path = os.path.join(app_folder, filename)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+        create_default_config()
+        self.reload()
+
+    def setup_frame(self, frame: SetVariablesFrame):
+        for key, value in self._dictionary.items():
+            try:
+                frame.set_variable(key, value)
+            except AttributeError:
+                continue
+
+
+def get_documents_folder():
+    user_location = os.path.expanduser('~')
+    user_folder = os.listdir(user_location)
+    if 'My Documents' in user_folder:
+        return os.path.join(user_location, 'My Documents')
+    elif 'Documents' in user_folder:
+        return os.path.join(user_location, 'Documents')
+    else:
+        return user_location
