@@ -1,25 +1,21 @@
 
 import tkinter as tk
-from sentences.gui.gui_tools import PctSpinBox, SetVariablesFrame
+from tkinter.font import Font
+from sentences.gui.gui_tools import PctSpinBox, SetVariablesFrame, INTBOX_WIDTH
 
 
 class ErrorDetails(SetVariablesFrame):
 
     def __init__(self, *args, **kwargs):
-
-        """
-        probability_error = 0.2
-
-        noun_errors = true
-        verb_errors = true
-        punctuation_errors = true
-
-        """
         super(ErrorDetails, self).__init__(*args, **kwargs)
 
         error_probability = tk.Frame(master=self)
-        tk.Label(master=error_probability, text='% chance for error: ').pack(side=tk.LEFT)
-        self.error_probability = PctSpinBox(master=error_probability)
+
+        default_size = Font(font='TkDefaultFont').cget('size')
+        tk.Label(master=error_probability, text='% chance for error: ', font=(None, default_size + 2)).pack(
+            side=tk.LEFT)
+
+        self.error_probability = PctSpinBox(master=error_probability, width=INTBOX_WIDTH)
         self.error_probability.pack(side=tk.LEFT)
 
         self.noun_errors = tk.IntVar()
@@ -27,7 +23,7 @@ class ErrorDetails(SetVariablesFrame):
         self.punctuation_errors = tk.IntVar()
         self.select_all = tk.IntVar()
 
-        error_probability.pack()
+        error_probability.pack(padx=10, pady=10)
         tk.Label(master=self, text='select types of errors\n-------------').pack()
         tk.Checkbutton(master=self, text='select/de-select all', variable=self.select_all,
                        command=self._toggle_all).pack(anchor=tk.W)

@@ -44,10 +44,10 @@ class TestParagraphType(unittest.TestCase):
         })
 
     def test_set_get_values(self):
-        self.frame.error_probability.insert(0, '3')
-        self.frame.noun_errors.set(1)
-        self.frame.verb_errors.set(0)
-        self.frame.punctuation_errors.set(1)
+        self.frame.set_variable('error_probability', 0.3)
+        self.frame.set_variable('noun_errors', True)
+        self.frame.set_variable('verb_errors', False)
+        self.frame.set_variable('punctuation_errors', True)
         self.assertEqual(self.frame.get_values(), {
             'error_probability': 0.3,
             'noun_errors': True,

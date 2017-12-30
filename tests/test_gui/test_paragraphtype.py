@@ -42,13 +42,13 @@ class TestParagraphType(unittest.TestCase):
                 self.assertEqual(value, self.frame.paragraph_type.get())
 
     def test_set_get_values(self):
-        self.frame.paragraph_type.set('pool')
-        self.frame.paragraph_size.insert(0, '100')
-        self.frame.num_paragraphs.insert(0, '100')
-        self.frame.subject_pool.insert(0, '100')
+        self.frame.set_variable('paragraph_type', 'pool')
+        self.frame.set_variable('num_paragraphs', 7)
+        self.frame.set_variable('paragraph_size', 70)
+        self.frame.set_variable('subject_pool', -700)
         self.assertEqual(self.frame.get_values(), {
-            'num_paragraphs': 10,
+            'num_paragraphs': 7,
             'paragraph_size': 20,
-            'subject_pool': 15,
+            'subject_pool': 2,
             'paragraph_type': 'pool'
         })

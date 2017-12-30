@@ -4,6 +4,9 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 
 
+INTBOX_WIDTH = 7
+
+
 def validate_int(new_val):
     return new_val.isdigit() or new_val == ''
 

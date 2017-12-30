@@ -1,6 +1,6 @@
 import os
 
-from sentences import DATA_PATH
+from sentences import DATA_PATH, APP_NAME
 
 
 
@@ -40,7 +40,7 @@ def has_config_file():
     return os.path.exists(CONFIG_FILE)
 
 
-def create_default_file():
+def create_default_config():
     default_location = os.path.join(DATA_PATH, 'default.cfg')
     with open(default_location, 'r') as default_file:
         default_text = default_file.read()
@@ -58,3 +58,43 @@ def get_documents_folder():
         return os.path.join(user_location, 'Documents')
     else:
         return user_location
+
+
+def get_key_value_list(config_file):
+    with open(config_file, 'r') as f:
+        lines = f.read().split('\n')
+    answer = []
+    for line in lines:
+        if line.startswith('#'):
+            answer.append((line, None))
+        else:
+            answer.append(get_key_value(line))
+    return answer
+
+
+def get_key_value(line):
+    if not line.strip():
+        return None, None
+    key, value = line.split('=')
+    key = key.strip()
+    value = value.strip()
+    if value.isdigit():
+        return key, int(value)
+
+    try:
+        return key, float(value)
+    except ValueError:
+        pass
+
+    special_strings = {'none': None, 'true': True, 'false': False}
+    try:
+        return key, special_strings[value.lower()]
+    except KeyError:
+        return key, value
+
+# class ConfigLoader(object):
+#     def __init__(self):
+#         if not has_config_file():
+#             create_default_config()
+#
+#         self.dictionary = self._load_config

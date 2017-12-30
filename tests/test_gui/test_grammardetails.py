@@ -39,10 +39,10 @@ class TestParagraphType(unittest.TestCase):
                 self.assertEqual(value, self.frame.tense.get())
 
     def test_set_get_values(self):
-        self.frame.tense.set('simple_past')
-        self.frame.probability_plural_noun.insert(0, '2')
-        self.frame.probability_negative_verb.insert(0, '5')
-        self.frame.probability_pronoun.insert(0, '100')
+        self.frame.set_variable('tense', 'simple_past')
+        self.frame.set_variable('probability_plural_noun', 0.2)
+        self.frame.set_variable('probability_negative_verb', 0.5)
+        self.frame.set_variable('probability_pronoun', 1.0)
         self.assertEqual(self.frame.get_values(), {
             'tense': 'simple_past',
             'probability_plural_noun': 0.2,

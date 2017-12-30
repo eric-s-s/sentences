@@ -1,7 +1,7 @@
 
 import tkinter as tk
 
-from sentences.gui.gui_tools import IntSpinBox, SetVariablesFrame
+from sentences.gui.gui_tools import IntSpinBox, SetVariablesFrame, INTBOX_WIDTH
 
 
 class ParagraphType(SetVariablesFrame):
@@ -13,9 +13,9 @@ class ParagraphType(SetVariablesFrame):
         paragraph_size_range = (1, 20)
         subject_pool_range = (2, 15)
 
-        self.num_paragraphs = IntSpinBox(master=self, range_=num_paragraphs_range)
-        self.paragraph_size = IntSpinBox(master=self, range_=paragraph_size_range)
-        self.subject_pool = IntSpinBox(master=self, range_=subject_pool_range)
+        self.num_paragraphs = IntSpinBox(master=self, range_=num_paragraphs_range, width=INTBOX_WIDTH)
+        self.paragraph_size = IntSpinBox(master=self, range_=paragraph_size_range, width=INTBOX_WIDTH)
+        self.subject_pool = IntSpinBox(master=self, range_=subject_pool_range, width=INTBOX_WIDTH)
         np_label = tk.Label(master=self, text='number of paragraphs')
         ns_label = tk.Label(master=self, text='sentences per paragraph')
         sp_label = tk.Label(master=self, text='subject pool size')

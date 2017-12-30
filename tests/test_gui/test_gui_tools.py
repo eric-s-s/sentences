@@ -56,14 +56,14 @@ class TestGuiTools(unittest.TestCase):
         box.insert(0, '2,000')
         self.assertEqual(box.get(), '020')
 
-    def test_InitSpinBox_get_int_empty(self):
+    def test_IntSpinBox_get_int_empty(self):
         box = IntSpinBox(range_=(2, 10))
         box.delete(0, tk.END)
         answer = box.get_int()
         self.assertEqual(answer, 2)
         self.assertEqual(box.get(), '2')
 
-    def test_InitSpinBox_get_int_below_min(self):
+    def test_IntSpinBox_get_int_below_min(self):
         box = IntSpinBox(range_=(2, 10))
         box.delete(0, tk.END)
         box.insert(0, '1')
@@ -71,7 +71,7 @@ class TestGuiTools(unittest.TestCase):
         self.assertEqual(answer, 2)
         self.assertEqual(box.get(), '2')
 
-    def test_InitSpinBox_get_int_above_max(self):
+    def test_IntSpinBox_get_int_above_max(self):
         box = IntSpinBox(range_=(2, 10))
         box.delete(0, tk.END)
         box.insert(0, '100')
@@ -79,7 +79,7 @@ class TestGuiTools(unittest.TestCase):
         self.assertEqual(answer, 10)
         self.assertEqual(box.get(), '10')
 
-    def test_InitSpinBox_get_int_at_max(self):
+    def test_IntSpinBox_get_int_at_max(self):
         box = IntSpinBox(range_=(2, 10))
         box.delete(0, tk.END)
         box.insert(0, '10')
@@ -87,7 +87,7 @@ class TestGuiTools(unittest.TestCase):
         self.assertEqual(answer, 10)
         self.assertEqual(box.get(), '10')
 
-    def test_InitSpinBox_get_int_at_min(self):
+    def test_IntSpinBox_get_int_at_min(self):
         box = IntSpinBox(range_=(2, 10))
         box.delete(0, tk.END)
         box.insert(0, '2')
@@ -95,7 +95,7 @@ class TestGuiTools(unittest.TestCase):
         self.assertEqual(answer, 2)
         self.assertEqual(box.get(), '2')
 
-    def test_InitSpinBox_get_int_mid_value(self):
+    def test_IntSpinBox_get_int_mid_value(self):
         box = IntSpinBox(range_=(2, 10))
         box.delete(0, tk.END)
         box.insert(0, '7')
@@ -189,7 +189,7 @@ class TestGuiTools(unittest.TestCase):
         new_var = DirectoryVar()
         self.assertEqual(new_var.popup_func, askdirectory)
 
-    def test_SetVariableFrame_raise_attribute_error(self):
+    def test_SetVariableFrame_non_existent_value_raise_attribute_error(self):
         frame = SetVariablesFrame()
         self.assertRaises(AttributeError, frame.set_variable, 'not_there', 2)
 
@@ -226,4 +226,3 @@ class TestGuiTools(unittest.TestCase):
         frame.set_variable('succeed', -2)
         self.assertEqual(frame.succeed.get(), -2)
         self.assertRaises(AttributeError, frame.set_variable, 'fail', '1')
-

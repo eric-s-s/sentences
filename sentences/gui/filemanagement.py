@@ -1,4 +1,3 @@
-import os
 import tkinter as tk
 
 from sentences.gui.gui_tools import FilenameVar, DirectoryVar, SetVariablesFrame
@@ -10,8 +9,8 @@ class FileManagement(SetVariablesFrame):
         self.home_directory = DirectoryVar('home folder:')
         self.save_directory = DirectoryVar('save folder:')
         self.countable_nouns = FilenameVar('countable nouns:')
-        self.uncountable_nouns = FilenameVar('verbs:')
-        self.verbs = FilenameVar('uncountable nouns:')
+        self.uncountable_nouns = FilenameVar('uncountable nouns:')
+        self.verbs = FilenameVar('verbs:')
 
         self._set_to_none()
 

@@ -2,24 +2,17 @@
 
 import tkinter as tk
 
-from sentences.gui.gui_tools import PctSpinBox, SetVariablesFrame
+from sentences.gui.gui_tools import PctSpinBox, SetVariablesFrame, INTBOX_WIDTH
 
 
 class GrammarDetails(SetVariablesFrame):
 
     def __init__(self, *args, **kwargs):
-
-        """
-        present_tense = true
-        probability_plural_noun = 0.3
-        probability_negative_verb = 0.3
-        probability_pronoun = 0.2
-        """
         super(GrammarDetails, self).__init__(*args, **kwargs)
 
-        self.probability_plural_noun = PctSpinBox(master=self)
-        self.probability_negative_verb = PctSpinBox(master=self)
-        self.probability_pronoun = PctSpinBox(master=self)
+        self.probability_plural_noun = PctSpinBox(master=self, width=INTBOX_WIDTH)
+        self.probability_negative_verb = PctSpinBox(master=self, width=INTBOX_WIDTH)
+        self.probability_pronoun = PctSpinBox(master=self, width=INTBOX_WIDTH)
         plu_label = tk.Label(master=self, text='% chance of plural noun')
         neg_label = tk.Label(master=self, text='% chance of negative verb')
         pro_label = tk.Label(master=self, text='% chance of pronoun')
