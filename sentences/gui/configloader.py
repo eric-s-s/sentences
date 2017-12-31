@@ -66,7 +66,9 @@ class ConfigLoader(object):
         self._set_up_word_files()
 
     def save_and_reload(self, config_dict):
-        save_config(config_dict)
+        full_config = self._dictionary.copy()
+        full_config.update(config_dict)
+        save_config(full_config)
         self.reload()
 
     def revert_to_default(self):

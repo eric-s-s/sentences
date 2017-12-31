@@ -323,20 +323,63 @@ class TestConfigLoader(unittest.TestCase):
         new = ConfigLoader()
         new_home = os.path.abspath('delete_me')
         old_home = os.path.join(get_documents_folder(), APP_NAME)
+        full_config = new._dictionary.copy()
+        full_config.update({'home_directory': new_home})
+        self.assertNotEqual(full_config, new._dictionary)
+
+        save_config(full_config)
+        new.reload()
+
+        self.assertEqual(full_config, new._dictionary)
+        for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
+            with open(os.path.join(DATA_PATH, filename), 'r') as default:
+                with open(os.path.join(old_home, filename), 'r') as target:
+                    self.assertEqual(default.read(), target.read())
+        # new_home should be empty. If this raises an error, there's something very wrong.
+        os.rmdir(new_home)
+
+    def test_ConfigLoader_reload_home_directory_change_NEEDS_TO_UPDATE_FULL_CONFIG(self):
+        rm_config()
+        new = ConfigLoader()
+        new_home = os.path.abspath('delete_me')
+        old_home = os.path.join(get_documents_folder(), APP_NAME)
+
         save_config({'home_directory': new_home})
         new.reload()
 
         to_check = {'countable_nouns': COUNTABLE_NOUNS_CSV,
                     'uncountable_nouns': UNCOUNTABLE_NOUNS_CSV,
                     'verbs': VERBS_CSV}
-
         for key, filename in to_check.items():
-            full_path = os.path.join(old_home, filename)
-            self.assertEqual(new._dictionary[key], full_path)
+            self.assertEqual(new._dictionary[key], os.path.join(new_home, filename))
+
             with open(os.path.join(DATA_PATH, filename), 'r') as default:
-                with open(full_path, 'r') as target:
+                default_text = default.read()
+
+            with open(os.path.join(old_home, filename), 'r') as old_file:
+                self.assertEqual(old_file.read(), default_text)
+            with open(os.path.join(new_home, filename), 'r') as new_file:
+                self.assertEqual(new_file.read(), default_text)
+        rmtree(new_home)
+
+    def test_ConfigLoader_save_and_update_home_directory_change(self):
+        rm_config()
+        new = ConfigLoader()
+        new_home = os.path.abspath('delete_me')
+        old_home = os.path.join(get_documents_folder(), APP_NAME)
+        full_config = new._dictionary.copy()
+        full_config.update({'home_directory': new_home})
+        self.assertNotEqual(full_config, new._dictionary)
+
+        new.save_and_reload({'home_directory': new_home})
+
+        self.assertEqual(full_config, new._dictionary)
+        for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
+            with open(os.path.join(DATA_PATH, filename), 'r') as default:
+                with open(os.path.join(old_home, filename), 'r') as target:
                     self.assertEqual(default.read(), target.read())
+        # new_home should be empty. If this raises an error, there's something very wrong.
+        os.rmdir(new_home)
 
-        self.assertEqual(new._dictionary['home_directory'], new_home)
-        self.assertEqual(new._dictionary['save_directory'], os.path.join(old_home, DEFAULT_SAVE_DIR))
-
+    # TODO revert_to_default -> doesn't erase other files
+    # TODO set_up_frame
