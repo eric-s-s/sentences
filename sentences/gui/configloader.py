@@ -12,74 +12,6 @@ CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
 DEFAULT_CONFIG = os.path.join(DATA_PATH, 'default.cfg')
 
 
-def create_default_config():
-    with open(DEFAULT_CONFIG, 'r') as default_file:
-        default_text = default_file.read()
-
-    with open(CONFIG_FILE, 'w') as target:
-        target.write(default_text)
-
-
-def get_key_value_list(config_file):
-    with open(config_file, 'r') as f:
-        lines = f.read().split('\n')
-    answer = []
-    for line in lines:
-        if line.startswith('#'):
-            answer.append((line, None))
-        else:
-            answer.append(get_key_value(line))
-    return answer
-
-
-def get_key_value(line):
-    if not line.strip():
-        return '', None
-    key, value = line.split('=')
-    key = key.strip()
-    value = value.strip()
-    if value.isdigit():
-        return key, int(value)
-
-    try:
-        return key, float(value)
-    except ValueError:
-        pass
-
-    special_strings = {'none': None, 'true': True, 'false': False}
-    try:
-        return key, special_strings[value.lower()]
-    except KeyError:
-        return key, value
-
-
-def save_config(dictionary):
-    lines = get_key_value_list(DEFAULT_CONFIG)
-    to_write = []
-    for key, value in lines:
-        if not key or key.startswith('#'):
-            to_write.append(key)
-        else:
-            if key in dictionary:
-                value = dictionary[key]
-            to_write.append(create_line(key, value))
-    with open(CONFIG_FILE, 'w') as f:
-        f.write('\n'.join(to_write))
-
-
-def create_line(key, value):
-    value_str = str(value)
-    if value_str in ['True', 'False', 'None']:
-        value_str = value_str.lower()
-    line = ' = '.join((key, value_str))
-    return line
-
-
-def load_config(config_file):
-    key_val_list = get_key_value_list(config_file)
-    return {key: value for key, value in key_val_list if key and not key.startswith('#')}
-
-
 class ConfigLoader(object):
     def __init__(self):
         try:
@@ -137,7 +69,7 @@ class ConfigLoader(object):
         save_config(config_dict)
         self.reload()
 
-    def factory_reset(self):
+    def revert_to_default(self):
         app_folder = os.path.join(get_documents_folder(), APP_NAME)
         for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
             full_path = os.path.join(app_folder, filename)
@@ -146,12 +78,80 @@ class ConfigLoader(object):
         create_default_config()
         self.reload()
 
-    def setup_frame(self, frame: SetVariablesFrame):
+    def set_up_frame(self, frame: SetVariablesFrame):
         for key, value in self._dictionary.items():
             try:
                 frame.set_variable(key, value)
             except AttributeError:
                 continue
+
+
+def create_default_config():
+    with open(DEFAULT_CONFIG, 'r') as default_file:
+        default_text = default_file.read()
+
+    with open(CONFIG_FILE, 'w') as target:
+        target.write(default_text)
+
+
+def save_config(dictionary):
+    lines = _get_key_value_list(DEFAULT_CONFIG)
+    to_write = []
+    for key, value in lines:
+        if not key or key.startswith('#'):
+            to_write.append(key)
+        else:
+            if key in dictionary:
+                value = dictionary[key]
+            to_write.append(_create_line(key, value))
+    with open(CONFIG_FILE, 'w') as f:
+        f.write('\n'.join(to_write))
+
+
+def load_config(config_file):
+    key_val_list = _get_key_value_list(config_file)
+    return {key: value for key, value in key_val_list if key and not key.startswith('#')}
+
+
+def _get_key_value_list(config_file):
+    with open(config_file, 'r') as f:
+        lines = f.read().split('\n')
+    answer = []
+    for line in lines:
+        if line.startswith('#'):
+            answer.append((line, None))
+        else:
+            answer.append(_get_key_value(line))
+    return answer
+
+
+def _get_key_value(line):
+    if not line.strip():
+        return '', None
+    key, value = line.split('=')
+    key = key.strip()
+    value = value.strip()
+    if value.isdigit():
+        return key, int(value)
+
+    try:
+        return key, float(value)
+    except ValueError:
+        pass
+
+    special_strings = {'none': None, 'true': True, 'false': False}
+    try:
+        return key, special_strings[value.lower()]
+    except KeyError:
+        return key, value
+
+
+def _create_line(key, value):
+    value_str = str(value)
+    if value_str in ['True', 'False', 'None']:
+        value_str = value_str.lower()
+    line = ' = '.join((key, value_str))
+    return line
 
 
 def get_documents_folder():

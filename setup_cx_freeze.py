@@ -35,9 +35,9 @@ if sys.platform == 'win32':
 executables = [
     Executable('sentences/gui/go.py',
                base=base,
-               shortcutName='It\'s Go TIME!',
+               shortcutName='It\'s GO TIME!',
                shortcutDir='DesktopFolder',
-               icon='sentences/data/Picture_3a.ico',
+               icon='sentences/data/Picture_7a.ico',
                )
 ]
 
