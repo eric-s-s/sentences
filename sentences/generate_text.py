@@ -10,8 +10,8 @@ def generate_text(num_paragraphs=4, paragraph_size=15, subject_pool=0,
                   noun_errors=True, verb_errors=True, period_errors=True,
                   verb_file='', countable_file='', uncountable_file=''):
 
-    raw_paragraph_maker = RandomParagraph(p_pronoun=p_pronoun, verb_file=verb_file,
-                                          countable_file=countable_file, uncountable_file=uncountable_file)
+    raw_paragraph_maker = RandomParagraph(probability_pronoun=p_pronoun, verbs=verb_file,
+                                          countable_nouns=countable_file, uncountable_nouns=uncountable_file)
     present_answers = []
     present_errors = []
     past_answers = []
@@ -22,7 +22,7 @@ def generate_text(num_paragraphs=4, paragraph_size=15, subject_pool=0,
         else:
             raw_paragraph = raw_paragraph_maker.create_chain_paragraph(paragraph_size)
 
-        grammarizer = Grammarizer(raw_paragraph, p_plural=p_plural, p_negative=p_negative, present_tense=True)
+        grammarizer = Grammarizer(raw_paragraph, probability_plural_noun=p_plural, probability_negative_verb=p_negative, present_tense=True)
         present_tense = grammarizer.generate_paragraph()
         grammarizer.present_tense = False
         past_tense = grammarizer.generate_paragraph()

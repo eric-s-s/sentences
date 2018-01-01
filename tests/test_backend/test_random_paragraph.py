@@ -57,7 +57,7 @@ class TestRandomParagraph(unittest.TestCase):
     def test_get_subject_pool_raises_overflow_error(self):
         random.seed(100)
         three_nouns = 'tests/test_files/three_nouns.csv'
-        rp = RandomParagraph(uncountable_file=three_nouns, countable_file=three_nouns, p_pronoun=0.5)
+        rp = RandomParagraph(uncountable_nouns=three_nouns, countable_nouns=three_nouns, probability_pronoun=0.5)
         all_nouns_and_pronouns = rp.get_subject_pool(10)
         self.assertEqual(len(all_nouns_and_pronouns), 10)
 
@@ -86,10 +86,10 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(20)
         two_nouns = 'tests/test_files/two_nouns.csv'
         bring = 'tests/test_files/bring.csv'
-        raise_error = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, verb_file=bring,
-                                      p_pronoun=0.0)
+        raise_error = RandomParagraph(uncountable_nouns=two_nouns, countable_nouns=two_nouns, verbs=bring,
+                                      probability_pronoun=0.0)
         self.assertRaises(OverflowError, raise_error.create_pool_paragraph, 2, 10)
-        no_error = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, p_pronoun=0.0)
+        no_error = RandomParagraph(uncountable_nouns=two_nouns, countable_nouns=two_nouns, probability_pronoun=0.0)
         no_error.create_pool_paragraph(2, 100)
 
     def test_create_pool_paragraph_output(self):
@@ -115,7 +115,7 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(20)
         two_nouns = 'tests/test_files/two_nouns.csv'
         bring = 'tests/test_files/bring.csv'
-        repeats = RandomParagraph(uncountable_file=two_nouns, countable_file=two_nouns, verb_file=bring, p_pronoun=0.0)
+        repeats = RandomParagraph(uncountable_nouns=two_nouns, countable_nouns=two_nouns, verbs=bring, probability_pronoun=0.0)
         paragraph = repeats.create_chain_paragraph(3)
         expected = [
             [Noun('joe'), BasicVerb('bring', 'brought'), Noun('bob'), Noun('joe'), Punctuation.PERIOD],
@@ -125,7 +125,7 @@ class TestRandomParagraph(unittest.TestCase):
         self.assertEqual(expected, paragraph)
 
     def test_create_chain_paragraph_pronouns(self):
-        rp = RandomParagraph(p_pronoun=1.0, verb_file='tests/test_files/jump_on.csv')
+        rp = RandomParagraph(probability_pronoun=1.0, verbs='tests/test_files/jump_on.csv')
         answer = rp.create_chain_paragraph(10)
         for back_index, sentence in enumerate(answer[1:]):
             previous_obj = answer[back_index][-2]
@@ -133,7 +133,7 @@ class TestRandomParagraph(unittest.TestCase):
             self.assertEqual(previous_obj.subject(), current_subj)
 
     def test_create_chain_paragraph_nouns(self):
-        rp = RandomParagraph(p_pronoun=0.0)
+        rp = RandomParagraph(probability_pronoun=0.0)
         answer = rp.create_chain_paragraph(10)
         for back_index, sentence in enumerate(answer[1:]):
             previous_obj = answer[back_index][-2]
@@ -142,7 +142,7 @@ class TestRandomParagraph(unittest.TestCase):
 
     def test_create_chain_paragraph_assigns_random_subj_if_no_obj(self):
         random.seed(11)
-        rp = RandomParagraph(verb_file='tests/test_files/intransitive.csv')
+        rp = RandomParagraph(verbs='tests/test_files/intransitive.csv')
         answer = rp.create_chain_paragraph(3)
         expected = [
             [Noun('uncle'), BasicVerb('die'), Punctuation.PERIOD],

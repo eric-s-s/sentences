@@ -14,12 +14,12 @@ Paragraph = List[List[Union[Word, Pronoun, Punctuation]]]
 
 class Grammarizer(object):
     def __init__(self, paragraph: Paragraph, present_tense: bool = True,
-                 p_plural: float = 0.3, p_negative: float = 0.3):
+                 probability_plural_noun: float = 0.3, probability_negative_verb: float = 0.3):
         self._raw = [sentence[:] for sentence in paragraph]
 
         self.present_tense = present_tense
-        self._plural = normalize_probability(p_plural)
-        self._negative = normalize_probability(p_negative)
+        self._plural = normalize_probability(probability_plural_noun)
+        self._negative = normalize_probability(probability_negative_verb)
 
         self._noun_info = None
         self.set_nouns()

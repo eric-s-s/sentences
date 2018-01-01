@@ -23,6 +23,10 @@ class ConfigLoader(object):
         self._set_up_directories()
         self._set_up_word_files()
 
+    @property
+    def state(self):
+        return self._dictionary.copy()
+
     def _set_up_directories(self):
         home_dir = self._dictionary['home_directory']
         save_dir = self._dictionary['save_directory']

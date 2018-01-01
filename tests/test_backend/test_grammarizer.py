@@ -21,7 +21,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_get_nouns_no_nouns(self):
         random.seed(4)
-        rp = RandomParagraph(p_pronoun=1.0)
+        rp = RandomParagraph(probability_pronoun=1.0)
         raw_paragraph = rp.create_chain_paragraph(3)
         self.assertEqual(get_nouns(raw_paragraph), [])
 
@@ -119,7 +119,7 @@ class TestGrammarizer(unittest.TestCase):
             [UncountableNoun('money'), BasicVerb('grab'), Noun('witch'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('play'), Noun('watch'), Punctuation.PERIOD]
         ]
-        grammarizer = Grammarizer(paragraph, p_plural=0.5)
+        grammarizer = Grammarizer(paragraph, probability_plural_noun=0.5)
 
         random.seed(10)
 
@@ -152,7 +152,7 @@ class TestGrammarizer(unittest.TestCase):
             [UncountableNoun('money'), BasicVerb('grab'), UncountableNoun('tea'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('have', 'had'), Noun('watch'), Punctuation.PERIOD]
         ]
-        grammarizer = Grammarizer(paragraph, p_plural=1.0)
+        grammarizer = Grammarizer(paragraph, probability_plural_noun=1.0)
         grammarizer.set_nouns()
         noun_info = {
             UncountableNoun('tea'): {'plural': False, 'definite': False, 'countable': False},
@@ -192,7 +192,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_generate_paragraph_singular_countable_noun(self):
         raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[Noun('A cat', '', 'cat'), ConjugatedVerb('grabs', 'grab'), Noun('the cat', '', 'cat'),
                      Punctuation.EXCLAMATION]]
@@ -200,7 +200,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_generate_paragraph_plural_countable_noun(self):
         raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[Noun('Cats', '', 'cat'), BasicVerb('grab'), Noun('the cats', 'the catses', 'cat'),
                      Punctuation.EXCLAMATION]]
@@ -208,7 +208,7 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_generate_paragraph_uncountable_noun(self):
         raw_paragraph = [[UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.PERIOD]]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[Noun('Water', '', 'water'), ConjugatedVerb('grabs', 'grab'), Noun('the water', '', 'water'),
                      Punctuation.PERIOD]]
@@ -218,7 +218,7 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = [
             [UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.EXCLAMATION],
             [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = ConjugatedVerb('grabs', 'grab')
         for sentence in paragraph:
@@ -228,7 +228,7 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = [
             [UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.EXCLAMATION],
             [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=0.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = ConjugatedVerb("doesn't grab", 'grab')
         for sentence in paragraph:
@@ -241,7 +241,7 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.WE, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = BasicVerb('grab')
         for sentence in paragraph:
@@ -254,7 +254,7 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.WE, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=1.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = NegativeVerb("don't grab", 'grab')
         for sentence in paragraph:
@@ -268,7 +268,7 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.WE, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=1.0, present_tense=False)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
         target_verbs = [ConjugatedVerb('grabbed', 'grab'), ConjugatedVerb('ate', 'eat'), ConjugatedVerb('sang', 'sing')]
         for sentence in paragraph:
@@ -282,7 +282,7 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.WE, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0, p_plural=1.0, present_tense=False)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
         target_verbs = [ConjugatedVerb("didn't grab", 'grab'),
                         ConjugatedVerb("didn't eat", 'eat'),
@@ -296,7 +296,7 @@ class TestGrammarizer(unittest.TestCase):
             [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
 
         ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=1.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0)
         paragraph = grammarizer.generate_paragraph()
         for sentence in paragraph:
             for word in sentence:
@@ -311,7 +311,7 @@ class TestGrammarizer(unittest.TestCase):
             [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
 
         ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0)
         paragraph = grammarizer.generate_paragraph()
         for sentence in paragraph:
             for word in sentence:
@@ -325,7 +325,7 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = 10 * [
             [UncountableNoun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
         ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.5)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.5)
         paragraph = grammarizer.generate_paragraph()
         negatives = [1, 4, 5, 7, 8]
         for index, sentence in enumerate(paragraph):
@@ -343,7 +343,7 @@ class TestGrammarizer(unittest.TestCase):
             [UncountableNoun('money'), BasicVerb('grab'), UncountableNoun('money'), Punctuation.EXCLAMATION],
             [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
         ]
-        grammarizer = Grammarizer(raw_paragraph, p_negative=0.0, p_plural=0.0)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph_1 = grammarizer.generate_paragraph()
         paragraph_2 = grammarizer.generate_paragraph()
         answer = [

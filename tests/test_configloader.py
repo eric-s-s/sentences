@@ -1,18 +1,17 @@
 import os
-from shutil import rmtree
 import unittest
+from shutil import rmtree
 
-from sentences.gui.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
-                                        VERBS_CSV, DEFAULT_SAVE_DIR,
-                                        create_default_config, save_config, load_config, ConfigLoader,
-                                        get_documents_folder, _get_key_value, _get_key_value_list,
-                                        _create_line)
+from sentences import DATA_PATH, APP_NAME
+from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
+                                    VERBS_CSV, DEFAULT_SAVE_DIR,
+                                    create_default_config, save_config, load_config, ConfigLoader,
+                                    get_documents_folder, _get_key_value, _get_key_value_list,
+                                    _create_line)
+from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.filemanagement import FileManagement
 from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.paragraphtype import ParagraphType
-from sentences.gui.errordetails import ErrorDetails
-
-from sentences import DATA_PATH, APP_NAME
 
 
 def rm_config():
@@ -217,13 +216,13 @@ class TestConfigLoader(unittest.TestCase):
 
         for key, filename in to_check.items():
             full_path = os.path.join(home_dir, filename)
-            self.assertEqual(config_loader._dictionary[key], full_path)
+            self.assertEqual(config_loader.state[key], full_path)
             with open(os.path.join(DATA_PATH, filename), 'r') as default:
                 with open(full_path, 'r') as target:
                     self.assertEqual(default.read(), target.read())
 
-        self.assertEqual(config_loader._dictionary['home_directory'], home_dir)
-        self.assertEqual(config_loader._dictionary['save_directory'], save_dir)
+        self.assertEqual(config_loader.state['home_directory'], home_dir)
+        self.assertEqual(config_loader.state['save_directory'], save_dir)
 
     def assert_default_ConfigLoader_state(self, config_loader):
         with open(DEFAULT_CONFIG, 'r') as default:
@@ -233,6 +232,37 @@ class TestConfigLoader(unittest.TestCase):
         home_dir = os.path.join(get_documents_folder(), APP_NAME)
         save_dir = os.path.join(home_dir, DEFAULT_SAVE_DIR)
         self.assert_ConfigLoader_state(config_loader, home_dir, save_dir)
+
+    def test_ConfigLoader_state_is_copy(self):
+        to_test = ConfigLoader()
+        self.assertIsNot(to_test._dictionary, to_test.state)
+
+    def test_ConfigLoader_init_whole_state(self):
+        answer = ConfigLoader().state
+        home = os.path.join(get_documents_folder(), APP_NAME)
+        expected = {
+            'home_directory': home,
+            'save_directory': os.path.join(home, DEFAULT_SAVE_DIR),
+            'countable_nouns': os.path.join(home, COUNTABLE_NOUNS_CSV),
+            'uncountable_nouns': os.path.join(home, UNCOUNTABLE_NOUNS_CSV),
+            'verbs': os.path.join(home, VERBS_CSV),
+
+            'error_probability': 0.2,
+            'noun_errors': True,
+            'verb_errors': True,
+            'punctuation_errors': True,
+
+            'tense': 'simple_present',
+            'probability_plural_noun': 0.3,
+            'probability_negative_verb': 0.3,
+            'probability_pronoun': 0.2,
+
+            'paragraph_type': 'chain',
+            'subject_pool': 5,
+            'num_paragraphs': 4,
+            'paragraph_size': 15,
+        }
+        self.assertEqual(answer, expected)
 
     def test_ConfigLoader_init_no_config_file_no_home_dir(self):
         new = ConfigLoader()
@@ -257,7 +287,7 @@ class TestConfigLoader(unittest.TestCase):
 
         with open(os.path.join(app_folder, VERBS_CSV), 'r') as f:
             self.assertEqual(f.read(), 'hi there')
-        self.assertEqual(new._dictionary['verbs'], os.path.join(app_folder, VERBS_CSV))
+        self.assertEqual(new.state['verbs'], os.path.join(app_folder, VERBS_CSV))
 
     def test_ConfigLoader_init_existing_config_file_existing_files(self):
         home = os.path.abspath('to_delete')
@@ -276,7 +306,7 @@ class TestConfigLoader(unittest.TestCase):
 
         with open(existing_verbs, 'r') as f:
             self.assertEqual(f.read(), 'exists')
-        self.assertEqual(new._dictionary['verbs'], existing_verbs)
+        self.assertEqual(new.state['verbs'], existing_verbs)
 
         rmtree(home)
         rmtree(save)
@@ -324,14 +354,14 @@ class TestConfigLoader(unittest.TestCase):
         new = ConfigLoader()
         new_home = os.path.abspath('delete_me')
         old_home = os.path.join(get_documents_folder(), APP_NAME)
-        full_config = new._dictionary.copy()
+        full_config = new.state
         full_config.update({'home_directory': new_home})
-        self.assertNotEqual(full_config, new._dictionary)
+        self.assertNotEqual(full_config, new.state)
 
         save_config(full_config)
         new.reload()
 
-        self.assertEqual(full_config, new._dictionary)
+        self.assertEqual(full_config, new.state)
         for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
             with open(os.path.join(DATA_PATH, filename), 'r') as default:
                 with open(os.path.join(old_home, filename), 'r') as target:
@@ -351,7 +381,7 @@ class TestConfigLoader(unittest.TestCase):
                     'uncountable_nouns': UNCOUNTABLE_NOUNS_CSV,
                     'verbs': VERBS_CSV}
         for key, filename in to_check.items():
-            self.assertEqual(new._dictionary[key], os.path.join(new_home, filename))
+            self.assertEqual(new.state[key], os.path.join(new_home, filename))
 
             with open(os.path.join(DATA_PATH, filename), 'r') as default:
                 default_text = default.read()
@@ -366,13 +396,13 @@ class TestConfigLoader(unittest.TestCase):
         new = ConfigLoader()
         new_home = os.path.abspath('delete_me')
         old_home = os.path.join(get_documents_folder(), APP_NAME)
-        full_config = new._dictionary.copy()
+        full_config = new.state
         full_config.update({'home_directory': new_home})
-        self.assertNotEqual(full_config, new._dictionary)
+        self.assertNotEqual(full_config, new.state)
 
         new.save_and_reload({'home_directory': new_home})
 
-        self.assertEqual(full_config, new._dictionary)
+        self.assertEqual(full_config, new.state)
         for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
             with open(os.path.join(DATA_PATH, filename), 'r') as default:
                 with open(os.path.join(old_home, filename), 'r') as target:
@@ -392,7 +422,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assert_ConfigLoader_state(new, home, save, VERBS_CSV)
         with open(verb_file, 'r') as f:
             self.assertEqual(f.read(), 'new stuff')
-        self.assertEqual(new._dictionary['verbs'], verb_file)
+        self.assertEqual(new.state['verbs'], verb_file)
 
     def test_ConfigLoader_revert_to_default_resets_csvs_but_leaves_other_files(self):
         new = ConfigLoader()

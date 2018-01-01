@@ -7,9 +7,9 @@ from sentences.words.pronoun import Pronoun
 
 
 class RandomParagraph(object):
-    def __init__(self, p_pronoun=0.2, verb_file='', countable_file='', uncountable_file=''):
-        self._p_pronoun = p_pronoun
-        self._word_maker = RandomSentences(verb_file, countable_file, uncountable_file)
+    def __init__(self, probability_pronoun=0.2, verbs='', countable_nouns='', uncountable_nouns=''):
+        self._p_pronoun = probability_pronoun
+        self._word_maker = RandomSentences(verbs, countable_nouns, uncountable_nouns)
 
     def get_subject_pool(self, size):
         pool = []
