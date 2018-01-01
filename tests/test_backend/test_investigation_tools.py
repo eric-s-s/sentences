@@ -1,16 +1,14 @@
+import random
 import unittest
 
-import random
-
-from sentences.investigation_tools import (requires_third_person, is_third_person, find_subject,
-                                           is_word_in_sentence)
+from sentences.backend.investigation_tools import (requires_third_person, is_third_person, find_subject,
+                                                   is_word_in_sentence)
+from sentences.backend.random_sentences import RandomSentences
 from sentences.words.noun import Noun
+from sentences.words.pronoun import Pronoun
+from sentences.words.punctuation import Punctuation
 from sentences.words.verb import BasicVerb
 from sentences.words.word import Word
-from sentences.random_sentences import RandomSentences
-
-from sentences.words.punctuation import Punctuation
-from sentences.words.pronoun import Pronoun
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
 period = Punctuation.PERIOD

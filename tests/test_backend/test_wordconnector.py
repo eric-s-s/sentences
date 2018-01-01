@@ -1,11 +1,10 @@
 import unittest
 
-from sentences.words.pronoun import Pronoun, Word
-from sentences.words.verb import BasicVerb
+from sentences.backend.wordconnector import connect_words, flatten_paragraph, convert_paragraph, is_punctuation
 from sentences.words.noun import Noun
+from sentences.words.pronoun import Pronoun, Word
 from sentences.words.punctuation import Punctuation
-
-from sentences.wordconnector import connect_words, flatten_paragraph, convert_paragraph, is_punctuation
+from sentences.words.verb import BasicVerb
 
 
 class TestWordConnector(unittest.TestCase):

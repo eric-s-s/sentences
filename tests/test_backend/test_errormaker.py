@@ -1,13 +1,11 @@
+import random
 import unittest
 
-import random
-
-from sentences.errormaker import copy_paragraph, make_verb_error, make_noun_error, is_negative_verb, ErrorMaker
-
-from sentences.words.word import Word
+from sentences.backend.errormaker import copy_paragraph, make_verb_error, make_noun_error, is_negative_verb, ErrorMaker
 from sentences.words.noun import Noun, PluralNoun, UncountableNoun
-from sentences.words.verb import BasicVerb, ConjugatedVerb
 from sentences.words.punctuation import Punctuation
+from sentences.words.verb import BasicVerb, ConjugatedVerb
+from sentences.words.word import Word
 
 
 class TestErrorMaker(unittest.TestCase):

@@ -1,13 +1,12 @@
 import random
 import unittest
 
-from sentences.random_sentences import RandomSentences
-
-from sentences.words.word import Word
+from sentences.backend.random_sentences import RandomSentences
 from sentences.words.noun import Noun
-from sentences.words.verb import BasicVerb
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
+from sentences.words.verb import BasicVerb
+from sentences.words.word import Word
 
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION

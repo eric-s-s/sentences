@@ -1,6 +1,6 @@
 import unittest
 
-from sentences.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
+from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
 from sentences.words.noun import Noun
 from sentences.words.verb import BasicVerb
 from sentences.words.word import Word

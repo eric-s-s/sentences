@@ -1,14 +1,12 @@
 import random
 import unittest
 
-
-from sentences.words.word import Word
-from sentences.words.verb import BasicVerb
+from sentences.backend.random_paragraph import RandomParagraph, get_subj
 from sentences.words.noun import Noun
-from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
-
-from sentences.random_paragraph import RandomParagraph, get_subj
+from sentences.words.punctuation import Punctuation
+from sentences.words.verb import BasicVerb
+from sentences.words.word import Word
 
 
 class TestRandomParagraph(unittest.TestCase):

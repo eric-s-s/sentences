@@ -7,6 +7,10 @@ from sentences.gui.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_N
                                         create_default_config, save_config, load_config, ConfigLoader,
                                         get_documents_folder, _get_key_value, _get_key_value_list,
                                         _create_line)
+from sentences.gui.filemanagement import FileManagement
+from sentences.gui.grammardetails import GrammarDetails
+from sentences.gui.paragraphtype import ParagraphType
+from sentences.gui.errordetails import ErrorDetails
 
 from sentences import DATA_PATH, APP_NAME
 
@@ -27,6 +31,10 @@ class TestConfigLoader(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         rm_config()
+
+    def setUp(self):
+        rm_config()
+        rm_app_folder()
 
     def test_CONFIG_FILE(self):
         self.assertEqual(CONFIG_FILE, os.path.join(DATA_PATH, 'config.cfg'))
@@ -227,13 +235,10 @@ class TestConfigLoader(unittest.TestCase):
         self.assert_ConfigLoader_state(config_loader, home_dir, save_dir)
 
     def test_ConfigLoader_init_no_config_file_no_home_dir(self):
-        rm_app_folder()
-        rm_config()
         new = ConfigLoader()
         self.assert_default_ConfigLoader_state(new)
 
     def test_ConfigLoader_init_corrupted_config_file(self):
-        rm_app_folder()
         with open(CONFIG_FILE, 'w') as f:
             f.write('ooooops')
 
@@ -241,8 +246,6 @@ class TestConfigLoader(unittest.TestCase):
         self.assert_default_ConfigLoader_state(new)
 
     def test_ConfigLoader_init_no_config_file_has_home_dir_and_some_files(self):
-        rm_app_folder()
-        rm_config()
         app_folder = os.path.join(get_documents_folder(), APP_NAME)
         os.mkdir(app_folder)
         with open(os.path.join(app_folder, VERBS_CSV), 'w') as f:
@@ -313,13 +316,11 @@ class TestConfigLoader(unittest.TestCase):
         self.assertRaises(OSError, ConfigLoader)
 
     def test_ConfigLoader_reload_config_config_did_not_change(self):
-        rm_config()
         new = ConfigLoader()
         new.reload()
         self.assert_default_ConfigLoader_state(new)
 
     def test_ConfigLoader_reload_home_directory_change(self):
-        rm_config()
         new = ConfigLoader()
         new_home = os.path.abspath('delete_me')
         old_home = os.path.join(get_documents_folder(), APP_NAME)
@@ -339,7 +340,6 @@ class TestConfigLoader(unittest.TestCase):
         os.rmdir(new_home)
 
     def test_ConfigLoader_reload_home_directory_change_NEEDS_TO_UPDATE_FULL_CONFIG(self):
-        rm_config()
         new = ConfigLoader()
         new_home = os.path.abspath('delete_me')
         old_home = os.path.join(get_documents_folder(), APP_NAME)
@@ -362,8 +362,7 @@ class TestConfigLoader(unittest.TestCase):
                 self.assertEqual(new_file.read(), default_text)
         rmtree(new_home)
 
-    def test_ConfigLoader_save_and_update_home_directory_change(self):
-        rm_config()
+    def test_ConfigLoader_save_and_update_home_directory_change_keeps_original_csvs(self):
         new = ConfigLoader()
         new_home = os.path.abspath('delete_me')
         old_home = os.path.join(get_documents_folder(), APP_NAME)
@@ -381,5 +380,116 @@ class TestConfigLoader(unittest.TestCase):
         # new_home should be empty. If this raises an error, there's something very wrong.
         os.rmdir(new_home)
 
-    # TODO revert_to_default -> doesn't erase other files
-    # TODO set_up_frame
+    def test_ConfigLoader_save_and_update_does_not_overwrite_files(self):
+        new = ConfigLoader()
+        home = os.path.join(get_documents_folder(), APP_NAME)
+        save = os.path.join(home, DEFAULT_SAVE_DIR)
+        verb_file = os.path.join(home, VERBS_CSV)
+        with open(verb_file, 'w') as f:
+            f.write('new stuff')
+        new.save_and_reload({})
+
+        self.assert_ConfigLoader_state(new, home, save, VERBS_CSV)
+        with open(verb_file, 'r') as f:
+            self.assertEqual(f.read(), 'new stuff')
+        self.assertEqual(new._dictionary['verbs'], verb_file)
+
+    def test_ConfigLoader_revert_to_default_resets_csvs_but_leaves_other_files(self):
+        new = ConfigLoader()
+        home = os.path.join(get_documents_folder(), APP_NAME)
+        save = os.path.join(home, DEFAULT_SAVE_DIR)
+        home_files = [VERBS_CSV, COUNTABLE_NOUNS_CSV, 'foo.txt', 'bar.txt']
+        save_files = ['foo.txt', 'bar.txt']
+        write_files = [os.path.join(home, filename) for filename in home_files]
+        write_files += [os.path.join(save, filename) for filename in save_files]
+        files_not_reset = write_files[2:]
+        for filename in write_files:
+            with open(filename, 'w') as f:
+                f.write('foobar')
+
+        new.revert_to_default()
+
+        self.assert_default_ConfigLoader_state(new)
+        for filename in files_not_reset:
+            with open(filename, 'r') as f:
+                self.assertEqual(f.read(), 'foobar')
+
+    def test_ConfigLoader_revert_to_default_creates_files_and_directories(self):
+        home_to_delete = os.path.abspath('delete_me')
+        save_config({'home_directory': home_to_delete})
+        new = ConfigLoader()
+
+        home = os.path.join(get_documents_folder(), APP_NAME)
+        self.assertFalse(os.path.exists(home))
+
+        for filename in [VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV]:
+            self.assertTrue(os.path.exists(os.path.join(home_to_delete, filename)))
+
+        new.revert_to_default()
+
+        for filename in [VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV]:
+            self.assertTrue(os.path.exists(os.path.join(home_to_delete, filename)))
+        self.assert_default_ConfigLoader_state(new)
+
+        rmtree(home_to_delete)
+
+    def test_ConfigLoader_set_up_frame_FileManagement(self):
+        fm = FileManagement()
+        loader = ConfigLoader()
+        loader.set_up_frame(fm)
+        home = os.path.join(get_documents_folder(), APP_NAME)
+        answer = {'home_directory': home,
+                  'save_directory': os.path.join(home, DEFAULT_SAVE_DIR),
+                  'countable_nouns': os.path.join(home, COUNTABLE_NOUNS_CSV),
+                  'uncountable_nouns': os.path.join(home, UNCOUNTABLE_NOUNS_CSV),
+                  'verbs': os.path.join(home, VERBS_CSV)}
+
+        self.assertEqual(fm.get_values(), answer)
+
+    def test_ConfigLoader_set_up_frame_ErrorDetails(self):
+        ed = ErrorDetails()
+        loader = ConfigLoader()
+        loader.set_up_frame(ed)
+        answer = {'error_probability': 0.2,
+                  'noun_errors': True,
+                  'verb_errors': True,
+                  'punctuation_errors': True}
+
+        self.assertEqual(ed.get_values(), answer)
+
+    def test_ConfigLoader_set_up_frame_GrammarDetails(self):
+        gd = GrammarDetails()
+        loader = ConfigLoader()
+        loader.set_up_frame(gd)
+        answer = {'tense': 'simple_present',
+                  'probability_plural_noun': 0.3,
+                  'probability_negative_verb': 0.3,
+                  'probability_pronoun': 0.2}
+
+        self.assertEqual(gd.get_values(), answer)
+
+    def test_ConfigLoader_set_up_frame_ParagraphType(self):
+        pt = ParagraphType()
+        loader = ConfigLoader()
+        loader.set_up_frame(pt)
+        answer = {'paragraph_type': 'chain',
+                  'subject_pool': 5,
+                  'num_paragraphs': 4,
+                  'paragraph_size': 15}
+
+        self.assertEqual(pt.get_values(), answer)
+
+    def test_ConfigLoader_change_default_then_set_up_again(self):
+        pt = ParagraphType()
+        loader = ConfigLoader()
+        loader.set_up_frame(pt)
+        loader.save_and_reload({'subject_pool': 3})
+        loader.set_up_frame(pt)
+
+        answer = {'paragraph_type': 'chain',
+                  'subject_pool': 3,
+                  'num_paragraphs': 4,
+                  'paragraph_size': 15}
+
+        self.assertEqual(pt.get_values(), answer)
+

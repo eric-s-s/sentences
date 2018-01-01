@@ -1,8 +1,8 @@
 import random
 
-from sentences.words.punctuation import Punctuation
+from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns
 from sentences.words.pronoun import Pronoun
-from sentences.loader import verbs, uncountable_nouns, countable_nouns
+from sentences.words.punctuation import Punctuation
 
 
 class RandomSentences(object):

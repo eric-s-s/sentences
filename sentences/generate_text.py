@@ -1,7 +1,7 @@
-from sentences.random_paragraph import RandomParagraph
-from sentences.wordconnector import convert_paragraph
-from sentences.grammarizer import Grammarizer
-from sentences.errormaker import ErrorMaker
+from sentences.backend.errormaker import ErrorMaker
+from sentences.backend.grammarizer import Grammarizer
+from sentences.backend.random_paragraph import RandomParagraph
+from sentences.backend.wordconnector import convert_paragraph
 
 
 def generate_text(num_paragraphs=4, paragraph_size=15, subject_pool=0,

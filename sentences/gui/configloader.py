@@ -72,11 +72,11 @@ class ConfigLoader(object):
         self.reload()
 
     def revert_to_default(self):
-        app_folder = os.path.join(get_documents_folder(), APP_NAME)
+        default_home_path = os.path.join(get_documents_folder(), APP_NAME)
         for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
-            full_path = os.path.join(app_folder, filename)
-            if os.path.exists(full_path):
-                os.remove(full_path)
+            default_csv_path = os.path.join(default_home_path, filename)
+            if os.path.exists(default_csv_path):
+                os.remove(default_csv_path)
         create_default_config()
         self.reload()
 

@@ -2,12 +2,12 @@ import random
 import string
 import unittest
 
-from sentences.grammarizer import normalize_probability, get_nouns, Grammarizer
-from sentences.random_paragraph import RandomParagraph
-from sentences.words.punctuation import Punctuation
-from sentences.words.pronoun import Pronoun
-from sentences.words.verb import Verb, BasicVerb, ConjugatedVerb, NegativeVerb
+from sentences.backend.grammarizer import normalize_probability, get_nouns, Grammarizer
+from sentences.backend.random_paragraph import RandomParagraph
 from sentences.words.noun import Noun, DefiniteNoun, UncountableNoun
+from sentences.words.pronoun import Pronoun
+from sentences.words.punctuation import Punctuation
+from sentences.words.verb import Verb, BasicVerb, ConjugatedVerb, NegativeVerb
 
 
 class TestGrammarizer(unittest.TestCase):

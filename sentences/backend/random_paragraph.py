@@ -1,9 +1,9 @@
 import random
-from sentences.random_sentences import RandomSentences
 
-from sentences.investigation_tools import is_word_in_sentence
-from sentences.words.pronoun import Pronoun
+from sentences.backend.investigation_tools import is_word_in_sentence
+from sentences.backend.random_sentences import RandomSentences
 from sentences.words.noun import Noun
+from sentences.words.pronoun import Pronoun
 
 
 class RandomParagraph(object):

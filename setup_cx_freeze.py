@@ -37,7 +37,7 @@ executables = [
                base=base,
                shortcutName='It\'s GO TIME!',
                shortcutDir='DesktopFolder',
-               icon='sentences/data/Picture_7a.ico',
+               icon='sentences/data/go_time.ico',
                )
 ]
 

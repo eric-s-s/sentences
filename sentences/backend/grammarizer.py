@@ -1,15 +1,13 @@
-from copy import deepcopy
 import random
+from copy import deepcopy
 from typing import List, Union
 
-from sentences.investigation_tools import requires_third_person, find_subject
-
-from sentences.words.word import Word
-from sentences.words.verb import BasicVerb
+from sentences.backend.investigation_tools import requires_third_person, find_subject
 from sentences.words.noun import Noun, PluralNoun, UncountableNoun
-from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun
-
+from sentences.words.punctuation import Punctuation
+from sentences.words.verb import BasicVerb
+from sentences.words.word import Word
 
 Paragraph = List[List[Union[Word, Pronoun, Punctuation]]]
 

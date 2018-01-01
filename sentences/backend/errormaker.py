@@ -1,11 +1,11 @@
 import random
 
-from sentences.words.word import Word
-from sentences.words.verb import Verb
+from sentences.backend.grammarizer import normalize_probability
+from sentences.backend.investigation_tools import requires_third_person
 from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
-from sentences.grammarizer import normalize_probability
-from sentences.investigation_tools import requires_third_person
+from sentences.words.verb import Verb
+from sentences.words.word import Word
 
 
 def copy_paragraph(lst_of_lst):
