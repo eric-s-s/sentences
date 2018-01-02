@@ -1,10 +1,10 @@
 import os
 
-from sentences import DATA_PATH
+from sentences import DATA_PATH, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
 
 from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.verb import BasicVerb
-from sentences.words.word import Word
+from sentences.words.word import Preposition
 
 
 def load_csv(filename):
@@ -18,19 +18,19 @@ def split_and_strip(line):
 
 
 def countable_nouns(filename=''):
-    new_filename = _default_or_file_name(filename, 'nouns.csv')
+    new_filename = _default_or_file_name(filename, COUNTABLE_NOUNS_CSV)
     raw_lines = load_csv(new_filename)
     return [Noun(*line) for line in raw_lines]
 
 
 def uncountable_nouns(filename=''):
-    new_filename = _default_or_file_name(filename, 'uncountable.csv')
+    new_filename = _default_or_file_name(filename, UNCOUNTABLE_NOUNS_CSV)
     raw_lines = load_csv(new_filename)
     return [UncountableNoun(*line) for line in raw_lines]
 
 
 def verbs(filename=''):
-    new_filename = _default_or_file_name(filename, 'verbs.csv')
+    new_filename = _default_or_file_name(filename, VERBS_CSV)
     raw_lines = load_csv(new_filename)
     return [get_verb_dict(verb_line) for verb_line in raw_lines]
 
@@ -52,7 +52,7 @@ def get_verb_dict(str_lst, intransitive=False):
     if prep == 'null':
         preposition = None
     else:
-        preposition = Word(prep)
+        preposition = Preposition(prep)
 
     if intransitive:
         obj_num = 0

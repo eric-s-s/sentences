@@ -38,17 +38,6 @@ class TestConfigLoader(unittest.TestCase):
     def test_CONFIG_FILE(self):
         self.assertEqual(CONFIG_FILE, os.path.join(DATA_PATH, 'config.cfg'))
 
-    def test_DEFAULT_CONFIG(self):
-        self.assertEqual(DEFAULT_CONFIG, os.path.join(DATA_PATH, 'default.cfg'))
-
-    def test_csv_constants(self):
-        self.assertEqual(COUNTABLE_NOUNS_CSV, 'nouns.csv')
-        self.assertEqual(UNCOUNTABLE_NOUNS_CSV, 'uncountable.csv')
-        self.assertEqual(VERBS_CSV, 'verbs.csv')
-
-    def test_DEFAULT_SAVE_DIR(self):
-        self.assertEqual(DEFAULT_SAVE_DIR, 'pdfs')
-
     def test_get_documents_folder(self):
         user_dir = os.path.expanduser('~')
         docs = os.path.join(user_dir, 'Documents')

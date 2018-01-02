@@ -1,6 +1,7 @@
 import unittest
 
-from sentences.words.word import Word, needs_es, is_y_as_long_vowel_sound, ends_with_short_vowel_and_consonant
+from sentences.words.word import (Word, needs_es, is_y_as_long_vowel_sound, ends_with_short_vowel_and_consonant,
+                                  Preposition)
 
 
 class TestWord(unittest.TestCase):
@@ -218,3 +219,14 @@ class TestWord(unittest.TestCase):
     def test_word_bold_twice_is_just_bold(self):
         word = Word('hi')
         self.assertEqual(word.bold().bold(), Word('<bold>hi</bold>'))
+
+    def test_Preposition(self):
+        test = Preposition('hi')
+        self.assertIsInstance(test, Preposition)
+        self.assertIsInstance(test, Word)
+
+        funcs = ('bold', 'value', 'capitalize', 'add_s', 'add_ed',
+                 '__lt__', '__gt__', '__le__', '__ge__', '__eq__',
+                 '__init__', '__hash__', '__str__',  '__repr__')
+        for func in funcs:
+            self.assertEqual(getattr(Preposition, func), getattr(Word, func))

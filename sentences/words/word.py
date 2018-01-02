@@ -69,6 +69,10 @@ class Word(object):
         return not self < other
 
 
+class Preposition(Word):
+    pass
+
+
 def needs_es(value: str):
     add_es = ['s', 'z', 'ch', 'sh', 'x', 'o']
     return any(value.endswith(ending) for ending in add_es)

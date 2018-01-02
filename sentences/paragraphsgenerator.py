@@ -3,17 +3,16 @@ from sentences.backend.grammarizer import Grammarizer
 from sentences.backend.random_paragraph import RandomParagraph
 from sentences.backend.wordconnector import convert_paragraph
 
-from sentences.configloader import ConfigLoader
-
 
 class ParagraphsGenerator(object):
-    def __init__(self):
-        self._options = ConfigLoader().state
+    def __init__(self, config_state):
+        self._options = config_state.copy()
         self._paragraph_generator = None  # type: RandomParagraph
         self.create_paragraph_generator()
-        
+
     def update_options(self, dictionary):
         self._options.update(dictionary)
+        self.create_paragraph_generator()
 
     def _get_kwargs(self, *keys):
         return {key: self._options[key] for key in keys}
@@ -28,9 +27,8 @@ class ParagraphsGenerator(object):
     def create_paragraph(self):
         paragraph_size = self._options['paragraph_size']
         if self._options['paragraph_type'] == 'pool':
-            raw_paragraph = self._paragraph_generator.create_pool_paragraph(
-                self._options['subject_pool'], paragraph_size
-            )
+            subj_pool = self._options['subject_pool']
+            raw_paragraph = self._paragraph_generator.create_pool_paragraph(subj_pool, paragraph_size)
         else:
             raw_paragraph = self._paragraph_generator.create_chain_paragraph(paragraph_size)
 

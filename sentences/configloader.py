@@ -1,15 +1,10 @@
 import os
 
 from sentences.gui.gui_tools import SetVariablesFrame
-from sentences import DATA_PATH, APP_NAME
+from sentences import DATA_PATH, APP_NAME, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
 
 DEFAULT_SAVE_DIR = 'pdfs'
-COUNTABLE_NOUNS_CSV = 'nouns.csv'
-UNCOUNTABLE_NOUNS_CSV = 'uncountable.csv'
-VERBS_CSV = 'verbs.csv'
-
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
-DEFAULT_CONFIG = os.path.join(DATA_PATH, 'default.cfg')
 
 
 class ConfigLoader(object):

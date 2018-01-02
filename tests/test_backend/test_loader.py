@@ -3,7 +3,7 @@ import unittest
 from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
 from sentences.words.noun import Noun
 from sentences.words.verb import BasicVerb
-from sentences.words.word import Word
+from sentences.words.word import Word, Preposition
 
 
 class TestLoader(unittest.TestCase):
@@ -59,6 +59,10 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(
             answer,
             {'verb': BasicVerb('fly', ''), 'preposition': Word('with'), 'objects': 2, 'insert_preposition': False})
+
+    def test_get_verb_dict_preposition_is_Preposition(self):
+        answer = get_verb_dict(['fly', 'flew', 'with', '2'])
+        self.assertIsInstance(answer['preposition'], Preposition)
 
     def test_verbs(self):
         answer = verbs()
