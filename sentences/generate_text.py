@@ -10,8 +10,8 @@ def generate_text(num_paragraphs=4, paragraph_size=15, subject_pool=0,
                   noun_errors=True, verb_errors=True, period_errors=True,
                   verb_file='', countable_file='', uncountable_file=''):
 
-    raw_paragraph_maker = RandomParagraph(probability_pronoun=p_pronoun, verbs=verb_file,
-                                          countable_nouns=countable_file, uncountable_nouns=uncountable_file)
+    raw_paragraph_maker = RandomParagraph(probability_pronoun=p_pronoun, verb_list=verb_file,
+                                          countable_noun_list=countable_file, uncountable_noun_list=uncountable_file)
     present_answers = []
     present_errors = []
     past_answers = []

@@ -1,17 +1,17 @@
 import random
 
-from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 
 
 class RandomSentences(object):
-    def __init__(self, verb_file='', countable_file='', uncountable_file=''):
+    def __init__(self, verb_list=None, countable_list=None, uncountable_list=None):
         self._pronouns = [pronoun for pronoun in Pronoun]
         self._endings = [Punctuation.PERIOD, Punctuation.PERIOD, Punctuation.EXCLAMATION]
-        self._countable = countable_nouns(countable_file)
-        self._verbs = verbs(verb_file)
-        self._uncountable = uncountable_nouns(uncountable_file)
+
+        self._countable = countable_list[:]
+        self._verbs = verb_list[:]
+        self._uncountable = uncountable_list[:]
 
     def sentence(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
@@ -64,4 +64,3 @@ class RandomSentences(object):
             return random.choice(self._pronouns).object()
         else:
             return random.choice(self._countable + self._uncountable)
-

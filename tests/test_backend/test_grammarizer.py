@@ -3,7 +3,6 @@ import string
 import unittest
 
 from sentences.backend.grammarizer import normalize_probability, get_nouns, Grammarizer
-from sentences.backend.random_paragraph import RandomParagraph
 from sentences.words.noun import Noun, DefiniteNoun, UncountableNoun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
@@ -20,9 +19,11 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(normalize_probability(1.2), 1.0)
 
     def test_get_nouns_no_nouns(self):
-        random.seed(4)
-        rp = RandomParagraph(probability_pronoun=1.0)
-        raw_paragraph = rp.create_chain_paragraph(3)
+        raw_paragraph = [
+            [Pronoun.I, BasicVerb('grab'), Pronoun.YOU, Punctuation.EXCLAMATION],
+            [Pronoun.WE, BasicVerb('cut', 'cut'), Pronoun.IT, Punctuation.PERIOD],
+            [Pronoun.IT, BasicVerb('have', 'had'), Pronoun.THEM, Punctuation.PERIOD]
+        ]
         self.assertEqual(get_nouns(raw_paragraph), [])
 
     def test_get_nouns_with_nouns(self):
@@ -164,8 +165,14 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(grammarizer.noun_info, noun_info)
 
     def test_generate_paragraph_returns_sentences_with_capitals(self):
-        raw_paragraph = RandomParagraph().create_chain_paragraph(10)
-        grammarizer = Grammarizer(raw_paragraph)
+        paragraph = [
+            [Noun('money'), BasicVerb('grab'), Noun('tea'), Punctuation.EXCLAMATION],
+            [Noun('tea'), BasicVerb('ride', 'rode'), Noun('apple'), Punctuation.PERIOD],
+            [Noun('apple'), BasicVerb('surprise'), Noun('gold'), Punctuation.PERIOD],
+            [Noun('gold'), BasicVerb('cut', 'cut'), Pronoun.IT, Punctuation.PERIOD],
+            [Pronoun.IT, BasicVerb('have', 'had'), Noun('watch'), Punctuation.PERIOD]
+        ]
+        grammarizer = Grammarizer(paragraph)
         paragraph = grammarizer.generate_paragraph()
         for sentence in paragraph:
             self.assertIn(sentence[0].value[0], string.ascii_uppercase)
@@ -174,7 +181,6 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = 5 * [
             [Noun('money'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
             [Noun('witch'), BasicVerb('play'), Noun('dog'), Punctuation.PERIOD],
-
         ]
         grammarizer = Grammarizer(raw_paragraph)
         paragraph = grammarizer.generate_paragraph()
@@ -268,7 +274,8 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.WE, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
-        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0, present_tense=False)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0,
+                                  probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
         target_verbs = [ConjugatedVerb('grabbed', 'grab'), ConjugatedVerb('ate', 'eat'), ConjugatedVerb('sang', 'sing')]
         for sentence in paragraph:
@@ -282,7 +289,8 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.WE, BasicVerb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, BasicVerb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
-        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=1.0, present_tense=False)
+        grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0,
+                                  probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
         target_verbs = [ConjugatedVerb("didn't grab", 'grab'),
                         ConjugatedVerb("didn't eat", 'eat'),

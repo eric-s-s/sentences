@@ -33,4 +33,9 @@ class TestParagraphGenerator(unittest.TestCase):
             'paragraph_size': 15,
         }
 
+    # def test_create_paragraph_generator(self):
+    #     test = ParagraphsGenerator(self.config_state)
+    #     paragraph_gen = test._paragraph_generator
+    #     # self.assertEqual(paragraph_gen.)
+
 

@@ -1,14 +1,12 @@
-import random
 import unittest
 
 from sentences.backend.investigation_tools import (requires_third_person, is_third_person, find_subject,
                                                    is_word_in_sentence)
-from sentences.backend.random_sentences import RandomSentences
 from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import BasicVerb
-from sentences.words.word import Word
+from sentences.words.word import Word, Preposition
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
 period = Punctuation.PERIOD
@@ -17,9 +15,7 @@ exclamation = Punctuation.EXCLAMATION
 
 class TestInvestigationTools(unittest.TestCase):
     def test_find_subject_on_standard_sentence(self):
-        random.seed(5)
-        maker = RandomSentences()
-        sentence = maker.sentence()
+        sentence = [Noun('cow'), BasicVerb('give'), Noun('frog'), Preposition('to'), Noun('pig'), period]
 
         self.assertEqual(find_subject(sentence), 0)
 
@@ -27,9 +23,8 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertEqual(find_subject(words + sentence), 2)
 
     def test_find_subject_on_standard_predicate(self):
-        random.seed(10)
-        maker = RandomSentences()
-        predicate = maker.predicate()
+
+        predicate = [BasicVerb('give'), Noun('frog'), Preposition('to'), Noun('pig'), period]
 
         self.assertEqual(find_subject(predicate), -1)
 
