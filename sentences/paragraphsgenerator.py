@@ -2,6 +2,7 @@ from sentences.backend.errormaker import ErrorMaker
 from sentences.backend.grammarizer import Grammarizer
 from sentences.backend.random_paragraph import RandomParagraph
 from sentences.backend.wordconnector import convert_paragraph
+from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns
 
 
 class ParagraphsGenerator(object):
@@ -21,8 +22,21 @@ class ParagraphsGenerator(object):
         return self._options['tense'] == 'simple_present'
 
     def create_paragraph_generator(self):
-        kwargs = self._get_kwargs('probability_pronoun', 'countable_nouns', 'uncountable_nouns', 'verbs')
+        kwargs = self._get_kwargs('probability_pronoun')
+        word_lists = self._load_word_lists()
+        kwargs.update(word_lists)
         self._paragraph_generator = RandomParagraph(**kwargs)
+
+    def _load_word_lists(self):
+        file_keys = ['countable_nouns', 'uncountable_nouns', 'verbs']
+        kwarg_keys = ['countable_noun_list', 'uncountable_noun_list', 'verb_list']
+        loaders = [countable_nouns, uncountable_nouns, verbs]
+        out = {}
+        for f_key, kwarg_key, loader in zip(file_keys, kwarg_keys, loaders):
+            filename = self._options[f_key]
+            word_list = loader(filename)
+            out[kwarg_key] = word_list
+        return out
 
     def create_paragraph(self):
         paragraph_size = self._options['paragraph_size']

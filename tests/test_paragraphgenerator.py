@@ -8,6 +8,20 @@ from sentences import APP_NAME, DATA_PATH, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUN
 from sentences.backend.random_paragraph import RandomParagraph
 
 
+def line_print(long_text, lin_len):
+    new = '("' + long_text[:lin_len] + '" +\n'
+    long_text = long_text[lin_len:]
+    while long_text:
+        new += ' "' + long_text[:lin_len] + '" +\n'
+        long_text = long_text[lin_len:]
+    new = new[:-3] + '),'
+    print(new)
+
+
+def short_line_print(short_text):
+    print('"{}",'.format(short_text))
+
+
 class TestParagraphGenerator(unittest.TestCase):
     def setUp(self):
         self.config_state = {
@@ -33,9 +47,11 @@ class TestParagraphGenerator(unittest.TestCase):
             'paragraph_size': 15,
         }
 
-    # def test_create_paragraph_generator(self):
-    #     test = ParagraphsGenerator(self.config_state)
-    #     paragraph_gen = test._paragraph_generator
-    #     # self.assertEqual(paragraph_gen.)
+    def test_create_paragraph_generator(self):
+        test = ParagraphsGenerator(self.config_state)
+        answer = test.create_paragraphs()
+        for text in answer:
+            for ot in text:
+                line_print(ot, 100)
 
 
