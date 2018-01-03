@@ -56,14 +56,8 @@ class ParagraphsGenerator(object):
             return False
         return any(dictionary[key] != self._options[key] for key in file_keys)
 
-    def create_paragraph_generator(self):
-        probability_pronoun = self._options['probability_pronoun']
-
-        return RandomParagraph(probability_pronoun,
-                               self._verbs_list, self._countable_nouns_list, self._uncountable_nouns_list)
-
     def create_paragraph(self):
-        paragraph_generator = self.create_paragraph_generator()
+        paragraph_generator = self._create_paragraph_generator()
         paragraph_size = self._options['paragraph_size']
         if self._options['paragraph_type'] == 'pool':
             subj_pool = self._options['subject_pool']
@@ -76,11 +70,18 @@ class ParagraphsGenerator(object):
         grammarizer = Grammarizer(raw_paragraph, present_tense=present_tense, **kwargs)
         return grammarizer.generate_paragraph()
 
-    def _get_kwargs(self, *keys):
-        return {key: self._options[key] for key in keys}
+    def _create_paragraph_generator(self):
+        probability_pronoun = self._options['probability_pronoun']
+
+        return RandomParagraph(
+            probability_pronoun, self._verbs_list, self._countable_nouns_list, self._uncountable_nouns_list
+        )
 
     def _get_present_tense_bool(self):
         return self._options['tense'] == 'simple_present'
+
+    def _get_kwargs(self, *keys):
+        return {key: self._options[key] for key in keys}
 
     def create_answer_and_error_texts(self):
         paragraph = self.create_paragraph()
@@ -91,16 +92,16 @@ class ParagraphsGenerator(object):
             'verb_errors': error_maker.create_verb_errors,
             'punctuation_errors': error_maker.create_period_errors
         }
-        for key, method in error_methods.items():
+        for key in ['noun_errors', 'verb_errors', 'punctuation_errors']:
             if self._options[key]:
-                method()
+                error_methods[key]()
 
         error_count = ' -- error count: {}'
         answer = convert_paragraph(error_maker.answer_paragraph) + error_count.format(error_maker.error_count)
         error = convert_paragraph(error_maker.error_paragraph)
         return answer, error
 
-    def create_paragraphs(self):
+    def create_answer_and_error_paragraphs(self):
         answers = []
         errors = []
         for _ in range(self._options['num_paragraphs']):
