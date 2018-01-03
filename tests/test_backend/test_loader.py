@@ -26,13 +26,13 @@ class TestLoader(unittest.TestCase):
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)
 
-    def test_countable_nouns(self):
+    def test_countable_nouns_empty(self):
         answer = countable_nouns()
         self.assertIn(Noun('person', 'people'), answer)
         self.assertIn(Noun('sheep', 'sheep'), answer)
         self.assertIn(Noun('apple'), answer)
 
-    def test_uncountable_nouns(self):
+    def test_uncountable_nouns_empty(self):
         answer = uncountable_nouns()
         self.assertIn(Noun('water'), answer)
 
@@ -64,7 +64,7 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertIsInstance(answer['preposition'], Preposition)
 
-    def test_verbs(self):
+    def test_verbs_empty(self):
         answer = verbs()
         give = {'verb': BasicVerb('give', 'gave'), 'preposition': None, 'objects': 2, 'insert_preposition': False}
         grab = {'verb': BasicVerb('grab', ''), 'preposition': None, 'objects': 1, 'insert_preposition': False}
