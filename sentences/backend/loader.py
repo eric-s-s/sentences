@@ -49,14 +49,14 @@ def get_verb_dict(str_lst, intransitive=False):
     verb = BasicVerb(inf, past)
 
     prep = str_lst[2]
-    if prep == 'null':
+    if prep == 'null' or not prep:
         preposition = None
     else:
         preposition = Preposition(prep)
 
     if intransitive:
         obj_num = 0
-    elif len(str_lst) > 3:
+    elif len(str_lst) > 3 and str_lst[3]:
         obj_num = int(str_lst[3])
     else:
         obj_num = 1

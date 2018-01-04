@@ -19,9 +19,9 @@ def create_pdf(save_folder, answer_texts, error_texts, error_font_size=13):
     file_prefix = get_file_prefix(save_folder)
     answer_filename = file_prefix + 'answer.pdf'
     error_filename = file_prefix + 'error.pdf'
-    answer_doc = save_paragraphs_to_pdf(answer_filename, answer_texts, error_font_size - 1)
-    error_doc = save_paragraphs_to_pdf(error_filename, error_texts, error_font_size)
-    return answer_doc, error_doc
+    print(error_filename)
+    save_paragraphs_to_pdf(os.path.join(save_folder, answer_filename), answer_texts, error_font_size - 1)
+    save_paragraphs_to_pdf(os.path.join(save_folder, error_filename), error_texts, error_font_size)
 
 
 def get_file_prefix(folder):
@@ -61,7 +61,6 @@ def save_paragraphs_to_pdf(file_name, paragraphs, font_size):
         Story.append(p)
         Story.append(Spacer(0.5, 0.5 * cm))
     doc.build(Story, onFirstPage=insert_footer, onLaterPages=insert_footer)
-    return doc
 
 
 def insert_footer(canvas, doc):
