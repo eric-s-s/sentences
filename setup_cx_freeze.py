@@ -33,7 +33,7 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 executables = [
-    Executable('sentences/gui/go.py',
+    Executable('sentences/gui/go_delete_me.py',  # TODO change this
                base=base,
                shortcutName='It\'s GO TIME!',
                shortcutDir='DesktopFolder',

@@ -1,7 +1,7 @@
 import tkinter as tk
 import os
 
-from sentences.text_to_pdf import main
+from sentences.text_to_pdf_delete_me import main
 from sentences import DATA_PATH
 
 

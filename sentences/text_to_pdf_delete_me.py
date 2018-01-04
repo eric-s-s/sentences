@@ -4,7 +4,7 @@
 import os
 from datetime import datetime
 
-from sentences.generate_text import generate_text
+from sentences.generate_text_delete_me import generate_text
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -101,5 +101,5 @@ if __name__ == "__main__":
 
     # past_answer = prefix + 'past_answer.pdf'
     # past_error = prefix + 'past_error.pdf'
-    # create_pdf(folder, past_answer, past[0])
-    # create_pdf(folder, past_error, past[1])
+    # save_paragraphs_to_pdf(folder, past_answer, past[0])
+    # save_paragraphs_to_pdf(folder, past_error, past[1])

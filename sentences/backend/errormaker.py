@@ -83,8 +83,7 @@ class ErrorMaker(object):
                 to_alter_index = index + 1
                 to_alter = self._error_paragraph[to_alter_index]
                 to_decapitalize = to_alter[0]
-                old_value = to_decapitalize.value
-                new_word = Word(old_value[0].lower() + old_value[1:])
+                new_word = de_capitalize(to_decapitalize)
                 to_alter[0] = new_word
                 self._answer[to_alter_index][0] = self._answer[to_alter_index][0].bold()
 
@@ -127,3 +126,14 @@ def is_negative_verb(verb):
     negatives = ["don't ", "doesn't ", "didn't ", "do not ", "does not ", "did not "]
     value = verb.value
     return any(value.startswith(negative) for negative in negatives)
+
+
+def de_capitalize(to_de_capitalize):
+    old_value = to_de_capitalize.value
+    new_value = old_value[0].lower() + old_value[1:]
+    if isinstance(to_de_capitalize, Noun):
+        base = to_de_capitalize.base_noun
+        new_word = to_de_capitalize.__class__(new_value, base=base)
+    else:
+        new_word = Word(new_value)
+    return new_word

@@ -24,7 +24,7 @@ setup(name='sentences',
       ],
       packages=['sentences', 'sentences.words'],
       entry_points={
-          'console_scripts': ['gen_pdf=sentences.text_to_pdf:main'],
+          'console_scripts': ['gen_pdf=sentences.text_to_pdf_delete_me:main'],  # TODO remove this
       },
       package_data={
           '': ['data/*.csv', 'data/*.cfg']

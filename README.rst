@@ -19,3 +19,11 @@ note to self on cx_freeze.  see this stack_overflow thing.
 
 https://stackoverflow.com/questions/24195311/how-to-set-shortcut-working-directory-in-cx-freeze-msi-bundle
 
+TODOS
+=====
+
+remove : generate_text, text_to_pdf, gui.go
+
+change: setup.py, setup_cx_freeze.py
+
+make: guimain, commandline simple tool

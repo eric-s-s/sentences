@@ -1,14 +1,37 @@
 import random
 import unittest
 
-from sentences.backend.errormaker import copy_paragraph, make_verb_error, make_noun_error, is_negative_verb, ErrorMaker
+from sentences.backend.errormaker import (de_capitalize, copy_paragraph, make_verb_error, make_noun_error,
+                                          is_negative_verb, ErrorMaker)
 from sentences.words.noun import Noun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import BasicVerb, ConjugatedVerb
 from sentences.words.word import Word
+from sentences.words.pronoun import Pronoun
 
 
 class TestErrorMaker(unittest.TestCase):
+    def test_de_capitalize_with_noun(self):
+        test = Noun('dog')
+        definite = test.definite()
+        indefinite = test.indefinite()
+        plural = test.plural()
+        definite_plural = definite.plural()
+        test_list = [test, definite, indefinite, plural, definite_plural]
+        for noun in test_list:
+            to_test = de_capitalize(noun.capitalize())
+            self.assertEqual(noun, to_test)
+            self.assertEqual(type(noun), type(to_test))
+
+    def test_de_capitalize_other(self):
+        pronoun = Pronoun.HE
+        word = Word('He')
+        verb = BasicVerb('He')
+        for test_word in [pronoun, word, verb]:
+            to_test = de_capitalize(test_word.capitalize())
+            self.assertEqual(to_test.value, 'he')
+            self.assertEqual(type(to_test), Word)
+
     def test_is_negative_verb_true(self):
         self.assertTrue(is_negative_verb(BasicVerb('play').negative()))
         self.assertTrue(is_negative_verb(BasicVerb('play').negative().past_tense()))
@@ -390,7 +413,7 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker.create_period_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
-            [Word('the cats'), grab, dog.definite(), Punctuation.COMMA]
+            [Noun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.COMMA]
         ]
         answer_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION.bold()],
@@ -412,7 +435,7 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker.create_period_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
-            [Word('the cats'), grab, dog.definite(), Punctuation.EXCLAMATION]
+            [Noun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         answer_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION.bold()],
