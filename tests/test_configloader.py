@@ -253,6 +253,11 @@ class TestConfigLoader(unittest.TestCase):
         }
         self.assertEqual(answer, expected)
 
+    def test_ConfigLoader_init_creates_empty_csv_in_home_dir(self):
+        ConfigLoader()
+        with open(os.path.join(get_documents_folder(), APP_NAME, 'EMPTY.csv'), 'r') as f:
+            self.assertEqual(f.read(), '')
+
     def test_ConfigLoader_init_no_config_file_no_home_dir(self):
         new = ConfigLoader()
         self.assert_default_ConfigLoader_state(new)

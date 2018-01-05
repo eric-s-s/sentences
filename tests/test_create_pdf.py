@@ -5,7 +5,7 @@ import unittest
 
 from reportlab.pdfgen.canvas import Canvas
 
-from sentences.create_pdf import get_file_prefix, is_numbered_pdf, insert_footer
+from sentences.create_pdf import get_file_prefix, is_numbered_pdf, insert_footer, save_paragraphs_to_pdf, create_pdf
 
 
 SAVE_FOLDER = 'delete_me_dir'
@@ -83,3 +83,29 @@ class TestCreatePDF(unittest.TestCase):
         insert_footer(canvas, Doc())
         content = canvas.getCurrentPageContent()
         self.assertIn('fake title : page 3, {}'.format(now_to_hour), content)
+
+    def test_save_paragraph_to_pdf_saves_file(self):
+        file_name = os.path.join(SAVE_FOLDER, 'test.pdf')
+        self.assertFalse(os.path.exists(file_name))
+        save_paragraphs_to_pdf(file_name, self.error, 10)
+
+        self.assertTrue(os.path.exists(file_name))
+
+    def test_create_pdfs_saves_files(self):
+        error_1 = os.path.join(SAVE_FOLDER, '01_error.pdf')
+        error_2 = os.path.join(SAVE_FOLDER, '02_error.pdf')
+        answer_1 = os.path.join(SAVE_FOLDER, '01_answer.pdf')
+        answer_2 = os.path.join(SAVE_FOLDER, '02_answer.pdf')
+        for file_name in (error_1, error_2, answer_1, answer_2):
+            self.assertFalse(os.path.exists(file_name))
+
+        create_pdf(SAVE_FOLDER, self.answer, self.error)
+        self.assertTrue(os.path.exists(error_1))
+        self.assertTrue(os.path.exists(answer_1))
+        self.assertFalse(os.path.exists(error_2))
+        self.assertFalse(os.path.exists(answer_2))
+
+        create_pdf(SAVE_FOLDER, self.answer, self.error)
+        for file_name in (error_1, error_2, answer_1, answer_2):
+            self.assertTrue(os.path.exists(file_name))
+

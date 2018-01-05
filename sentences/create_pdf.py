@@ -17,11 +17,10 @@ styles = getSampleStyleSheet()
 
 def create_pdf(save_folder, answer_texts, error_texts, error_font_size=13):
     file_prefix = get_file_prefix(save_folder)
-    answer_filename = file_prefix + 'answer.pdf'
-    error_filename = file_prefix + 'error.pdf'
-    print(error_filename)
-    save_paragraphs_to_pdf(os.path.join(save_folder, answer_filename), answer_texts, error_font_size - 1)
-    save_paragraphs_to_pdf(os.path.join(save_folder, error_filename), error_texts, error_font_size)
+    answer_filename = os.path.join(save_folder, file_prefix + 'answer.pdf')
+    error_filename = os.path.join(save_folder, file_prefix + 'error.pdf')
+    save_paragraphs_to_pdf(answer_filename, answer_texts, error_font_size - 1)
+    save_paragraphs_to_pdf(error_filename, error_texts, error_font_size)
 
 
 def get_file_prefix(folder):

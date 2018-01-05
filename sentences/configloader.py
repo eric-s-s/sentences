@@ -17,6 +17,7 @@ class ConfigLoader(object):
 
         self._set_up_directories()
         self._set_up_word_files()
+        self._create_empty_csv()
 
     @property
     def state(self):
@@ -38,6 +39,11 @@ class ConfigLoader(object):
 
         self._dictionary['home_directory'] = home_dir
         self._dictionary['save_directory'] = save_dir
+
+    def _create_empty_csv(self):
+        home_dir = self._dictionary['home_directory']
+        with open(os.path.join(home_dir, 'EMPTY.csv'), 'w') as f:
+            f.write('')
 
     def _set_up_word_files(self):
         home_dir = self._dictionary['home_directory']

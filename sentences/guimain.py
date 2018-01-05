@@ -18,35 +18,30 @@ class MainFrame(tk.Tk):
     def __init__(self, *args, **kwargs):
         super(MainFrame, self).__init__(*args, **kwargs)
         self.iconbitmap(os.path.join(DATA_PATH, 'go_time.ico'))
-        error = ErrorDetails(master=self)
-        ptype = ParagraphType(master=self)
-        gd = GrammarDetails(master=self)
-        fm = FileManagement(master=self)
+        error_details = ErrorDetails(master=self)
+        paragraph_type = ParagraphType(master=self)
+        grammar_details = GrammarDetails(master=self)
+        file_management = FileManagement(master=self)
 
-        self.frames = (error, ptype, gd, fm)
-        self.load_frames()
+        self.frames = (error_details, paragraph_type, grammar_details, file_management)
+        self.load_config()
 
-        self.pg = ParagraphsGenerator(self.get_state())
+        self.paragraph_generator = ParagraphsGenerator(self.get_state())
 
         action_frame = tk.Frame(master=self)
-        tk.Button(master=action_frame, text='reload files', command=self.reload_files).pack()
-        tk.Button(master=action_frame, text='reload config', command=self.reload_config).pack()
-        tk.Button(master=action_frame, text='set_config', command=self.set_config).pack()
-        tk.Button(master=action_frame, text='create_texts', command=self.create_texts).pack()
-        tk.Button(master=action_frame, text='revert', command=self.revert_to_original).pack()
+        tk.Button(master=action_frame, text='Reload word files', command=self.reload_files).pack()
+        tk.Button(master=action_frame, text='Reset to default', command=self.load_config).pack()
+        tk.Button(master=action_frame, text='Set as default', command=self.set_config).pack()
+        tk.Button(master=action_frame, text='Make me some PDFs', command=self.create_texts).pack()
+        tk.Button(master=action_frame, text='Factory Reset', command=self.revert_to_original).pack()
         action_frame.pack()
         for frame in self.frames:
             frame.pack()
 
-    def load_frames(self):
-        config = ConfigLoader()
-        for frame in self.frames:
-            config.set_up_frame(frame)
-
     def reload_files(self):
-        self.pg.load_lists_from_file()
+        self.paragraph_generator.load_lists_from_file()
 
-    def reload_config(self):
+    def load_config(self):
         loader = ConfigLoader()
         for frame in self.frames:
             loader.set_up_frame(frame)
@@ -62,14 +57,14 @@ class MainFrame(tk.Tk):
 
     def create_texts(self):
         state = self.get_state()
-        self.pg.update_options(state)
-        answer, error = self.pg.create_answer_and_error_paragraphs()
+        self.paragraph_generator.update_options(state)
+        answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
         create_pdf(state['save_directory'], answer, error)
 
     def revert_to_original(self):
         loader = ConfigLoader()
         loader.revert_to_default()
-        self.reload_config()
+        self.load_config()
 
 
 def main_app():
