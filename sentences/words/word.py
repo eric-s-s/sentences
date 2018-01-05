@@ -53,9 +53,7 @@ class Word(object):
 
     # TODO does equality rely on type? I think so. That's a big change.
     def __eq__(self, other):
-        if not isinstance(other, Word):
-            return False
-        return self.value == other.value
+        return type(self) == type(other) and self.value == other.value
 
     def __lt__(self, other):
         return self.value.__lt__(other.value)

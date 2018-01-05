@@ -49,9 +49,7 @@ class Noun(Word):
         return Noun(self.base_noun)
     
     def __eq__(self, other):
-        if not isinstance(other, Noun):
-            return False
-        return self.base_noun == other.base_noun and super(Noun, self).__eq__(other)
+        return super(Noun, self).__eq__(other) and self.base_noun == other.base_noun
 
     def __hash__(self):
         return super(Noun, self).__hash__()

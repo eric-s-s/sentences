@@ -3,7 +3,8 @@ import string
 import unittest
 
 from sentences.backend.grammarizer import normalize_probability, get_nouns, Grammarizer
-from sentences.words.noun import Noun, DefiniteNoun, UncountableNoun
+from sentences.words.noun import (Noun, DefiniteNoun, UncountableNoun, PluralNoun, DefiniteUncountableNoun,
+                                  DefinitePluralNoun, IndefiniteNoun)
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, BasicVerb, ConjugatedVerb, NegativeVerb
@@ -200,24 +201,24 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
-        expected = [[Noun('A cat', '', 'cat'), ConjugatedVerb('grabs', 'grab'), Noun('the cat', '', 'cat'),
-                     Punctuation.EXCLAMATION]]
+        expected = [[IndefiniteNoun('A cat', '', 'cat'), ConjugatedVerb('grabs', 'grab'),
+                     DefiniteNoun('the cat', '', 'cat'), Punctuation.EXCLAMATION]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_plural_countable_noun(self):
         raw_paragraph = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        expected = [[Noun('Cats', '', 'cat'), BasicVerb('grab'), Noun('the cats', 'the catses', 'cat'),
-                     Punctuation.EXCLAMATION]]
+        expected = [[PluralNoun('Cats', '', 'cat'), BasicVerb('grab'),
+                     DefinitePluralNoun('the cats', 'the catses', 'cat'), Punctuation.EXCLAMATION]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_uncountable_noun(self):
         raw_paragraph = [[UncountableNoun('water'), BasicVerb('grab'), UncountableNoun('water'), Punctuation.PERIOD]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        expected = [[Noun('Water', '', 'water'), ConjugatedVerb('grabs', 'grab'), Noun('the water', '', 'water'),
-                     Punctuation.PERIOD]]
+        expected = [[UncountableNoun('Water', '', 'water'), ConjugatedVerb('grabs', 'grab'),
+                     DefiniteUncountableNoun('the water', '', 'water'), Punctuation.PERIOD]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_present_tense_third_person_positive(self):
@@ -356,9 +357,9 @@ class TestGrammarizer(unittest.TestCase):
         paragraph_2 = grammarizer.generate_paragraph()
         answer = [
             [UncountableNoun('money').capitalize(), ConjugatedVerb('grabs', 'grab'),
-             UncountableNoun('the money', base='money'), Punctuation.EXCLAMATION],
-            [Noun('A cat', base='cat'), ConjugatedVerb('grabs', 'grab'),
-             Noun('the cat', base='cat'), Punctuation.EXCLAMATION]
+             DefiniteUncountableNoun('the money', base='money'), Punctuation.EXCLAMATION],
+            [IndefiniteNoun('A cat', base='cat'), ConjugatedVerb('grabs', 'grab'),
+             DefiniteNoun('the cat', base='cat'), Punctuation.EXCLAMATION]
         ]
         self.assertEqual(answer, paragraph_1)
         self.assertEqual(answer, paragraph_2)

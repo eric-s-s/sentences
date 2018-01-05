@@ -13,9 +13,7 @@ class Verb(Word):
         return self._inf
 
     def __eq__(self, other):
-        if not isinstance(other, Verb):
-            return False
-        return (self.value, self.infinitive) == (other.value, other.infinitive)
+        return super(Verb, self).__eq__(other) and self.infinitive == other.infinitive
 
     def __ne__(self, other):
         return not self.__eq__(other)

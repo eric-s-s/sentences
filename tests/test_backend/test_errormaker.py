@@ -3,9 +3,10 @@ import unittest
 
 from sentences.backend.errormaker import (de_capitalize, copy_paragraph, make_verb_error, make_noun_error,
                                           is_negative_verb, ErrorMaker)
-from sentences.words.noun import Noun, PluralNoun, UncountableNoun
+from sentences.words.noun import (Noun, PluralNoun, UncountableNoun, IndefiniteNoun, DefinitePluralNoun,
+                                  DefiniteNoun)
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import BasicVerb, ConjugatedVerb
+from sentences.words.verb import BasicVerb, ConjugatedVerb, NegativeVerb
 from sentences.words.word import Word
 from sentences.words.pronoun import Pronoun
 
@@ -121,7 +122,7 @@ class TestErrorMaker(unittest.TestCase):
             if index in plus_s:
                 self.assertEqual(ConjugatedVerb("doesn't play", 'play'), to_test)
             else:
-                self.assertEqual(ConjugatedVerb("don't play", 'play'), to_test)
+                self.assertEqual(NegativeVerb("don't play", 'play'), to_test)
 
     def test_make_noun_error_uncountable_not_definite(self):
         random.seed(10)
@@ -130,9 +131,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_noun_error(noun)
             if index in plural:
-                self.assertEqual(Noun('waters', base='water'), to_test)
+                self.assertEqual(PluralNoun('waters', base='water'), to_test)
             else:
-                self.assertEqual(Noun('a water', base='water'), to_test)
+                self.assertEqual(IndefiniteNoun('a water', base='water'), to_test)
 
     def test_make_noun_error_uncountable_definite(self):
         random.seed(10)
@@ -141,9 +142,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_noun_error(noun)
             if index in plural:
-                self.assertEqual(Noun('waters', base='water'), to_test)
+                self.assertEqual(PluralNoun('waters', base='water'), to_test)
             else:
-                self.assertEqual(Noun('a water', base='water'), to_test)
+                self.assertEqual(IndefiniteNoun('a water', base='water'), to_test)
 
     def test_make_noun_error_plural_not_definite(self):
         random.seed(8)
@@ -154,11 +155,11 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(15):
             to_test = make_noun_error(noun)
             if index in indefinite:
-                self.assertEqual(Noun('a toy', base='toy'), to_test)
+                self.assertEqual(IndefiniteNoun('a toy', base='toy'), to_test)
             elif index in definite:
-                self.assertEqual(Noun('the toy', base='toy'), to_test)
+                self.assertEqual(DefiniteNoun('the toy', base='toy'), to_test)
             elif index in indefinite_plural:
-                self.assertEqual(Noun('a toys', base='toy'), to_test)
+                self.assertEqual('a toys', to_test.value)
             else:
                 self.assertEqual(Noun('toy'), to_test)
 
@@ -171,11 +172,11 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(15):
             to_test = make_noun_error(noun)
             if index in indefinite:
-                self.assertEqual(Noun('a toy', base='toy'), to_test)
+                self.assertEqual(IndefiniteNoun('a toy', base='toy'), to_test)
             elif index in definite:
-                self.assertEqual(Noun('the toy', base='toy'), to_test)
+                self.assertEqual(DefiniteNoun('the toy', base='toy'), to_test)
             elif index in indefinite_plural:
-                self.assertEqual(Noun('a toys', base='toy'), to_test)
+                self.assertEqual('a toys', to_test.value)
             else:
                 self.assertEqual(Noun('toy'), to_test)
 
@@ -187,9 +188,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(15):
             to_test = make_noun_error(noun)
             if index in plural:
-                self.assertEqual(Noun('toys', base='toy'), to_test)
+                self.assertEqual(PluralNoun('toys', base='toy'), to_test)
             elif index in indefinite_plural:
-                self.assertEqual(Noun('a toys', base='toy'), to_test)
+                self.assertEqual('a toys', to_test.value)
             else:
                 self.assertEqual(Noun('toy'), to_test)
 
@@ -202,11 +203,11 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(15):
             to_test = make_noun_error(noun)
             if index in indefinite:
-                self.assertEqual(Noun('a toy', base='toy'), to_test)
+                self.assertEqual(IndefiniteNoun('a toy', base='toy'), to_test)
             elif index in plural:
-                self.assertEqual(Noun('toys', base='toy'), to_test)
+                self.assertEqual(PluralNoun('toys', base='toy'), to_test)
             elif index in indefinite_plural:
-                self.assertEqual(Noun('a toys', base='toy'), to_test)
+                self.assertEqual('a toys', to_test.value)
             else:
                 self.assertEqual(Noun('toy'), to_test)
 
@@ -282,7 +283,7 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker.create_noun_errors()
         error_paragraph = [
             [Noun('Dog', '', 'dog'), grab.third_person(), Noun('cat'), Punctuation.EXCLAMATION],
-            [Noun('A cats', 'a catses', 'cat'), grab, Noun('dog'), Punctuation.EXCLAMATION]
+            [IndefiniteNoun('A cats', 'a catses', 'cat'), grab, Noun('dog'), Punctuation.EXCLAMATION]
         ]
         answer_paragraph = [
             [dog.indefinite().bold(), grab.third_person(), cat.plural().bold(), Punctuation.EXCLAMATION],
@@ -413,7 +414,7 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker.create_period_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
-            [Noun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.COMMA]
+            [DefinitePluralNoun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.COMMA]
         ]
         answer_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION.bold()],
@@ -435,7 +436,7 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker.create_period_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
-            [Noun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.EXCLAMATION]
+            [DefinitePluralNoun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         answer_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION.bold()],

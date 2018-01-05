@@ -14,6 +14,7 @@ class TestVerb(unittest.TestCase):
         self.assertEqual(verb.capitalize(), Verb('Go', 'go'))
         self.assertEqual(repr(verb), "Verb('go', 'go')")
 
+    # TODO ugh!
     def test_verb_eq(self):
         c_verb = ConjugatedVerb("don't go", 'go')
         n_verb = NegativeVerb('don\'t go', 'go')
@@ -96,7 +97,7 @@ class TestVerb(unittest.TestCase):
 
     def test_basic_verb_third_person_have(self):
         verb = BasicVerb('have')
-        self.assertEqual(verb.third_person(), Verb('has', 'have'))
+        self.assertEqual(verb.third_person(), ConjugatedVerb('has', 'have'))
 
     def test_basic_verb_negative(self):
         verb = BasicVerb('do', 'did')
@@ -153,7 +154,9 @@ class TestVerb(unittest.TestCase):
     def test_to_basic_verb(self):
         verb = Verb('play')
         basic = verb.to_basic_verb()
-        self.assertEqual(verb, basic)
+        self.assertEqual(verb.value, basic.value)
+        self.assertEqual(verb.infinitive, basic.infinitive)
+        self.assertNotEqual(verb, basic)
         self.assertIsInstance(basic, BasicVerb)
 
     def test_to_basic_verb_does_not_retain_special_past_tense(self):
@@ -180,8 +183,8 @@ class TestVerb(unittest.TestCase):
 
     def test_capitalize(self):
         self.assertEqual(Verb('go').capitalize(), Verb('Go', 'go'))
-        self.assertEqual(ConjugatedVerb('went', 'go').capitalize(), Verb('Went', 'go'))
-        self.assertEqual(NegativeVerb('do not go', 'go').capitalize(), Verb('Do not go', 'go'))
+        self.assertEqual(ConjugatedVerb('went', 'go').capitalize(), ConjugatedVerb('Went', 'go'))
+        self.assertEqual(NegativeVerb('do not go', 'go').capitalize(), NegativeVerb('Do not go', 'go'))
         basic = BasicVerb('eat', 'ate')
         self.assertEqual(basic.capitalize(), BasicVerb('Eat', 'ate', 'eat'))
 

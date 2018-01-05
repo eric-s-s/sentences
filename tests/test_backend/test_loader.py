@@ -3,7 +3,7 @@ import unittest
 import os
 
 from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
-from sentences.words.noun import Noun
+from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.verb import BasicVerb
 from sentences.words.word import Word, Preposition
 
@@ -36,7 +36,7 @@ class TestLoader(unittest.TestCase):
 
     def test_uncountable_nouns_empty(self):
         answer = uncountable_nouns()
-        self.assertIn(Noun('water'), answer)
+        self.assertIn(UncountableNoun('water'), answer)
 
     def test_get_verb_dict_empty_strings(self):
         expected = {'verb': BasicVerb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
@@ -65,7 +65,8 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertEqual(
             answer,
-            {'verb': BasicVerb('fly', ''), 'preposition': Word('with'), 'objects': 2, 'insert_preposition': False})
+            {'verb': BasicVerb('fly', ''), 'preposition': Preposition('with'),
+             'objects': 2, 'insert_preposition': False})
 
     def test_get_verb_dict_preposition_is_Preposition(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
@@ -75,7 +76,8 @@ class TestLoader(unittest.TestCase):
         answer = verbs()
         give = {'verb': BasicVerb('give', 'gave'), 'preposition': None, 'objects': 2, 'insert_preposition': False}
         grab = {'verb': BasicVerb('grab', ''), 'preposition': None, 'objects': 1, 'insert_preposition': False}
-        fall = {'verb': BasicVerb('fall', 'fell'), 'preposition': Word('on'), 'objects': 1, 'insert_preposition': False}
+        fall = {'verb': BasicVerb('fall', 'fell'), 'preposition': Preposition('on'), 'objects': 1,
+                'insert_preposition': False}
 
         self.assertIn(give, answer)
         self.assertIn(grab, answer)
@@ -83,7 +85,7 @@ class TestLoader(unittest.TestCase):
 
     def test_load_verbs_with_insert_preposition(self):
         answer = verbs('tests/test_files/bring_to.csv')
-        bring_to = {'verb': BasicVerb('bring', 'brought'), 'preposition': Word('to'),
+        bring_to = {'verb': BasicVerb('bring', 'brought'), 'preposition': Preposition('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])
         print(os.path.dirname(os.path.dirname(__file__)))
