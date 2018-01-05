@@ -126,10 +126,10 @@ class TestParagraphGenerator(unittest.TestCase):
         self.config_state['paragraph_size'] = 10
         self.assertEqual(pg._options, self.config_state)
 
-    def test_update_options_reloads_lists_if_any_are_empty(self):
+    def test_update_options_reloads_lists_if_any_are_None(self):
         create_single_value_test_csvs('cat')
         pg = ParagraphsGenerator(self.config_state)
-        pg._verbs_list = []
+        pg._verbs_list = None
 
         create_single_value_test_csvs('dog')
         pg.update_options({'dummy': 10})

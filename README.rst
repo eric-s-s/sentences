@@ -22,8 +22,16 @@ https://stackoverflow.com/questions/24195311/how-to-set-shortcut-working-directo
 TODOS
 =====
 
-remove : generate_text, text_to_pdf, gui.go
+rewrite this damn readme.
 
-change: setup.py, setup_cx_freeze.py
+fix colors and layout on gui
 
-make: guimain, commandline simple tool
+resset text files that save old ones.
+
+errors to add:
+
+- is do
+- move preposition
+- pronoun
+
+notes: capitalized and de-capitalized subject pronouns will be words. check for those specifically.

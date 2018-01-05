@@ -73,7 +73,8 @@ class MainFrame(tk.Tk):
 
 
 def main_app():
-    app = MainFrame(screenName='GO TIME', baseName='GO TIME', className='Go time')
+    app = MainFrame()
+    app.title('Go Time')
     app.mainloop()
 
 

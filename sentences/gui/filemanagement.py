@@ -41,15 +41,3 @@ class FileManagement(SetVariablesFrame):
             'uncountable_nouns': self.uncountable_nouns.get(),
             'verbs': self.verbs.get()
         }
-
-
-# TODO DELETE
-def main():
-    thing = tk.Tk()
-    p_type = FileManagement(master=thing)
-    p_type.pack()
-    thing.mainloop()
-
-
-if __name__ == '__main__':
-    main()

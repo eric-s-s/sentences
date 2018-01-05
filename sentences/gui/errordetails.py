@@ -31,15 +31,6 @@ class ErrorDetails(SetVariablesFrame):
         tk.Checkbutton(master=self, text='verb errors', variable=self.verb_errors).pack(anchor=tk.W, padx=15)
         tk.Checkbutton(master=self, text='period errors', variable=self.punctuation_errors).pack(anchor=tk.W, padx=15)
 
-        # TODO DELETE
-        self.get_button = tk.Button(master=self, text='get some', command=self.get_num)
-        self.label_var = tk.StringVar()
-        self.label_output = tk.Label(master=self, textvariable=self.label_var)
-
-        self.label_output.pack()
-        self.get_button.pack()
-        # TODO DELETE
-
     def _toggle_all(self):
         all_state = self.select_all.get()
         for intvar in [self.noun_errors, self.verb_errors, self.punctuation_errors]:
@@ -59,18 +50,3 @@ class ErrorDetails(SetVariablesFrame):
             'verb_errors': bool(self.verb_errors.get()),
             'punctuation_errors': bool(self.punctuation_errors.get())
         }
-
-    def get_num(self):
-        self.label_var.set('{}'.format(self.get_values()).replace(',', '\n'))
-
-
-# TODO DELETE
-def main():
-    thing = tk.Tk()
-    p_type = ErrorDetails(master=thing)
-    p_type.pack()
-    thing.mainloop()
-
-
-if __name__ == '__main__':
-    main()

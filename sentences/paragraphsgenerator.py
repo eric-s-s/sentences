@@ -30,9 +30,9 @@ class ParagraphsGenerator(object):
         - 'paragraph_size'
         """
         self._options = {}
-        self._verbs_list = []
-        self._countable_nouns_list = []
-        self._uncountable_nouns_list = []
+        self._verbs_list = None  # type: list
+        self._countable_nouns_list = None  # type: list
+        self._uncountable_nouns_list = None  # type: list
         self.update_options(config_state)
 
     def load_lists_from_file(self):
@@ -48,7 +48,7 @@ class ParagraphsGenerator(object):
 
     def _is_reload_required(self, dictionary):
         all_word_lists = (self._verbs_list, self._countable_nouns_list, self._uncountable_nouns_list)
-        if any(not word_list for word_list in all_word_lists):
+        if any(word_list is None for word_list in all_word_lists):
             return True
 
         file_keys = [key for key in ('verbs', 'countable_nouns', 'uncountable_nouns') if key in dictionary]

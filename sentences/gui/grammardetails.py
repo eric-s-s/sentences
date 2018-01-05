@@ -20,15 +20,6 @@ class GrammarDetails(SetVariablesFrame):
         self.tense = tk.StringVar()
         self._init_radio_button()
 
-        # TODO DELETE
-        self.get_button = tk.Button(master=self, text='get some', command=self.get_num)
-        self.label_var = tk.StringVar()
-        self.label_output = tk.Label(master=self, textvariable=self.label_var)
-
-        self.label_output.grid(row=3, columnspan=2)
-        self.get_button.grid(row=4, columnspan=2)
-        # TODO DELETE
-
         plu_label.grid(row=0)
         self.probability_plural_noun.grid(row=0, column=1)
         neg_label.grid(row=1)
@@ -61,18 +52,3 @@ class GrammarDetails(SetVariablesFrame):
             'probability_negative_verb': self.probability_negative_verb.get_probability(),
             'probability_pronoun': self.probability_pronoun.get_probability()
         }
-
-    def get_num(self):
-        self.label_var.set('{}'.format(self.get_values()).replace(',', '\n'))
-
-
-# TODO DELETE
-def main():
-    thing = tk.Tk()
-    p_type = GrammarDetails(master=thing)
-    p_type.pack()
-    thing.mainloop()
-
-
-if __name__ == '__main__':
-    main()

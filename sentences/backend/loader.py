@@ -41,29 +41,36 @@ def _default_or_file_name(file_name, default_name):
     return file_name
 
 
-def get_verb_dict(str_lst, intransitive=False):
-    inf = str_lst[0]
-    past = str_lst[1]
-    if past == 'null':
-        past = ''
-    verb = BasicVerb(inf, past)
+def get_verb_dict(str_lst):
+    str_lst = _make_list_correct_len_with_nulls(str_lst)
 
-    prep = str_lst[2]
-    if prep == 'null' or not prep:
+    infinitive, past_tense, preposition_str, obj_num_str, insert_preposition = str_lst
+
+    if past_tense == 'null':
+        past_tense = ''
+    verb = BasicVerb(infinitive, past_tense)
+
+    if preposition_str == 'null':
         preposition = None
     else:
-        preposition = Preposition(prep)
+        preposition = Preposition(preposition_str)
 
-    if intransitive:
-        obj_num = 0
-    elif len(str_lst) > 3 and str_lst[3]:
-        obj_num = int(str_lst[3])
-    else:
+    if obj_num_str == 'null':
         obj_num = 1
-
-    if len(str_lst) >= 5 and str_lst[4].lower() == 'true':
-        insert_preposition = True
     else:
-        insert_preposition = False
+        obj_num = int(obj_num_str)
 
-    return {'verb': verb, 'preposition': preposition, 'objects': obj_num, 'insert_preposition': insert_preposition}
+    if insert_preposition.lower() == 'true':
+        insert_bool = True
+    else:
+        insert_bool = False
+
+    return {'verb': verb, 'preposition': preposition, 'objects': obj_num, 'insert_preposition': insert_bool}
+
+
+def _make_list_correct_len_with_nulls(input_list):
+    expected_len = 5
+    diff = expected_len - len(input_list)
+    output_list = input_list[:] + diff * ['null']
+
+    return [value if value else 'null' for value in output_list]

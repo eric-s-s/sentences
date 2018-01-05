@@ -1,5 +1,7 @@
 import unittest
 
+import os
+
 from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
 from sentences.words.noun import Noun
 from sentences.words.verb import BasicVerb
@@ -36,11 +38,16 @@ class TestLoader(unittest.TestCase):
         answer = uncountable_nouns()
         self.assertIn(Noun('water'), answer)
 
-    def test_get_verb_dict_intransitive(self):
-        answer = get_verb_dict(['fly', 'flew', 'null', '100'], True)
-        self.assertEqual(
-            answer,
-            {'verb': BasicVerb('fly', 'flew'), 'preposition': None, 'objects': 0, 'insert_preposition': False})
+    def test_get_verb_dict_empty_strings(self):
+        expected = {'verb': BasicVerb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        self.assertEqual(get_verb_dict(['play', '', '', '', '']), expected)
+        self.assertEqual(get_verb_dict(['play', '', '', ]), expected)
+        self.assertEqual(get_verb_dict(['play']), expected)
+
+    def test_get_verb_dict_empty_and_null_strings(self):
+        expected = {'verb': BasicVerb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        self.assertEqual(get_verb_dict(['play', '', 'null', '', '']), expected)
+        self.assertEqual(get_verb_dict(['play', 'null', '', ]), expected)
 
     def test_get_verb_dict_no_object_num(self):
         answer = get_verb_dict(['fly', 'flew', 'null'])
@@ -79,3 +86,4 @@ class TestLoader(unittest.TestCase):
         bring_to = {'verb': BasicVerb('bring', 'brought'), 'preposition': Word('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])
+        print(os.path.dirname(os.path.dirname(__file__)))
