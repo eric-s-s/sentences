@@ -11,14 +11,15 @@ from sentences.words.noun import Noun
 from sentences.words.word import Word
 from sentences.words.punctuation import Punctuation
 
+from tests import TESTS_FILES
+
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
 
 
-TEST_FILES = os.path.join(os.path.dirname(__file__), 'test_files')
-delete_me = 'delete_me_{}'
+delete_me = os.path.join(TESTS_FILES, 'delete_me_{}')
 
 DELETE_ME_VERBS = delete_me.format(VERBS_CSV)
 DELETE_ME_COUNTABLE = delete_me.format(COUNTABLE_NOUNS_CSV)

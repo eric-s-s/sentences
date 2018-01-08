@@ -81,11 +81,11 @@ class NegativeVerb(Verb):
 
 
 class NewVerb(Word):
-    def __init__(self, word, infinitive='', irregular_past=''):
-        super(NewVerb, self).__init__(word)
+    def __init__(self, value, infinitive='', irregular_past=''):
+        super(NewVerb, self).__init__(value)
         self._irregular_past = irregular_past
         if not infinitive:
-            self._inf = word
+            self._inf = value
 
     @property
     def infinitive(self):
@@ -99,30 +99,45 @@ class NewVerb(Word):
         past_tense_value = self._irregular_past
         if not past_tense_value:
             past_tense_value = self.add_ed().value
-
         return PastVerb(past_tense_value, self.infinitive, self._irregular_past)
 
     def third_person(self):
         with_s = self.add_s().value
         if with_s == 'haves':
             with_s = 'has'
-        return ConjugatedVerb(with_s, self.value)
+        return ThirdPerson(with_s, self.infinitive, self._irregular_past)
 
     def capitalize(self):
-        infinitive = self.infinitive
-        return BasicVerb(self.value.capitalize(), self._past_tense, infinitive)
+        return NewVerb(self.value.capitalize(), self.infinitive, self._irregular_past)
 
     def negative(self):
-        return NegativeVerb("don't " + self.value, self.value)
+        return NegVerb("don't " + self.infinitive, self.infinitive, self._irregular_past)
+
+    def to_base_verb(self):
+        return NewVerb(self.infinitive, '', self.irregular_past)
 
 
 class PastVerb(NewVerb):
-    pass
+    def negative(self):
+        return NegativePast("didn't" + self.infinitive, self.infinitive, self.irregular_past)
 
 
 class NegVerb(NewVerb):
-    pass
+    def past_tense(self):
+        return NegativePast("didn't" + self.infinitive, self.infinitive, self.irregular_past)
+
+    def third_person(self):
+        return NegativeThirdPerson("doesn't" + self.infinitive, self.infinitive, self.irregular_past)
 
 
 class ThirdPerson(NewVerb):
+    def negative(self):
+        return NegativeThirdPerson("doesn't" + self.infinitive, self.infinitive, self.irregular_past)
+
+
+class NegativePast(NegVerb, PastVerb):
+    pass
+
+
+class NegativeThirdPerson(NegVerb, PastVerb):
     pass

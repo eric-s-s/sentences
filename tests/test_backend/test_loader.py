@@ -5,7 +5,9 @@ import os
 from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
 from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.verb import BasicVerb
-from sentences.words.word import Word, Preposition
+from sentences.words.word import Preposition
+from sentences import DATA_PATH, VERBS_CSV, COUNTABLE_NOUNS_CSV
+from tests import TESTS_FILES
 
 
 class TestLoader(unittest.TestCase):
@@ -14,16 +16,20 @@ class TestLoader(unittest.TestCase):
                          ['this', 'is', 'space words', 'and   commas'])
 
     def test_load_csv_ignores_blank_lines(self):
-        filename = 'tests/test_files/blank_lines.csv'
+        filename = os.path.join(TESTS_FILES, 'blank_lines.csv')
         self.assertEqual(load_csv(filename), [['a', 'b'], ['c', 'd'], ['e', 'f']])
 
     def test_load_csv_nouns(self):
-        answer = load_csv('sentences/data/nouns.csv')
+        filename = os.path.join(DATA_PATH, COUNTABLE_NOUNS_CSV)
+
+        answer = load_csv(filename)
         self.assertIn(['person', 'people'], answer)
         self.assertIn(['witch'], answer)
 
     def test_load_csv_verbs(self):
-        answer = load_csv('sentences/data/verbs.csv')
+        filename = os.path.join(DATA_PATH, VERBS_CSV)
+
+        answer = load_csv(filename)
         self.assertIn(['hit', 'hit', 'null'], answer)
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)
@@ -84,7 +90,8 @@ class TestLoader(unittest.TestCase):
         self.assertIn(fall, answer)
 
     def test_load_verbs_with_insert_preposition(self):
-        answer = verbs('tests/test_files/bring_to.csv')
+        filename = os.path.join(TESTS_FILES, 'bring_to.csv')
+        answer = verbs(filename)
         bring_to = {'verb': BasicVerb('bring', 'brought'), 'preposition': Preposition('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])

@@ -3,6 +3,7 @@ import unittest
 from shutil import rmtree, copytree
 
 from sentences import DATA_PATH, APP_NAME
+from tests import TESTS_FILES
 from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
                                     VERBS_CSV, DEFAULT_SAVE_DIR,
                                     create_default_config, save_config, load_config, ConfigLoader,
@@ -14,8 +15,8 @@ from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.paragraphtype import ParagraphType
 
 
-SAVE_CONFIG = os.path.join(DATA_PATH, 'save.cfg')
-SAVE_APP_FOLDER = os.path.join(DATA_PATH, 'saved_app')
+SAVE_CONFIG = os.path.join(TESTS_FILES, 'save.cfg')
+SAVE_APP_FOLDER = os.path.join(TESTS_FILES, 'saved_app')
 
 
 def rm_config():

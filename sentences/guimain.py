@@ -7,6 +7,7 @@ from sentences.create_pdf import create_pdf
 from sentences.configloader import ConfigLoader
 from sentences.paragraphsgenerator import ParagraphsGenerator
 from sentences.configloader import save_config
+from sentences.backend.create_word_files import create_default_word_files
 
 from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.paragraphtype import ParagraphType
@@ -46,7 +47,7 @@ class MainFrame(tk.Tk):
         tk.Label(master=action_frame, text='Font Size').grid(row=0, column=1, padx=padx, pady=pady)
         self.font_size.grid(row=1, column=1, padx=padx, pady=pady)
         tk.Button(master=action_frame, text='Make me some PDFs', command=self.create_texts).grid(
-            row=3, column=1, padx=padx, pady=pady)
+            row=2, column=1, padx=padx, pady=pady)
         action_frame.grid(row=0, column=0, columnspan=2)
 
     def _pack_set_variable_frames(self):
@@ -72,6 +73,10 @@ class MainFrame(tk.Tk):
     def reload_files(self):
         self.paragraph_generator.load_lists_from_file()
 
+    def default_word_files(self):
+        home = self.get_state()['home_directory']
+        create_default_word_files(home)
+
     def load_config(self):
         loader = ConfigLoader()
         for frame in self.frames:
@@ -96,9 +101,6 @@ class MainFrame(tk.Tk):
         loader = ConfigLoader()
         loader.revert_to_default()
         self.load_config()
-
-    def default_word_files(self):
-        pass
 
 
 def main_app():
