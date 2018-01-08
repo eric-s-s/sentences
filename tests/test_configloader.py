@@ -1,6 +1,6 @@
 import os
 import unittest
-from shutil import rmtree
+from shutil import rmtree, copytree
 
 from sentences import DATA_PATH, APP_NAME
 from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
@@ -14,6 +14,10 @@ from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.paragraphtype import ParagraphType
 
 
+SAVE_CONFIG = os.path.join(DATA_PATH, 'save.cfg')
+SAVE_APP_FOLDER = os.path.join(DATA_PATH, 'saved_app')
+
+
 def rm_config():
     if os.path.exists(CONFIG_FILE):
         os.remove(CONFIG_FILE)
@@ -25,11 +29,46 @@ def rm_app_folder():
         rmtree(target)
 
 
+def mv_app_folder():
+    src_target = os.path.join(get_documents_folder(), APP_NAME)
+    if os.path.exists(src_target):
+        copytree(src_target, SAVE_APP_FOLDER)
+
+
+def restore_app_folder():
+    dst_target = os.path.join(get_documents_folder(), APP_NAME)
+    if os.path.exists(SAVE_APP_FOLDER):
+        copytree(SAVE_APP_FOLDER, dst_target)
+        rmtree(SAVE_APP_FOLDER)
+
+
+def mv_config():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as read_file:
+            with open(SAVE_CONFIG, 'w') as write_file:
+                write_file.write(read_file.read())
+
+
+def restore_config():
+    if os.path.exists(SAVE_CONFIG):
+        with open(SAVE_CONFIG, 'r') as read_file:
+            with open(CONFIG_FILE, 'w') as write_file:
+                write_file.write(read_file.read())
+        os.remove(SAVE_CONFIG)
+    else:
+        rm_config()
+
+
 class TestConfigLoader(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        mv_app_folder()
+        mv_config()
 
     @classmethod
     def tearDownClass(cls):
-        rm_config()
+        restore_app_folder()
+        restore_config()
 
     def setUp(self):
         rm_config()
@@ -516,4 +555,3 @@ class TestConfigLoader(unittest.TestCase):
                   'paragraph_size': 15}
 
         self.assertEqual(pt.get_values(), answer)
-

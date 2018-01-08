@@ -79,6 +79,11 @@ class SetVariablesFrame(tk.Frame):
     def __init__(self, *args, **kwargs):
         super(SetVariablesFrame, self).__init__(*args, **kwargs)
 
+    def set_bg(self, color):
+        self.config(bg=color)
+        for child in all_children(self):
+            child.config(bg=color)
+
     def set_variable(self, key, value):
         variable = getattr(self, key)
         if isinstance(variable, PctSpinBox) and isinstance(value, float):
@@ -89,3 +94,14 @@ class SetVariablesFrame(tk.Frame):
             variable.set(int(value))
         else:
             variable.set(value)
+
+
+def all_children(widget):
+    children = widget.winfo_children()
+    if not children:
+        return []
+    answer = children[:]
+    for child in children:
+        answer += all_children(child)
+    return answer
+

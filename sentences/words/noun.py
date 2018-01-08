@@ -2,8 +2,8 @@ from sentences.words.word import Word
 
 
 class Noun(Word):
-    def __init__(self, word: str, special_plural: str='', base: str = None):
-        self._plural = special_plural
+    def __init__(self, word: str, irregular_plural: str= '', base: str = None):
+        self._plural = irregular_plural
         super(Noun, self).__init__(word)
         self._base_noun = base
         if self._base_noun is None:

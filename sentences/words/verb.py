@@ -78,3 +78,51 @@ class NegativeVerb(Verb):
         new_value = self.value.replace('do', 'does')
         new_value = new_value.replace('Do', 'does')
         return ConjugatedVerb(new_value, self.infinitive)
+
+
+class NewVerb(Word):
+    def __init__(self, word, infinitive='', irregular_past=''):
+        super(NewVerb, self).__init__(word)
+        self._irregular_past = irregular_past
+        if not infinitive:
+            self._inf = word
+
+    @property
+    def infinitive(self):
+        return self._inf
+
+    @property
+    def irregular_past(self):
+        return self._irregular_past
+
+    def past_tense(self):
+        past_tense_value = self._irregular_past
+        if not past_tense_value:
+            past_tense_value = self.add_ed().value
+
+        return PastVerb(past_tense_value, self.infinitive, self._irregular_past)
+
+    def third_person(self):
+        with_s = self.add_s().value
+        if with_s == 'haves':
+            with_s = 'has'
+        return ConjugatedVerb(with_s, self.value)
+
+    def capitalize(self):
+        infinitive = self.infinitive
+        return BasicVerb(self.value.capitalize(), self._past_tense, infinitive)
+
+    def negative(self):
+        return NegativeVerb("don't " + self.value, self.value)
+
+
+class PastVerb(NewVerb):
+    pass
+
+
+class NegVerb(NewVerb):
+    pass
+
+
+class ThirdPerson(NewVerb):
+    pass

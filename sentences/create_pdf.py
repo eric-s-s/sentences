@@ -27,12 +27,11 @@ def get_file_prefix(folder):
     current = os.listdir(folder)
     current = [file_name for file_name in current if is_numbered_pdf(file_name)]
     if not current:
-        return '01_'
-    current.sort()
-    next_num = int(current[-1].split('_')[0]) + 1
-    if next_num < 10:
-        return '0{}_'.format(next_num)
-    return '{}_'.format(next_num)
+        next_num = 1
+    else:
+        current.sort()
+        next_num = int(current[-1].split('_')[0]) + 1
+    return '{:0>2}_'.format(next_num)
 
 
 def is_numbered_pdf(filename: str):
