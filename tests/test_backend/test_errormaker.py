@@ -6,7 +6,7 @@ from sentences.backend.errormaker import (de_capitalize, copy_paragraph, make_ve
 from sentences.words.noun import (Noun, PluralNoun, UncountableNoun, IndefiniteNoun, DefinitePluralNoun,
                                   DefiniteNoun)
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import BasicVerb, ConjugatedVerb, NegativeVerb
+from sentences.words.verb import NewVerb, ThirdPersonVerb, PastVerb, NegVerb, NegativeThirdPersonVerb, NegativePastVerb
 from sentences.words.word import Word
 from sentences.words.pronoun import Pronoun
 
@@ -27,102 +27,83 @@ class TestErrorMaker(unittest.TestCase):
     def test_de_capitalize_other(self):
         pronoun = Pronoun.HE
         word = Word('He')
-        verb = BasicVerb('He')
+        verb = NewVerb('He')
         for test_word in [pronoun, word, verb]:
             to_test = de_capitalize(test_word.capitalize())
             self.assertEqual(to_test.value, 'he')
             self.assertEqual(type(to_test), Word)
 
-    def test_is_negative_verb_true(self):
-        self.assertTrue(is_negative_verb(BasicVerb('play').negative()))
-        self.assertTrue(is_negative_verb(BasicVerb('play').negative().past_tense()))
-        self.assertTrue(is_negative_verb(BasicVerb('play').negative().third_person()))
-        self.assertTrue(is_negative_verb(ConjugatedVerb('did not play', 'play')))
-        self.assertTrue(is_negative_verb(ConjugatedVerb("didn't play", 'play')))
-        self.assertTrue(is_negative_verb(ConjugatedVerb("do not play", 'play')))
-        self.assertTrue(is_negative_verb(ConjugatedVerb("don't play", 'play')))
-        self.assertTrue(is_negative_verb(ConjugatedVerb("doesn't play", 'play')))
-        self.assertTrue(is_negative_verb(ConjugatedVerb("does not play", 'play')))
-
-    def test_is_negative_verb_False(self):
-        self.assertFalse(is_negative_verb(BasicVerb('play')))
-        self.assertFalse(is_negative_verb(BasicVerb('play').past_tense()))
-        self.assertFalse(is_negative_verb(BasicVerb('play').third_person()))
-
-    def test_is_negative_cannot_use_bold(self):
-        self.assertFalse(is_negative_verb(BasicVerb('play').negative().bold()))
-
     def test_make_verb_error_present_third_person(self):
         random.seed(6)
-        verb = BasicVerb('play').third_person()
+        verb = NewVerb('play').third_person()
         plus_ed = [2, 8]
         plus_ed_plus_s = [0, 7]
         for index in range(10):
             to_test = make_verb_error(verb, present_tense=True, third_person=True)
             if index in plus_ed:
-                self.assertEqual(ConjugatedVerb('played', 'play'), to_test)
+                self.assertEqual(PastVerb('played', 'play'), to_test)
             elif index in plus_ed_plus_s:
-                self.assertEqual(ConjugatedVerb('playeds', 'playeds'), to_test)
+                self.assertEqual(PastVerb('playeds', 'playeds'), to_test)
             else:
-                self.assertEqual(BasicVerb('play'), to_test)
+                self.assertEqual(NewVerb('play'), to_test)
 
     def test_make_verb_error_present_negative_third_person(self):
         random.seed(6)
-        verb = BasicVerb('play').negative().third_person()
+        verb = NewVerb('play').negative().third_person()
         plus_ed = [2, 8]
         plus_ed_plus_s = [0, 7]
         for index in range(10):
             to_test = make_verb_error(verb, present_tense=True, third_person=True)
             if index in plus_ed:
-                self.assertEqual(ConjugatedVerb("didn't play", 'play'), to_test)
+                self.assertEqual(NegativePastVerb("didn't play", 'play'), to_test)
             elif index in plus_ed_plus_s:
-                self.assertEqual(ConjugatedVerb("didn't plays", "didn't plays"), to_test)
+                self.assertEqual(NegativePastVerb("didn't plays", "didn't plays"), to_test)
             else:
-                self.assertEqual(BasicVerb('play').negative(), to_test)
+                self.assertEqual(NewVerb('play').negative(), to_test)
 
     def test_make_verb_error_present_not_third_person(self):
         random.seed(6)
-        verb = BasicVerb('play')
+        verb = NewVerb('play')
         plus_ed = [1, 6]
         for index in range(10):
             to_test = make_verb_error(verb, present_tense=True, third_person=False)
             if index in plus_ed:
-                self.assertEqual(ConjugatedVerb('played', 'play'), to_test)
+                self.assertEqual(PastVerb('played', 'play'), to_test)
             else:
-                self.assertEqual(ConjugatedVerb('plays', 'play'), to_test)
+                self.assertEqual(ThirdPersonVerb('plays', 'play'), to_test)
 
     def test_make_verb_error_present_negative_not_third_person(self):
         random.seed(6)
-        verb = BasicVerb('play').negative()
+        verb = NewVerb('play').negative()
         plus_ed = [1, 6]
         for index in range(10):
             to_test = make_verb_error(verb, present_tense=True, third_person=False)
             if index in plus_ed:
-                self.assertEqual(ConjugatedVerb("didn't play", 'play'), to_test)
+                self.assertEqual(NegativePastVerb("didn't play", 'play'), to_test)
             else:
-                self.assertEqual(ConjugatedVerb("doesn't play", 'play'), to_test)
+                self.assertEqual(NegativeThirdPersonVerb("doesn't play", 'play'), to_test)
 
     def test_make_verb_error_past_tense(self):
         random.seed(6)
-        verb = BasicVerb('play').past_tense()
+        verb = NewVerb('play').past_tense()
         plus_s = [0, 3, 5, 6, 9]
         for index in range(10):
             to_test = make_verb_error(verb, present_tense=False, third_person=random.choice([True, False]))
             if index in plus_s:
-                self.assertEqual(ConjugatedVerb('plays', 'play'), to_test)
+                self.assertEqual(ThirdPersonVerb('plays', 'play'), to_test)
             else:
-                self.assertEqual(BasicVerb('play'), to_test)
+                self.assertEqual(NewVerb('play'), to_test)
 
     def test_make_verb_error_negative_past_tense(self):
         random.seed(6)
-        verb = BasicVerb('play').negative().past_tense()
+        verb = NewVerb('play').negative().past_tense()
         plus_s = [0, 3, 5, 6, 9]
         for index in range(10):
             to_test = make_verb_error(verb, present_tense=False, third_person=random.choice([True, False]))
             if index in plus_s:
-                self.assertEqual(ConjugatedVerb("doesn't play", 'play'), to_test)
+                self.assertEqual(NegativeThirdPersonVerb("doesn't play", 'play'), to_test)
             else:
-                self.assertEqual(NegativeVerb("don't play", 'play'), to_test)
+                self.assertEqual(NegVerb("don't play", 'play'), to_test)
 
     def test_make_noun_error_uncountable_not_definite(self):
         random.seed(10)
@@ -217,14 +198,14 @@ class TestErrorMaker(unittest.TestCase):
         self.assertEqual(copy_paragraph(empty), empty)
 
     def test_copy_paragraph_single_sentence(self):
-        single_sentence = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        single_sentence = [[Noun('cat'), NewVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         self.assertIsNot(copy_paragraph(single_sentence), single_sentence)
         self.assertIsNot(copy_paragraph(single_sentence)[0], single_sentence[0])
         self.assertEqual(copy_paragraph(single_sentence), single_sentence)
 
     def test_copy_paragraph_multiple_sentences(self):
-        multiple_sentences = [[Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
-                              [Noun('cat'), BasicVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+        multiple_sentences = [[Noun('cat'), NewVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                              [Noun('cat'), NewVerb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         self.assertIsNot(copy_paragraph(multiple_sentences), multiple_sentences)
         self.assertIsNot(copy_paragraph(multiple_sentences)[0], multiple_sentences[0])
         self.assertEqual(copy_paragraph(multiple_sentences), multiple_sentences)
@@ -232,7 +213,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_init(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -251,7 +232,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_errors_no_errors(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -273,7 +254,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_noun_errors_all_errors_also_capitalizes_errors_at_start_of_sentence(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -295,7 +276,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_noun_errors_some_errors(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -317,7 +298,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_verb_errors_all_errors_present_tense(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -339,7 +320,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_verb_errors_some_errors_present_tense(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -361,7 +342,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_verb_errors_all_errors_past_tense(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.past_tense(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
@@ -383,7 +364,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_verb_errors_some_errors_past_tense(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite(), grab.past_tense(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
@@ -405,7 +386,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_period_errors_all_errors_and_decapitalizes(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -426,7 +407,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_period_errors_some_errors(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -448,7 +429,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_maker_create_all_errors(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION]
         ]
@@ -467,7 +448,7 @@ class TestErrorMaker(unittest.TestCase):
     def test_error_count_and_reset(self):
         dog = Noun('dog')
         cat = Noun('cat')
-        grab = BasicVerb('grab')
+        grab = NewVerb('grab')
         paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION]
         ]

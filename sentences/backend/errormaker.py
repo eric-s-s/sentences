@@ -4,7 +4,7 @@ from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person
 from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import Verb
+from sentences.words.verb import NewVerb, NegVerb, PastVerb, ThirdPersonVerb
 from sentences.words.word import Word
 
 
@@ -58,7 +58,7 @@ class ErrorMaker(object):
     def create_verb_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
-                if isinstance(word, Verb):
+                if isinstance(word, NewVerb):
                     if random.random() < self.p_error:
                         self._error_count += 1
 
@@ -108,18 +108,32 @@ def make_noun_error(noun):
 
 
 def make_verb_error(verb, present_tense, third_person):
-    basic = verb.to_basic_verb()
-    if is_negative_verb(verb):
+    basic = verb.to_base_verb()
+    if isinstance(verb, NegVerb):
         basic = basic.negative()
 
-    if present_tense and third_person:
+    if isinstance(verb, ThirdPersonVerb):
         choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
-    elif present_tense and not third_person:
-        choices = [basic.third_person()] * 3 + [basic.past_tense()]
-    else:
+    elif isinstance(verb, PastVerb):
         choices = [basic, basic.third_person()]
+    else:
+        choices = [basic.third_person()] * 3 + [basic.past_tense()]
 
     return random.choice(choices)
+
+# def make_verb_error(verb, present_tense, third_person):
+#     basic = verb.to_basic_verb()
+#     if is_negative_verb(verb):
+#         basic = basic.negative()
+#
+#     if present_tense and third_person:
+#         choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
+#     elif present_tense and not third_person:
+#         choices = [basic.third_person()] * 3 + [basic.past_tense()]
+#     else:
+#         choices = [basic, basic.third_person()]
+#
+#     return random.choice(choices)
 
 
 def is_negative_verb(verb):

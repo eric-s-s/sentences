@@ -179,6 +179,9 @@ class TestVerb(unittest.TestCase):
                 self.assertNotIsInstance(verb, verb_type)
 
 
+    # TODO test equality and hash!!!!!
+
+
     #
     # # TODO ugh!
     # def test_verb_eq(self):

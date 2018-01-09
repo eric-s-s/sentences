@@ -71,7 +71,7 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertEqual(
             answer,
-            {'verb': NewVerb('fly'), 'preposition': Preposition('with'),
+            {'verb': NewVerb('fly', '', 'flew'), 'preposition': Preposition('with'),
              'objects': 2, 'insert_preposition': False})
 
     def test_get_verb_dict_preposition_is_Preposition(self):
@@ -92,7 +92,7 @@ class TestLoader(unittest.TestCase):
     def test_load_verbs_with_insert_preposition(self):
         filename = os.path.join(TESTS_FILES, 'bring_to.csv')
         answer = verbs(filename)
-        bring_to = {'verb': NewVerb('bring', 'brought'), 'preposition': Preposition('to'),
+        bring_to = {'verb': NewVerb('bring', '', 'brought'), 'preposition': Preposition('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])
         print(os.path.dirname(os.path.dirname(__file__)))

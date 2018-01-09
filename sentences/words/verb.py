@@ -123,6 +123,13 @@ class NewVerb(Word):
             self.__class__.__name__, self.value, self._inf, self._irregular_past
         )
 
+    def __eq__(self, other):
+        return (super(NewVerb, self).__eq__(other) and 
+                (self.infinitive, self.irregular_past) == (other.infinitive, other.irregular_past))
+
+    def __hash__(self):
+        return super(NewVerb, self).__hash__()
+
 
 class PastVerb(NewVerb):
     def negative(self):

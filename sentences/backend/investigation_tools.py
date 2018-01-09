@@ -1,5 +1,5 @@
 from sentences.words.pronoun import Pronoun
-from sentences.words.verb import Verb
+from sentences.words.verb import NewVerb
 from sentences.words.noun import Noun, PluralNoun
 from sentences.words.word import Word
 
@@ -14,7 +14,7 @@ def requires_third_person(raw_sentence) -> bool:
 def find_subject(raw_sentence) -> int:
     index = -1
     for i, val in enumerate(raw_sentence):
-        if isinstance(val, Verb):
+        if isinstance(val, NewVerb):
             index = i - 1
             break
     return index
