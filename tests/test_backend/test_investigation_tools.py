@@ -1,8 +1,8 @@
 import unittest
 
 from sentences.backend.investigation_tools import (requires_third_person, is_third_person, find_subject,
-                                                   is_word_in_sentence)
-from sentences.words.noun import Noun
+                                                   is_word_in_sentence, get_present_be_verb)
+from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
@@ -96,3 +96,28 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertFalse(is_word_in_sentence(Noun('tom'), sentence))
         self.assertFalse(is_word_in_sentence(Word('dick'), sentence))
         self.assertFalse(is_word_in_sentence(Verb('harry'), sentence))
+
+    def test_get_present_be_verb_no_subj(self):
+        sentence = [Verb('Give'), Pronoun.ME, Noun('break').indefinite(), period]
+        self.assertEqual(get_present_be_verb(sentence), Word('be'))
+
+    def test_get_present_be_verb_are(self):
+        predicate = [Verb('play'), period]
+        subjs = [you, them, they, we, us, Word('You'), Word('They'), Word('We'),
+                 Noun('dog').plural(), Noun('dog').definite().plural(), Noun('dog').plural().capitalize()]
+        for subj in subjs:
+            self.assertEqual(get_present_be_verb([subj] + predicate), Word('are'))
+
+    def test_get_present_be_verb_is(self):
+        predicate = [Verb('play').third_person(), period]
+        subjs = [he, him, she, her, it, Word('He'), Word('She'), Word('It'),
+                 UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite()]
+        for subj in subjs:
+            self.assertEqual(get_present_be_verb([subj] + predicate), Word('is'))
+
+    def test_get_present_be_verb_am(self):
+        predicate = [Verb('play'), period]
+        subjs = [i, me, i.capitalize()]
+        for subj in subjs:
+            self.assertEqual(get_present_be_verb([subj] + predicate), Word('am'))
+

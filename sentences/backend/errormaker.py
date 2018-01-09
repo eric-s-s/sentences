@@ -1,11 +1,11 @@
 import random
 
 from sentences.backend.grammarizer import normalize_probability
-from sentences.backend.investigation_tools import requires_third_person
+from sentences.backend.investigation_tools import requires_third_person, get_present_be_verb, find_subject
 from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, NegativeVerb, PastVerb
-from sentences.words.word import Word
+from sentences.words.word import Word, Preposition
 
 
 def copy_paragraph(lst_of_lst):
@@ -13,9 +13,8 @@ def copy_paragraph(lst_of_lst):
 
 
 class ErrorMaker(object):
-    def __init__(self, paragraph, p_error, present_tense=True):
+    def __init__(self, paragraph, p_error):
         self.p_error = normalize_probability(p_error)
-        self.present_tense = present_tense
         self._paragraph = copy_paragraph(paragraph)
         self._error_paragraph = copy_paragraph(paragraph)
         self._answer = copy_paragraph(paragraph)
@@ -37,6 +36,12 @@ class ErrorMaker(object):
     @property
     def error_count(self):
         return self._error_count
+
+    @property
+    def method_order(self):
+        methods = [self.create_noun_errors, self.create_verb_errors, self.create_is_do_errors,
+                   self.create_preposition_transpose_errors, self.create_period_errors]
+        return methods
 
     def reset(self):
         self._error_paragraph = self.paragraph
@@ -67,6 +72,37 @@ class ErrorMaker(object):
                         sentence[index] = new_verb
                         self._answer[s_index][index] = self._answer[s_index][index].bold()
 
+    def create_is_do_errors(self):
+        for s_index, sentence in enumerate(self._error_paragraph):
+            for index, word in enumerate(sentence):
+                if isinstance(word, Verb):
+                    if random.random() < self.p_error:
+                        self._error_count += 1
+
+                        be_verb = get_present_be_verb(sentence)
+                        is_do = make_is_do_error(word, be_verb)
+                        sentence[index] = is_do
+                        self._answer[s_index][index] = self._answer[s_index][index].bold()
+
+    def create_preposition_transpose_errors(self):
+        for s_index, sentence in enumerate(self._error_paragraph):
+            for index, word in enumerate(sentence):
+                if isinstance(word, Preposition):
+                    if random.random() < self.p_error:
+                        self._error_count += 1
+
+                        obj_index = index + 1
+                        obj = sentence[obj_index]
+                        del sentence[index]
+                        del sentence[index]
+
+                        insert_index = find_subject_special_case(sentence) + 1
+                        sentence.insert(insert_index, obj)
+                        sentence.insert(insert_index, word)
+
+                        self._answer[s_index][index] = self._answer[s_index][index].bold()
+                        self._answer[s_index][obj_index] = self._answer[s_index][obj_index].bold()
+
     def create_period_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             if random.random() < self.p_error:
@@ -88,9 +124,8 @@ class ErrorMaker(object):
                 self._answer[to_alter_index][0] = self._answer[to_alter_index][0].bold()
 
     def create_all_errors(self):
-        self.create_noun_errors()
-        self.create_verb_errors()
-        self.create_period_errors()
+        for method in self.method_order:
+            method()
 
 
 def make_noun_error(noun):
@@ -132,3 +167,25 @@ def de_capitalize(to_de_capitalize):
     else:
         new_word = Word(new_value)
     return new_word
+
+
+def make_is_do_error(verb, be_verb):
+    be_value = be_verb.value
+    if isinstance(verb, PastVerb):
+        if be_value == 'are':
+            be_value = 'were'
+        else:
+            be_value = 'was'
+    if isinstance(verb, NegativeVerb):
+        return Word('{} not {}'.format(be_value, verb.infinitive))
+    return Word('{} {}'.format(be_value, verb.infinitive))
+
+
+def find_subject_special_case(sentence):
+    answer = find_subject(sentence)
+    if answer == -1:
+        for index, word in enumerate(sentence):
+            value = word.value
+            if any(value.startswith(be_verb) for be_verb in ('is', 'am', 'are', 'was', 'were')):
+                return index - 1
+    return answer
