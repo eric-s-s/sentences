@@ -4,7 +4,7 @@ from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person
 from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import NewVerb, NegVerb, PastVerb, ThirdPersonVerb
+from sentences.words.verb import Verb, NegativeVerb, PastVerb
 from sentences.words.word import Word
 
 
@@ -58,12 +58,12 @@ class ErrorMaker(object):
     def create_verb_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
-                if isinstance(word, NewVerb):
+                if isinstance(word, Verb):
                     if random.random() < self.p_error:
                         self._error_count += 1
 
-                        third_person = requires_third_person(sentence)
-                        new_verb = make_verb_error(word, self.present_tense, third_person)
+                        is_third_person_noun = requires_third_person(sentence)
+                        new_verb = make_verb_error(word, is_third_person_noun)
                         sentence[index] = new_verb
                         self._answer[s_index][index] = self._answer[s_index][index].bold()
 
@@ -107,39 +107,20 @@ def make_noun_error(noun):
     return random.choice(choices)
 
 
-def make_verb_error(verb, present_tense, third_person):
+def make_verb_error(verb, is_third_person_noun):
     basic = verb.to_base_verb()
-    if isinstance(verb, NegVerb):
+    if isinstance(verb, NegativeVerb):
         basic = basic.negative()
 
-    if isinstance(verb, ThirdPersonVerb):
-        choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
-    elif isinstance(verb, PastVerb):
+    if isinstance(verb, PastVerb):
         choices = [basic, basic.third_person()]
+    elif is_third_person_noun:
+        choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
+
     else:
         choices = [basic.third_person()] * 3 + [basic.past_tense()]
 
     return random.choice(choices)
-
-# def make_verb_error(verb, present_tense, third_person):
-#     basic = verb.to_basic_verb()
-#     if is_negative_verb(verb):
-#         basic = basic.negative()
-#
-#     if present_tense and third_person:
-#         choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
-#     elif present_tense and not third_person:
-#         choices = [basic.third_person()] * 3 + [basic.past_tense()]
-#     else:
-#         choices = [basic, basic.third_person()]
-#
-#     return random.choice(choices)
-
-
-def is_negative_verb(verb):
-    negatives = ["don't ", "doesn't ", "didn't ", "do not ", "does not ", "did not "]
-    value = verb.value
-    return any(value.startswith(negative) for negative in negatives)
 
 
 def de_capitalize(to_de_capitalize):

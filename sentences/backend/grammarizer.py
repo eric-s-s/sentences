@@ -6,7 +6,7 @@ from sentences.backend.investigation_tools import requires_third_person, find_su
 from sentences.words.noun import Noun, PluralNoun, UncountableNoun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import NewVerb
+from sentences.words.verb import Verb
 from sentences.words.word import Word
 
 Paragraph = List[List[Union[Word, Pronoun, Punctuation]]]
@@ -70,7 +70,7 @@ class Grammarizer(object):
                 if isinstance(new_wd, Noun):
                     new_wd = self._modify_noun(new_wd)
 
-                if isinstance(new_wd, NewVerb):
+                if isinstance(new_wd, Verb):
                     new_wd = self._assign_negatives(new_wd)
 
                 new_sentence.append(new_wd)

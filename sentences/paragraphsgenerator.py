@@ -93,6 +93,7 @@ class ParagraphsGenerator(object):
             'punctuation_errors': error_maker.create_period_errors
         }
         # Calling errors in a set order is necessary for testing with `random.seed`.
+        # Calling noun_errors before verb_errors affects the verb choice.
         for key in ['noun_errors', 'verb_errors', 'punctuation_errors']:
             if self._options[key]:
                 error_methods[key]()

@@ -4,7 +4,7 @@ import os
 
 from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
 from sentences.words.noun import Noun, UncountableNoun
-from sentences.words.verb import NewVerb
+from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 from sentences import DATA_PATH, VERBS_CSV, COUNTABLE_NOUNS_CSV
 from tests import TESTS_FILES
@@ -45,13 +45,13 @@ class TestLoader(unittest.TestCase):
         self.assertIn(UncountableNoun('water'), answer)
 
     def test_get_verb_dict_empty_strings(self):
-        expected = {'verb': NewVerb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
         self.assertEqual(get_verb_dict(['play', '', '', '', '']), expected)
         self.assertEqual(get_verb_dict(['play', '', '', ]), expected)
         self.assertEqual(get_verb_dict(['play']), expected)
 
     def test_get_verb_dict_empty_and_null_strings(self):
-        expected = {'verb': NewVerb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
         self.assertEqual(get_verb_dict(['play', '', 'null', '', '']), expected)
         self.assertEqual(get_verb_dict(['play', 'null', '', ]), expected)
 
@@ -59,19 +59,19 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'null'])
         self.assertEqual(
             answer,
-            {'verb': NewVerb('fly', '', 'flew'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
+            {'verb': Verb('fly', '', 'flew'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
 
     def test_get_verb_dict_null_values(self):
         answer = get_verb_dict(['fly', 'null', 'null'])
         self.assertEqual(
             answer,
-            {'verb': NewVerb('fly'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
+            {'verb': Verb('fly'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
 
     def test_get_verb_dict_no_null_values(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertEqual(
             answer,
-            {'verb': NewVerb('fly', '', 'flew'), 'preposition': Preposition('with'),
+            {'verb': Verb('fly', '', 'flew'), 'preposition': Preposition('with'),
              'objects': 2, 'insert_preposition': False})
 
     def test_get_verb_dict_preposition_is_Preposition(self):
@@ -80,9 +80,9 @@ class TestLoader(unittest.TestCase):
 
     def test_verbs_empty(self):
         answer = verbs()
-        give = {'verb': NewVerb('give', '', 'gave'), 'preposition': None, 'objects': 2, 'insert_preposition': False}
-        grab = {'verb': NewVerb('grab'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
-        fall = {'verb': NewVerb('fall', '', 'fell'), 'preposition': Preposition('on'), 'objects': 1,
+        give = {'verb': Verb('give', '', 'gave'), 'preposition': None, 'objects': 2, 'insert_preposition': False}
+        grab = {'verb': Verb('grab'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        fall = {'verb': Verb('fall', '', 'fell'), 'preposition': Preposition('on'), 'objects': 1,
                 'insert_preposition': False}
 
         self.assertIn(give, answer)
@@ -92,7 +92,7 @@ class TestLoader(unittest.TestCase):
     def test_load_verbs_with_insert_preposition(self):
         filename = os.path.join(TESTS_FILES, 'bring_to.csv')
         answer = verbs(filename)
-        bring_to = {'verb': NewVerb('bring', '', 'brought'), 'preposition': Preposition('to'),
+        bring_to = {'verb': Verb('bring', '', 'brought'), 'preposition': Preposition('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])
         print(os.path.dirname(os.path.dirname(__file__)))

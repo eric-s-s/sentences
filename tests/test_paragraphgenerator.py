@@ -374,8 +374,6 @@ class TestParagraphGenerator(unittest.TestCase):
         self.config_state['paragraph_size'] = 2
         pg = ParagraphsGenerator(self.config_state)
         answer, error = pg.create_answer_and_error_texts()
-        line_print(answer, 100)
-        print(error)
         expected_answer = ('<bold>Water</bold> <bold>likes</bold> <bold>dogs</bold><bold>.</bold> ' +
                            '<bold>The dogs</bold> <bold>like</bold> <bold>the water</bold><bold>!</bold>' +
                            ' -- error count: 8')

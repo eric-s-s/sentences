@@ -5,7 +5,7 @@ from sentences.backend.random_paragraph import RandomParagraph, get_subj
 from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import BasicVerb
+from sentences.words.verb import Verb
 from sentences.words.word import Word, Preposition
 
 period = Punctuation.PERIOD
@@ -18,10 +18,10 @@ class TestRandomParagraph(unittest.TestCase):
         self.countable = [Noun('dog'), Noun('cat'), Noun('pig'), Noun('frog')]
         self.uncountable = [Noun('water'), Noun('rice'), Noun('milk'), Noun('sand')]
         self.verbs = [
-            {'verb': BasicVerb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False},
-            {'verb': BasicVerb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
-            {'verb': BasicVerb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
-            {'verb': BasicVerb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
+            {'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
         ]
         self.rp = RandomParagraph(0.2, self.verbs, self.countable, self.uncountable)
 
@@ -67,7 +67,7 @@ class TestRandomParagraph(unittest.TestCase):
         self.assertRaises(OverflowError, self.rp.get_subject_pool, 16)
 
     def test_create_pool_paragraph_is_correct_length(self):
-        verb_list = [{'verb': BasicVerb('play'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
+        verb_list = [{'verb': Verb('play'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
         rp = RandomParagraph(0.2, verb_list, self.countable, self.uncountable)
 
         for length in range(3, 11):
@@ -88,7 +88,7 @@ class TestRandomParagraph(unittest.TestCase):
 
     def test_create_pool_paragraph_raises_overflow_error_very_very_edge_case(self):
         random.seed(20)
-        verb_list = [{'verb': BasicVerb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
+        verb_list = [{'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
 
         raise_error = RandomParagraph(0.0, verb_list, [Noun('cat')], [Noun('water')])
 
@@ -100,11 +100,11 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(3)
         paragraph = self.rp.create_pool_paragraph(2, 5)
         expected = [
-            [Noun('pig'), BasicVerb('eat'), Noun('sand'), period],
-            [Noun('pig'), BasicVerb('give'), Noun('cat'), Preposition('to'), Noun('dog'), period],
-            [Noun('sand'), BasicVerb('jump'), Preposition('over'), Noun('milk'), exclamation],
-            [Noun('sand'), BasicVerb('eat'), him, period],
-            [Noun('sand'), BasicVerb('jump'), Preposition('over'), Noun('milk'), exclamation]
+            [Noun('pig'), Verb('eat'), Noun('sand'), period],
+            [Noun('pig'), Verb('give'), Noun('cat'), Preposition('to'), Noun('dog'), period],
+            [Noun('sand'), Verb('jump'), Preposition('over'), Noun('milk'), exclamation],
+            [Noun('sand'), Verb('eat'), him, period],
+            [Noun('sand'), Verb('jump'), Preposition('over'), Noun('milk'), exclamation]
         ]
         self.assertEqual(paragraph, expected)
 
@@ -115,19 +115,19 @@ class TestRandomParagraph(unittest.TestCase):
 
     def test_create_chain_paragraph_loop_safety_finally_returns_paragraph_with_repeat_words(self):
         random.seed(20)
-        verb_list = [{'verb': BasicVerb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
+        verb_list = [{'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
 
         repeats = RandomParagraph(0.0, verb_list, [Noun('joe')], [Noun('bob')])
         paragraph = repeats.create_chain_paragraph(3)
         expected = [
-            [Noun('joe'), BasicVerb('give'), Noun('joe'), Noun('bob'), period],
-            [Noun('bob'), BasicVerb('give'), Noun('bob'), Noun('joe'), exclamation],
-            [Noun('joe'), BasicVerb('give'), Noun('bob'), Noun('joe'), period],
+            [Noun('joe'), Verb('give'), Noun('joe'), Noun('bob'), period],
+            [Noun('bob'), Verb('give'), Noun('bob'), Noun('joe'), exclamation],
+            [Noun('joe'), Verb('give'), Noun('bob'), Noun('joe'), period],
         ]
         self.assertEqual(expected, paragraph)
 
     def test_create_chain_paragraph_pronouns(self):
-        verb_list = [{'verb': BasicVerb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False}]
+        verb_list = [{'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False}]
 
         rp = RandomParagraph(1.0, verb_list, self.countable, self.uncountable)
         answer = rp.create_chain_paragraph(10)
@@ -146,13 +146,13 @@ class TestRandomParagraph(unittest.TestCase):
 
     def test_create_chain_paragraph_assigns_random_subj_if_no_obj(self):
         random.seed(11)
-        verb_list = [{'verb': BasicVerb('jump'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
+        verb_list = [{'verb': Verb('jump'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
         rp = RandomParagraph(0.2, verb_list, self.countable, self.uncountable)
         answer = rp.create_chain_paragraph(3)
         expected = [
-            [Noun('sand'), BasicVerb('jump'), exclamation],
-            [Noun('frog'), BasicVerb('jump'), exclamation],
-            [Noun('pig'), BasicVerb('jump'), period]
+            [Noun('sand'), Verb('jump'), exclamation],
+            [Noun('frog'), Verb('jump'), exclamation],
+            [Noun('pig'), Verb('jump'), period]
         ]
         self.assertEqual(expected, answer)
 
@@ -160,9 +160,9 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(4567)
         answer = self.rp.create_chain_paragraph(4)
         expected = [
-            [Noun('water'), BasicVerb('eat'), Noun('rice'), exclamation],
-            [Noun('rice'), BasicVerb('give'), us, Preposition('to'), Noun('cat'), period],
-            [Noun('cat'), BasicVerb('eat'), Noun('dog'), period],
-            [Noun('dog'), BasicVerb('jump'), Preposition('over'), Noun('sand'), period],
+            [Noun('water'), Verb('eat'), Noun('rice'), exclamation],
+            [Noun('rice'), Verb('give'), us, Preposition('to'), Noun('cat'), period],
+            [Noun('cat'), Verb('eat'), Noun('dog'), period],
+            [Noun('dog'), Verb('jump'), Preposition('over'), Noun('sand'), period],
         ]
         self.assertEqual(answer, expected)
