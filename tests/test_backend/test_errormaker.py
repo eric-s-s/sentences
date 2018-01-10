@@ -44,7 +44,7 @@ class TestErrorMaker(unittest.TestCase):
             if index in plus_ed:
                 self.assertEqual(PastVerb('played', 'play'), to_test)
             elif index in plus_ed_plus_s:
-                self.assertEqual(PastVerb('playeds', 'playeds'), to_test)
+                self.assertEqual(PastVerb('playeds', 'play'), to_test)
             else:
                 self.assertEqual(Verb('play'), to_test)
 
@@ -58,7 +58,7 @@ class TestErrorMaker(unittest.TestCase):
             if index in plus_ed:
                 self.assertEqual(NegativePastVerb("didn't play", 'play'), to_test)
             elif index in plus_ed_plus_s:
-                self.assertEqual(NegativePastVerb("didn't plays", "didn't plays"), to_test)
+                self.assertEqual(NegativePastVerb("didn't plays", "play"), to_test)
             else:
                 self.assertEqual(Verb('play').negative(), to_test)
 

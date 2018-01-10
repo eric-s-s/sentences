@@ -18,6 +18,8 @@ class TestVerb(unittest.TestCase):
         self.assertEqual(verb.infinitive, 'go')
         self.assertEqual(verb.irregular_past, 'went')
 
+    # TODO test add_ed, add_s
+
     def test_verb_repr(self):
         self.assertEqual(repr(Verb('play')), "Verb('play', 'play', '')")
         self.assertEqual(repr(Verb('go', '', 'went')), "Verb('go', 'go', 'went')")

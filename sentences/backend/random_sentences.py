@@ -28,6 +28,8 @@ class RandomSentences(object):
 
         objects = []
         object_position = 0
+        overflow_count = 0
+        max_loops = 500
         while object_position < object_count:
             if object_position == 0:
                 new_obj = self.object(p_pronoun)
@@ -37,6 +39,10 @@ class RandomSentences(object):
             if new_obj not in objects:
                 objects.append(new_obj)
                 object_position += 1
+
+            overflow_count += 1
+            if overflow_count > max_loops:
+                raise OverflowError('Not enough Nouns and Pronouns to satisfy object count.')
 
         if insert_preposition:
             action.insert(-1, objects.pop(0))

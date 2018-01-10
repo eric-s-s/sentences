@@ -196,3 +196,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
             self.assertNotEqual(noun_1, noun_2)
             self.assertIn(noun_1, test_membership)
             self.assertIn(noun_2, test_membership)
+
+    def test_error_raised_when_not_enough_objects(self):
+        verb_list = [
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+        ]
+        generator = RandomSentences(verb_list, [Noun('dog')], [])
+        self.assertRaises(OverflowError, generator.predicate, 0.0)

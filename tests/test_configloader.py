@@ -160,6 +160,8 @@ class TestConfigLoader(unittest.TestCase):
             ('noun_errors', True),
             ('verb_errors', True),
             ('punctuation_errors', True),
+            ('is_do_errors', False),
+            ('preposition_transpose_errors', False),
             ('', None),
             ('# GRAMMAR DETAILS', None),
             ('# tense option: simple_present, simple_past', None),
@@ -213,6 +215,8 @@ class TestConfigLoader(unittest.TestCase):
             'noun_errors': True,
             'verb_errors': True,
             'punctuation_errors': True,
+            'is_do_errors': False,
+            'preposition_transpose_errors': False,
 
             'tense': 'simple_present',
             'probability_plural_noun': 0.3,
@@ -280,6 +284,8 @@ class TestConfigLoader(unittest.TestCase):
             'noun_errors': True,
             'verb_errors': True,
             'punctuation_errors': True,
+            'is_do_errors': False,
+            'preposition_transpose_errors': False,
 
             'tense': 'simple_present',
             'probability_plural_noun': 0.3,
@@ -517,6 +523,8 @@ class TestConfigLoader(unittest.TestCase):
         answer = {'error_probability': 0.2,
                   'noun_errors': True,
                   'verb_errors': True,
+                  'is_do_errors': False,
+                  'preposition_transpose_errors': False,
                   'punctuation_errors': True}
 
         self.assertEqual(ed.get_values(), answer)

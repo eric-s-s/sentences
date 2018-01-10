@@ -52,13 +52,13 @@ class MainFrame(tk.Tk):
 
     def _pack_set_variable_frames(self):
         error_details = ErrorDetails(master=self)
-        error_details.set_bg('light yellow2')
+        error_details.set_bg('light cyan')
 
         paragraph_type = ParagraphType(master=self)
-        paragraph_type.set_bg('light cyan')
+        paragraph_type.set_bg('honeydew2')
 
         grammar_details = GrammarDetails(master=self)
-        grammar_details.set_bg('thistle1')
+        grammar_details.set_bg('snow2')
 
         file_management = FileManagement(master=self)
         file_management.set_bg('light blue')

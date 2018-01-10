@@ -17,6 +17,14 @@ class Verb(Word):
     def irregular_past(self):
         return self._irregular_past
 
+    def add_ed(self):
+        value = super(Verb, self).add_ed().value
+        return self.__class__(value, self.infinitive, self.irregular_past)
+
+    def add_s(self):
+        value = super(Verb, self).add_s().value
+        return self.__class__(value, self.infinitive, self.irregular_past)
+
     def past_tense(self):
         past_tense_value = self._irregular_past
         if not past_tense_value:
