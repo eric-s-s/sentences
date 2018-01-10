@@ -33,21 +33,35 @@ class MainFrame(tk.Tk):
         self.paragraph_generator = ParagraphsGenerator(self.get_state())
 
     def _pack_action_frame(self, action_frame):
-        padx, pady = (20, 2)
-        tk.Button(master=action_frame, text='Save current settings', command=self.set_config).grid(
-            row=0, column=0, padx=padx, pady=pady)
-        tk.Button(master=action_frame, text='Reset to saved settings', command=self.load_config).grid(
-            row=1, column=0, padx=padx, pady=pady)
-        tk.Button(master=action_frame, text='Update from word files', command=self.reload_files).grid(
-            row=2, column=0, padx=padx, pady=pady)
-        tk.Button(master=action_frame, text='New default word files', command=self.default_word_files).grid(
-            row=3, column=0, padx=padx, pady=pady)
-        tk.Button(master=action_frame, text='Factory Reset', command=self.revert_to_original).grid(
-            row=4, column=0, padx=padx, pady=pady)
+        padx, pady = (20, 5)
+        tk.Button(
+            master=action_frame, text='Save current settings', command=self.set_config, bg='CadetBlue1'
+        ).grid(row=0, column=0, padx=padx, pady=pady)
+
+        tk.Button(
+            master=action_frame, text='Reset to saved settings', command=self.load_config, bg='aquamarine2'
+        ).grid(row=1, column=0, padx=padx, pady=pady)
+
+        tk.Button(
+            master=action_frame, text='Update from word files', command=self.reload_files, bg='light goldenrod'
+        ).grid(row=2, column=0, padx=padx, pady=pady)
+
+        tk.Button(
+            master=action_frame, text='New default word files', command=self.default_word_files, bg='plum1'
+        ).grid(row=3, column=0, padx=padx, pady=pady)
+
+        tk.Button(
+            master=action_frame, text='Factory Reset', command=self.revert_to_original, bg='firebrick1'
+        ).grid(row=4, column=0, padx=padx, pady=pady)
+
         tk.Label(master=action_frame, text='Font Size').grid(row=0, column=1, padx=padx, pady=pady)
+
         self.font_size.grid(row=1, column=1, padx=padx, pady=pady)
-        tk.Button(master=action_frame, text='Make me some PDFs', command=self.create_texts).grid(
-            row=2, column=1, padx=padx, pady=pady)
+
+        tk.Button(
+            master=action_frame, text='Make me some PDFs', command=self.create_texts, bg='chartreuse2'
+        ).grid(row=2, column=1, padx=padx, pady=pady)
+
         action_frame.grid(row=0, column=0, columnspan=2)
 
     def _pack_set_variable_frames(self):

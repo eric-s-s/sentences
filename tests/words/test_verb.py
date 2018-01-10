@@ -18,7 +18,27 @@ class TestVerb(unittest.TestCase):
         self.assertEqual(verb.infinitive, 'go')
         self.assertEqual(verb.irregular_past, 'went')
 
-    # TODO test add_ed, add_s
+    def test_verb_add_ed_retains_infinitive_and_irregular_past(self):
+        base = Verb('go', '', 'went')
+        neg = base.negative()
+        all_types = [base, base.past_tense(), base.third_person(), neg, neg.past_tense(), neg.third_person()]
+        for verb in all_types:
+            new = verb.add_ed()
+            self.assertEqual(type(new), type(verb))
+            self.assertEqual(new.infinitive, verb.infinitive)
+            self.assertEqual(new.irregular_past, verb.irregular_past)
+            self.assertEqual(new.value, super(Verb, verb).add_ed().value)
+
+    def test_verb_add_s_retains_infinitive_and_irregular_past(self):
+        base = Verb('go', '', 'went')
+        neg = base.negative()
+        all_types = [base, base.past_tense(), base.third_person(), neg, neg.past_tense(), neg.third_person()]
+        for verb in all_types:
+            new = verb.add_s()
+            self.assertEqual(type(new), type(verb))
+            self.assertEqual(new.infinitive, verb.infinitive)
+            self.assertEqual(new.irregular_past, verb.irregular_past)
+            self.assertEqual(new.value, super(Verb, verb).add_s().value)
 
     def test_verb_repr(self):
         self.assertEqual(repr(Verb('play')), "Verb('play', 'play', '')")

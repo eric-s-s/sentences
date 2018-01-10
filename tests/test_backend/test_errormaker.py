@@ -726,10 +726,46 @@ class TestErrorMaker(unittest.TestCase):
         all_error_maker = ErrorMaker(paragraph, p_error=1.0)
         self.assertEqual(all_error_maker.error_count, 0)
         all_error_maker.create_all_errors()
-        self.assertEqual(all_error_maker.error_count, 5)
+        self.assertEqual(all_error_maker.error_count, 4)
         all_error_maker.reset()
         self.assertEqual(all_error_maker.error_count, 0)
         self.assertEqual(all_error_maker.error_paragraph, paragraph)
 
         all_error_maker.create_noun_errors()
         self.assertEqual(all_error_maker.error_count, 2)
+
+    def test_already_has_error(self):
+        dog = Noun('dog')
+        cat = Noun('cat')
+        grab = Verb('grab')
+        paragraph = [
+            [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION]
+        ]
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_noun_errors()
+        self.assertTrue(error_maker.already_has_error(0, 0))
+        self.assertTrue(error_maker.already_has_error(0, 2))
+        self.assertFalse(error_maker.already_has_error(0, 1))
+        self.assertFalse(error_maker.already_has_error(0, 3))
+
+    def test_error_count_does_not_count_same_verb_twice(self):
+        random.seed(100)
+        dog = Noun('dog')
+        cat = Noun('cat')
+        grab = Verb('grab')
+        paragraph = [
+            [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION]
+        ]
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_verb_errors()
+        error_maker.create_is_do_errors()
+        self.assertEqual(error_maker.error_paragraph[0][1], Word('was grab'))
+        self.assertEqual(error_maker.error_count, 1)
+
+    def test_regression_test_make_verb_error_make_is_do_error(self):
+        random.seed(10)
+        verb = Verb('go', '', 'went').negative().third_person()
+        error = make_verb_error(verb, True)
+        self.assertEqual(error, NegativePastVerb("didn't goes", 'go', 'went'))
+        new_error = make_is_do_error(error, Word('is'))
+        self.assertEqual(new_error, Word('was not go'))

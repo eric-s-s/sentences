@@ -77,12 +77,16 @@ class ErrorMaker(object):
             for index, word in enumerate(sentence):
                 if isinstance(word, Verb):
                     if random.random() < self.p_error:
-                        self._error_count += 1
+                        if not self.already_has_error(s_index, index):
+                            self._error_count += 1
 
                         be_verb = get_present_be_verb(sentence)
                         is_do = make_is_do_error(word, be_verb)
                         sentence[index] = is_do
                         self._answer[s_index][index] = self._answer[s_index][index].bold()
+
+    def already_has_error(self, sentence_index, word_index):
+        return self._answer[sentence_index][word_index].value.startswith('<bold>')
 
     def create_preposition_transpose_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
