@@ -5,7 +5,7 @@ from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.gui_tools import PctSpinBox
 
 
-class TestParagraphType(unittest.TestCase):
+class TestGrammarDetails(unittest.TestCase):
     def setUp(self):
         self.frame = GrammarDetails()
 

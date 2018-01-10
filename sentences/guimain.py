@@ -34,33 +34,21 @@ class MainFrame(tk.Tk):
 
     def _pack_action_frame(self, action_frame):
         padx, pady = (20, 5)
-        tk.Button(
-            master=action_frame, text='Save current settings', command=self.set_config, bg='CadetBlue1'
-        ).grid(row=0, column=0, padx=padx, pady=pady)
-
-        tk.Button(
-            master=action_frame, text='Reset to saved settings', command=self.load_config, bg='aquamarine2'
-        ).grid(row=1, column=0, padx=padx, pady=pady)
-
-        tk.Button(
-            master=action_frame, text='Update from word files', command=self.reload_files, bg='light goldenrod'
-        ).grid(row=2, column=0, padx=padx, pady=pady)
-
-        tk.Button(
-            master=action_frame, text='New default word files', command=self.default_word_files, bg='plum1'
-        ).grid(row=3, column=0, padx=padx, pady=pady)
-
-        tk.Button(
-            master=action_frame, text='Factory Reset', command=self.revert_to_original, bg='firebrick1'
-        ).grid(row=4, column=0, padx=padx, pady=pady)
+        button_kwargs = [
+            {'text': 'Save current settings', 'command': self.set_config, 'bg': 'CadetBlue1'},
+            {'text': 'Reset to saved settings', 'command': self.load_config, 'bg': 'aquamarine2'},
+            {'text': 'Update from word files', 'command': self.reload_files, 'bg': 'light goldenrod'},
+            {'text': 'New default word files', 'command': self.default_word_files, 'bg': 'plum1'},
+            {'text': 'Factory Reset', 'command': self.revert_to_original, 'bg': 'firebrick1'},
+        ]
+        for row, kwargs in enumerate(button_kwargs):
+            tk.Button(master=action_frame, **kwargs).grid(row=row, column=0, padx=padx, pady=pady)
 
         tk.Label(master=action_frame, text='Font Size').grid(row=0, column=1, padx=padx, pady=pady)
-
         self.font_size.grid(row=1, column=1, padx=padx, pady=pady)
-
-        tk.Button(
-            master=action_frame, text='Make me some PDFs', command=self.create_texts, bg='chartreuse2'
-        ).grid(row=2, column=1, padx=padx, pady=pady)
+        pdf_button = tk.Button(master=action_frame, text='Make me some PDFs',
+                               command=self.create_texts, bg='chartreuse2')
+        pdf_button.grid(row=2, column=1, padx=padx, pady=pady)
 
         action_frame.grid(row=0, column=0, columnspan=2)
 

@@ -42,7 +42,7 @@ executables = [
 ]
 
 setup(name='test_cx',
-      version='1.4',
+      version='2.0',
       description='a simple cx_freeze test',
       options=options,
       executables=executables,

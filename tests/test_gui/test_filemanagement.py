@@ -4,7 +4,7 @@ from sentences.gui.filemanagement import FileManagement
 from sentences.gui.gui_tools import FilenameVar, DirectoryVar
 
 
-class TestParagraphType(unittest.TestCase):
+class TestFileManagement(unittest.TestCase):
     def setUp(self):
         self.frame = FileManagement()
 
