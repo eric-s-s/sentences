@@ -3,4 +3,4 @@
 build/*
 dist/
 pdfs/
-sentences/tk_scratch.py
+sentences/data/config.cfg

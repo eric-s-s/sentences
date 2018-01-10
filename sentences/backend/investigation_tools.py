@@ -4,6 +4,19 @@ from sentences.words.noun import Noun, PluralNoun
 from sentences.words.word import Word
 
 
+def get_present_be_verb(sentence):
+    subj_index = find_subject(sentence)
+    if subj_index == -1:
+        return Word('be')
+    subj = sentence[subj_index]
+    if requires_third_person(sentence):
+        return Word('is')
+    elif subj in (Pronoun.I, Pronoun.ME, Word('I')):
+        return Word('am')
+    else:
+        return Word('are')
+
+
 def requires_third_person(raw_sentence) -> bool:
     index = find_subject(raw_sentence)
     if index == -1:

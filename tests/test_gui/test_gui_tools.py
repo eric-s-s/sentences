@@ -5,10 +5,14 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 
 from sentences.gui.gui_tools import (validate_int, IntSpinBox, PctSpinBox, FilenameVar, DirectoryVar, PopupSelectVar,
-                                     SetVariablesFrame)
+                                     SetVariablesFrame, all_children)
 
 
 class TestGuiTools(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Variables need a widget floating around in the aether or they raise an error.
+        tk.Tk()
 
     def test_validate_int(self):
         self.assertTrue(validate_int(''))
@@ -226,3 +230,24 @@ class TestGuiTools(unittest.TestCase):
         frame.set_variable('succeed', -2)
         self.assertEqual(frame.succeed.get(), -2)
         self.assertRaises(AttributeError, frame.set_variable, 'fail', '1')
+
+    def test_all_children_no_children(self):
+        widget = tk.Label(text='hi')
+        self.assertEqual(all_children(widget), [])
+
+    def test_all_children_multi_level(self):
+        top_widget = tk.Frame()
+        down_1 = tk.Frame(master=top_widget)
+        down_2 = tk.Frame(master=down_1)
+        down_3 = tk.Frame(master=down_2)
+        self.assertEqual(all_children(top_widget), [down_1, down_2, down_3])
+        self.assertEqual(all_children(down_1), [down_2, down_3])
+
+    def test_SetVariableFrame_set_bg(self):
+        top_widget = SetVariablesFrame()
+        down_1 = tk.Frame(master=top_widget)
+        down_2 = tk.Frame(master=down_1)
+        down_3 = tk.Label(master=down_2)
+        top_widget.set_bg('blue')
+        for widget in [top_widget, down_1, down_2, down_3]:
+            self.assertEqual(widget.cget('bg'), 'blue')

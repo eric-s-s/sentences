@@ -2,8 +2,8 @@ from sentences.words.word import Word
 
 
 class Noun(Word):
-    def __init__(self, word: str, special_plural: str='', base: str = None):
-        self._plural = special_plural
+    def __init__(self, word: str, irregular_plural: str= '', base: str = None):
+        self._plural = irregular_plural
         super(Noun, self).__init__(word)
         self._base_noun = base
         if self._base_noun is None:
@@ -49,9 +49,7 @@ class Noun(Word):
         return Noun(self.base_noun)
     
     def __eq__(self, other):
-        if not isinstance(other, Noun):
-            return False
-        return self.base_noun == other.base_noun and super(Noun, self).__eq__(other)
+        return super(Noun, self).__eq__(other) and self.base_noun == other.base_noun
 
     def __hash__(self):
         return super(Noun, self).__hash__()

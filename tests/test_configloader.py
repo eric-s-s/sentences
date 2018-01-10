@@ -1,8 +1,9 @@
 import os
 import unittest
-from shutil import rmtree
+from shutil import rmtree, copytree
 
 from sentences import DATA_PATH, APP_NAME
+from tests import TESTS_FILES
 from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
                                     VERBS_CSV, DEFAULT_SAVE_DIR,
                                     create_default_config, save_config, load_config, ConfigLoader,
@@ -12,6 +13,10 @@ from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.filemanagement import FileManagement
 from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.paragraphtype import ParagraphType
+
+
+SAVE_CONFIG = os.path.join(TESTS_FILES, 'save.cfg')
+SAVE_APP_FOLDER = os.path.join(TESTS_FILES, 'saved_app')
 
 
 def rm_config():
@@ -25,11 +30,46 @@ def rm_app_folder():
         rmtree(target)
 
 
+def mv_app_folder():
+    src_target = os.path.join(get_documents_folder(), APP_NAME)
+    if os.path.exists(src_target):
+        copytree(src_target, SAVE_APP_FOLDER)
+
+
+def restore_app_folder():
+    dst_target = os.path.join(get_documents_folder(), APP_NAME)
+    if os.path.exists(SAVE_APP_FOLDER):
+        copytree(SAVE_APP_FOLDER, dst_target)
+        rmtree(SAVE_APP_FOLDER)
+
+
+def mv_config():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as read_file:
+            with open(SAVE_CONFIG, 'w') as write_file:
+                write_file.write(read_file.read())
+
+
+def restore_config():
+    if os.path.exists(SAVE_CONFIG):
+        with open(SAVE_CONFIG, 'r') as read_file:
+            with open(CONFIG_FILE, 'w') as write_file:
+                write_file.write(read_file.read())
+        os.remove(SAVE_CONFIG)
+    else:
+        rm_config()
+
+
 class TestConfigLoader(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        mv_app_folder()
+        mv_config()
 
     @classmethod
     def tearDownClass(cls):
-        rm_config()
+        restore_app_folder()
+        restore_config()
 
     def setUp(self):
         rm_config()
@@ -120,6 +160,8 @@ class TestConfigLoader(unittest.TestCase):
             ('noun_errors', True),
             ('verb_errors', True),
             ('punctuation_errors', True),
+            ('is_do_errors', False),
+            ('preposition_transpose_errors', False),
             ('', None),
             ('# GRAMMAR DETAILS', None),
             ('# tense option: simple_present, simple_past', None),
@@ -173,6 +215,8 @@ class TestConfigLoader(unittest.TestCase):
             'noun_errors': True,
             'verb_errors': True,
             'punctuation_errors': True,
+            'is_do_errors': False,
+            'preposition_transpose_errors': False,
 
             'tense': 'simple_present',
             'probability_plural_noun': 0.3,
@@ -240,6 +284,8 @@ class TestConfigLoader(unittest.TestCase):
             'noun_errors': True,
             'verb_errors': True,
             'punctuation_errors': True,
+            'is_do_errors': False,
+            'preposition_transpose_errors': False,
 
             'tense': 'simple_present',
             'probability_plural_noun': 0.3,
@@ -477,6 +523,8 @@ class TestConfigLoader(unittest.TestCase):
         answer = {'error_probability': 0.2,
                   'noun_errors': True,
                   'verb_errors': True,
+                  'is_do_errors': False,
+                  'preposition_transpose_errors': False,
                   'punctuation_errors': True}
 
         self.assertEqual(ed.get_values(), answer)
@@ -516,4 +564,3 @@ class TestConfigLoader(unittest.TestCase):
                   'paragraph_size': 15}
 
         self.assertEqual(pt.get_values(), answer)
-

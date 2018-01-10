@@ -3,7 +3,7 @@ import os
 from sentences import DATA_PATH, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
 
 from sentences.words.noun import Noun, UncountableNoun
-from sentences.words.verb import BasicVerb
+from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 
 
@@ -48,7 +48,7 @@ def get_verb_dict(str_lst):
 
     if past_tense == 'null':
         past_tense = ''
-    verb = BasicVerb(infinitive, past_tense)
+    verb = Verb(infinitive, '', past_tense)
 
     if preposition_str == 'null':
         preposition = None

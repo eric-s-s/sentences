@@ -2,81 +2,85 @@ from sentences.words.word import Word
 
 
 class Verb(Word):
-    def __init__(self, word, infinitive=''):
-        super(Verb, self).__init__(word)
+    def __init__(self, value, infinitive='', irregular_past=''):
+        super(Verb, self).__init__(value)
+        self._irregular_past = irregular_past
         self._inf = infinitive
-        if not self._inf:
-            self._inf = word
+        if not infinitive:
+            self._inf = value
 
     @property
-    def infinitive(self) -> str:
+    def infinitive(self):
         return self._inf
 
-    def __eq__(self, other):
-        if not isinstance(other, Verb):
-            return False
-        return (self.value, self.infinitive) == (other.value, other.infinitive)
+    @property
+    def irregular_past(self):
+        return self._irregular_past
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def add_ed(self):
+        value = super(Verb, self).add_ed().value
+        return self.__class__(value, self.infinitive, self.irregular_past)
+
+    def add_s(self):
+        value = super(Verb, self).add_s().value
+        return self.__class__(value, self.infinitive, self.irregular_past)
+
+    def past_tense(self):
+        past_tense_value = self._irregular_past
+        if not past_tense_value:
+            past_tense_value = Word(self._inf).add_ed().value
+        return PastVerb(past_tense_value, self._inf, self._irregular_past)
+
+    def third_person(self):
+        with_s = Word(self._inf).add_s().value
+        if with_s == 'haves':
+            with_s = 'has'
+        return ThirdPersonVerb(with_s, self._inf, self._irregular_past)
+
+    def capitalize(self):
+        class_ = self.__class__
+        return class_(self.value.capitalize(), self._inf, self._irregular_past)
+
+    def negative(self):
+        return NegativeVerb("don't " + self.infinitive, self._inf, self._irregular_past)
+
+    def to_base_verb(self):
+        return Verb(self._inf, '', self._irregular_past)
+
+    def __repr__(self):
+        return '{}({!r}, {!r}, {!r})'.format(
+            self.__class__.__name__, self.value, self._inf, self._irregular_past
+        )
+
+    def __eq__(self, other):
+        return (super(Verb, self).__eq__(other) and
+                (self.infinitive, self.irregular_past) == (other.infinitive, other.irregular_past))
 
     def __hash__(self):
         return super(Verb, self).__hash__()
 
-    def __repr__(self):
-        return '{}({!r}, {!r})'.format(self.__class__.__name__, self.value, self.infinitive)
 
-    def to_basic_verb(self):
-        return BasicVerb(self.infinitive)
-
-    def capitalize(self):
-        return self.__class__(self.value.capitalize(), self.infinitive)
-
-
-class ConjugatedVerb(Verb):
-    def __init__(self, word, infinitive=''):
-        super(ConjugatedVerb, self).__init__(word, infinitive)
-
-
-class BasicVerb(Verb):
-    def __init__(self, word, special_past_tense='', infinitive=''):
-        self._past_tense = special_past_tense
-        super(BasicVerb, self).__init__(word, infinitive)
-
-    def past_tense(self) -> ConjugatedVerb:
-        past_tense_value = self._past_tense
-        if not past_tense_value:
-            past_tense_value = self.add_ed().value
-
-        return ConjugatedVerb(past_tense_value, self.infinitive)
-
-    def third_person(self) -> ConjugatedVerb:
-        with_s = self.add_s().value
-        if with_s == 'haves':
-            with_s = 'has'
-        return ConjugatedVerb(with_s, self.value)
-
-    def capitalize(self) -> 'BasicVerb':
-        infinitive = self.infinitive
-        return BasicVerb(self.value.capitalize(), self._past_tense, infinitive)
-
-    def negative(self) -> 'NegativeVerb':
-        return NegativeVerb("don't " + self.value, self.value)
-
-    def __repr__(self):
-        return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self._past_tense, self.infinitive)
+class PastVerb(Verb):
+    def negative(self):
+        return NegativePastVerb("didn't " + self.infinitive, self.infinitive, self.irregular_past)
 
 
 class NegativeVerb(Verb):
-    def __init__(self, negative, infinitive=''):
-        super(NegativeVerb, self).__init__(negative, infinitive)
+    def past_tense(self):
+        return NegativePastVerb("didn't " + self.infinitive, self.infinitive, self.irregular_past)
 
-    def past_tense(self) -> ConjugatedVerb:
-        new_value = self.value.replace('do', 'did')
-        new_value = new_value.replace('Do', 'did')
-        return ConjugatedVerb(new_value, self.infinitive)
+    def third_person(self):
+        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.infinitive, self.irregular_past)
 
-    def third_person(self) -> ConjugatedVerb:
-        new_value = self.value.replace('do', 'does')
-        new_value = new_value.replace('Do', 'does')
-        return ConjugatedVerb(new_value, self.infinitive)
+
+class ThirdPersonVerb(Verb):
+    def negative(self):
+        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.infinitive, self.irregular_past)
+
+
+class NegativePastVerb(NegativeVerb, PastVerb):
+    pass
+
+
+class NegativeThirdPersonVerb(NegativeVerb, ThirdPersonVerb):
+    pass

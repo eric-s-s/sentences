@@ -11,14 +11,15 @@ from sentences.words.noun import Noun
 from sentences.words.word import Word
 from sentences.words.punctuation import Punctuation
 
+from tests import TESTS_FILES
+
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
 
 
-TEST_FILES = os.path.join(os.path.dirname(__file__), 'test_files')
-delete_me = 'delete_me_{}'
+delete_me = os.path.join(TESTS_FILES, 'delete_me_{}')
 
 DELETE_ME_VERBS = delete_me.format(VERBS_CSV)
 DELETE_ME_COUNTABLE = delete_me.format(COUNTABLE_NOUNS_CSV)
@@ -42,7 +43,7 @@ def short_line_print(short_text):
 def create_test_csvs(countable_list, uncountable_list, verb_list):
     countable_text = '\n'.join(countable_list)
     uncountable_text = '\n'.join(uncountable_list)
-    verb_text = '\n'.join(['{}, null, null'.format(word) for word in verb_list])
+    verb_text = '\n'.join(verb_list)
     for filename, text in zip((DELETE_ME_VERBS, DELETE_ME_COUNTABLE, DELETE_ME_UNCOUNTABLE),
                               (verb_text, countable_text, uncountable_text)):
         with open(filename, 'w') as f:
@@ -78,6 +79,8 @@ class TestParagraphGenerator(unittest.TestCase):
             'noun_errors': True,
             'verb_errors': True,
             'punctuation_errors': True,
+            'is_do_errors': False,
+            'preposition_transpose_errors': False,
 
             'tense': 'simple_present',
             'probability_plural_noun': 0.3,
@@ -353,6 +356,42 @@ class TestParagraphGenerator(unittest.TestCase):
         self.assertEqual(answer.count('<bold>likes</bold>'), 15)
         self.assertTrue(answer.endswith(' -- error count: 15'))
 
+    def test_create_answer_and_error_texts_is_do_errors(self):
+        create_test_csvs(['dog'], ['water'], ['like'])
+
+        self.config_state['probability_negative_verb'] = 0.0
+        self.config_state['error_probability'] = 1.0
+        self.config_state['probability_pronoun'] = 0.0
+        self.config_state['probability_plural_noun'] = 0.0
+        self.config_state['noun_errors'] = False
+        self.config_state['punctuation_errors'] = False
+        self.config_state['verb_errors'] = False
+        self.config_state['is_do_errors'] = True
+
+        pg = ParagraphsGenerator(self.config_state)
+        answer, error = pg.create_answer_and_error_texts()
+        self.assertEqual(answer.count('<bold>likes</bold>'), 15)
+        self.assertEqual(error.count('is like'), 15)
+        self.assertTrue(answer.endswith(' -- error count: 15'))
+
+    def test_create_answer_and_error_texts_preposition_transpose_errors(self):
+        create_test_csvs(['dog'], [''], ['jump, null, on'])
+
+        self.config_state['probability_negative_verb'] = 0.0
+        self.config_state['error_probability'] = 1.0
+        self.config_state['probability_pronoun'] = 0.0
+        self.config_state['probability_plural_noun'] = 0.0
+        self.config_state['noun_errors'] = False
+        self.config_state['punctuation_errors'] = False
+        self.config_state['verb_errors'] = False
+        self.config_state['preposition_transpose_errors'] = True
+
+        pg = ParagraphsGenerator(self.config_state)
+        answer, error = pg.create_answer_and_error_texts()
+        self.assertEqual(answer.count('<bold>on</bold> <bold>the dog</bold>'), 15)
+        self.assertEqual(error.count('The dog on the dog jumps'), 14)
+        self.assertTrue(answer.endswith(' -- error count: 15'))
+
     def test_create_answer_and_error_texts_punctuation_errors(self):
         create_test_csvs(['dog'], ['water'], ['like'])
 
@@ -396,6 +435,7 @@ class TestParagraphGenerator(unittest.TestCase):
             "Water uses cat! The cat likes a dog,",
             "He like dog. The dog uses water!"
         ]
+
         self.assertEqual(answers, expected_answers)
         self.assertEqual(errors, expected_errors)
 

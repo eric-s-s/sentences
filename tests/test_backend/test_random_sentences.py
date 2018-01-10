@@ -5,7 +5,7 @@ from sentences.backend.random_sentences import RandomSentences
 from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import BasicVerb
+from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 
 period = Punctuation.PERIOD
@@ -19,10 +19,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
         self.countable = [Noun('dog'), Noun('cat'), Noun('pig'), Noun('frog')]
         self.uncountable = [Noun('water'), Noun('rice'), Noun('milk'), Noun('sand')]
         self.verbs = [
-            {'verb': BasicVerb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False},
-            {'verb': BasicVerb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
-            {'verb': BasicVerb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
-            {'verb': BasicVerb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
+            {'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
         ]
         self.generator = RandomSentences(self.verbs, self.countable, self.uncountable)
 
@@ -34,7 +34,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
             self.verbs[index] = 'oops'
         answer = self.generator.sentence()
         self.assertEqual(answer,
-                         [Noun('dog'), BasicVerb('give'), Noun('water'), Preposition('to'), Noun('frog'), period])
+                         [Noun('dog'), Verb('give'), Noun('water'), Preposition('to'), Noun('frog'), period])
 
     def test_subject_p_pronoun_zero(self):
         random.seed(10)
@@ -123,68 +123,68 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_predicate(self):
         random.seed(5)
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('jump'), Preposition('over'), Noun('dog'), period])
+        self.assertEqual(answer, [Verb('jump'), Preposition('over'), Noun('dog'), period])
 
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('give'), Noun('pig'), Noun('sand'), period])
+        self.assertEqual(answer, [Verb('give'), Noun('pig'), Noun('sand'), period])
 
         answer = self.generator.predicate()
-        self.assertEqual(answer, [BasicVerb('give'), Noun('frog'), Preposition('to'), Noun('pig'), period])
+        self.assertEqual(answer, [Verb('give'), Noun('frog'), Preposition('to'), Noun('pig'), period])
 
     def test_sentence(self):
         random.seed(1)
         answer = self.generator.sentence()
-        self.assertEqual(answer, [i, BasicVerb('jump'), Preposition('over'), it, period])
+        self.assertEqual(answer, [i, Verb('jump'), Preposition('over'), it, period])
 
         answer = self.generator.sentence()
-        self.assertEqual(answer, [Noun('frog'), BasicVerb('eat'), Noun('milk'), period])
+        self.assertEqual(answer, [Noun('frog'), Verb('eat'), Noun('milk'), period])
 
         answer = self.generator.sentence()
-        self.assertEqual(answer, [Noun('dog'), BasicVerb('give'), Noun('frog'), Preposition('to'), Noun('cat'), period])
+        self.assertEqual(answer, [Noun('dog'), Verb('give'), Noun('frog'), Preposition('to'), Noun('cat'), period])
 
     def test_assign_preposition(self):
         random.seed(1234)
-        verb_list = [{'verb': BasicVerb('jump'), 'preposition': Preposition('on'),
+        verb_list = [{'verb': Verb('jump'), 'preposition': Preposition('on'),
                       'objects': 1, 'insert_preposition': False}]
         generator = RandomSentences(verb_list, self.countable, self.uncountable)
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('sand'), BasicVerb('jump'), Preposition('on'), us, period])
+        self.assertEqual(answer, [Noun('sand'), Verb('jump'), Preposition('on'), us, period])
 
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('cat'), BasicVerb('jump'), Preposition('on'), Noun('frog'), period])
+        self.assertEqual(answer, [Noun('cat'), Verb('jump'), Preposition('on'), Noun('frog'), period])
 
     def test_assign_preposition_insert_preposition_true(self):
         random.seed(7890)
-        verb_list = [{'verb': BasicVerb('bring'), 'preposition': Preposition('to'),
+        verb_list = [{'verb': Verb('bring'), 'preposition': Preposition('to'),
                       'objects': 2, 'insert_preposition': True}]
         generator = RandomSentences(verb_list, self.countable, self.uncountable)
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('milk'), BasicVerb('bring'), Noun('water'), Preposition('to'),
+        self.assertEqual(answer, [Noun('milk'), Verb('bring'), Noun('water'), Preposition('to'),
                                   Noun('rice'), exclamation])
 
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('water'), BasicVerb('bring'), Noun('dog'),
+        self.assertEqual(answer, [Noun('water'), Verb('bring'), Noun('dog'),
                                   Preposition('to'), Noun('milk'), period])
 
     def test_two_objects_second_obj_is_never_pronoun(self):
         random.seed(456)
         verb_list = [
-            {'verb': BasicVerb('bring'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
-            {'verb': BasicVerb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('bring'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
         ]
         generator = RandomSentences(verb_list, self.countable, self.uncountable)
         answer = generator.predicate(1.0)
-        self.assertEqual(answer, [BasicVerb('give'), her, Noun('dog'), exclamation])
+        self.assertEqual(answer, [Verb('give'), her, Noun('dog'), exclamation])
 
         answer = generator.predicate(1.0)
-        self.assertEqual(answer, [BasicVerb('bring'), me, Preposition('to'), Noun('sand'), period])
+        self.assertEqual(answer, [Verb('bring'), me, Preposition('to'), Noun('sand'), period])
 
         answer = generator.predicate(1.0)
-        self.assertEqual(answer, [BasicVerb('give'), him, Noun('milk'), exclamation])
+        self.assertEqual(answer, [Verb('give'), him, Noun('milk'), exclamation])
 
     def test_two_objects_are_never_the_same(self):
         verb_list = [
-            {'verb': BasicVerb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
         ]
         generator = RandomSentences(verb_list, [Noun('dog')], [Noun('water')])
 
@@ -196,3 +196,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
             self.assertNotEqual(noun_1, noun_2)
             self.assertIn(noun_1, test_membership)
             self.assertIn(noun_2, test_membership)
+
+    def test_error_raised_when_not_enough_objects(self):
+        verb_list = [
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+        ]
+        generator = RandomSentences(verb_list, [Noun('dog')], [])
+        self.assertRaises(OverflowError, generator.predicate, 0.0)

@@ -17,7 +17,10 @@ class ParagraphsGenerator(object):
         - 'error_probability'
         - 'noun_errors'
         - 'verb_errors'
+        - 'is_do_errors'
+        - 'preposition_transpose_errors'
         - 'punctuation_errors'
+
 
         - 'tense'
         - 'probability_plural_noun'
@@ -85,17 +88,18 @@ class ParagraphsGenerator(object):
 
     def create_answer_and_error_texts(self):
         paragraph = self.create_paragraph()
-        error_maker = ErrorMaker(paragraph, p_error=self._options['error_probability'],
-                                 present_tense=self._get_present_tense_bool())
-        error_methods = {
-            'noun_errors': error_maker.create_noun_errors,
-            'verb_errors': error_maker.create_verb_errors,
-            'punctuation_errors': error_maker.create_period_errors
+        error_maker = ErrorMaker(paragraph, p_error=self._options['error_probability'])
+
+        options_keys = {
+            error_maker.create_noun_errors: 'noun_errors',
+            error_maker.create_verb_errors: 'verb_errors',
+            error_maker.create_is_do_errors: 'is_do_errors',
+            error_maker.create_preposition_transpose_errors: 'preposition_transpose_errors',
+            error_maker.create_period_errors: 'punctuation_errors',
         }
-        # Calling errors in a set order is necessary for testing with `random.seed`.
-        for key in ['noun_errors', 'verb_errors', 'punctuation_errors']:
-            if self._options[key]:
-                error_methods[key]()
+        for method in error_maker.method_order:
+            if self._options[options_keys[method]]:
+                method()
 
         error_count = ' -- error count: {}'
         answer = convert_paragraph(error_maker.answer_paragraph) + error_count.format(error_maker.error_count)
