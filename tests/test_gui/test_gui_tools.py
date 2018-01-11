@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 
 from sentences.gui.gui_tools import (validate_int, IntSpinBox, PctSpinBox, FilenameVar, DirectoryVar, PopupSelectVar,
-                                     SetVariablesFrame, all_children)
+                                     SetVariablesFrame, all_children, CancelableMessagePopup)
 
 
 class TestGuiTools(unittest.TestCase):
@@ -251,3 +251,27 @@ class TestGuiTools(unittest.TestCase):
         top_widget.set_bg('blue')
         for widget in [top_widget, down_1, down_2, down_3]:
             self.assertEqual(widget.cget('bg'), 'blue')
+
+    def test_CancelableMessagePopup(self):
+        int_var = tk.IntVar()
+        to_test = CancelableMessagePopup('title', 'text', int_var)
+
+        self.assertEqual(to_test.title(), 'title')
+        self.assertTrue(to_test.winfo_exists())
+        self.assertEqual(int_var.get(), 0)
+
+        for child in to_test.winfo_children():
+            if isinstance(child, tk.Label):
+                self.assertEqual(child.cget('text'), 'text')
+
+        for child in to_test.winfo_children():
+            if isinstance(child, tk.Checkbutton):
+                child.invoke()
+        self.assertEqual(int_var.get(), 1)
+
+        for child in to_test.winfo_children():
+            if type(child) == tk.Button:
+                child.invoke()
+        self.assertFalse(to_test.winfo_exists())
+
+

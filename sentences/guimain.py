@@ -13,7 +13,7 @@ from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.paragraphtype import ParagraphType
 from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.filemanagement import FileManagement
-from sentences.gui.gui_tools import IntSpinBox
+from sentences.gui.gui_tools import IntSpinBox, CancelableMessagePopup
 
 
 class MainFrame(tk.Tk):
@@ -32,8 +32,12 @@ class MainFrame(tk.Tk):
 
         self.paragraph_generator = ParagraphsGenerator(self.get_state())
 
+        self.do_not_show_popup = tk.IntVar()
+        self.do_not_show_popup.set(0)
+
     def _pack_action_frame(self, action_frame):
         padx, pady = (20, 5)
+
         button_kwargs = [
             {'text': 'Save current settings', 'command': self.set_config, 'bg': 'CadetBlue1'},
             {'text': 'Reset to saved settings', 'command': self.load_config, 'bg': 'aquamarine2'},
@@ -70,6 +74,7 @@ class MainFrame(tk.Tk):
         paragraph_type.grid(row=1, column=1, **expand_out)
         grammar_details.grid(row=2, column=1, **expand_out)
         file_management.grid(row=3, column=0, columnspan=2, **expand_out)
+
         return error_details, file_management, grammar_details, paragraph_type
 
     def reload_files(self):
@@ -98,6 +103,10 @@ class MainFrame(tk.Tk):
         self.paragraph_generator.update_options(state)
         answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
         create_pdf(state['save_directory'], answer, error, error_font_size=self.font_size.get_int())
+        if not self.do_not_show_popup.get():
+            CancelableMessagePopup('success',
+                                   'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
+                                   self.do_not_show_popup)
 
     def revert_to_original(self):
         loader = ConfigLoader()

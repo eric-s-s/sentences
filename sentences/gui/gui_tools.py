@@ -105,3 +105,19 @@ def all_children(widget):
         answer += all_children(child)
     return answer
 
+
+class CancelableMessagePopup(tk.Toplevel):
+    def __init__(self, title, message, int_var: tk.IntVar, *args, **kwargs):
+        super(CancelableMessagePopup, self).__init__(*args, **kwargs)
+
+        self.title(title)
+        label = tk.Label(self, text=message, relief=tk.GROOVE, pady=10, padx=10, bg='light blue')
+        label.grid(row=0, column=0, columnspan=2)
+        check_btn = tk.Checkbutton(master=self, text='Don\'t show\nthis message again.', variable=int_var,
+                                   justify=tk.LEFT, relief=tk.RIDGE)
+        check_btn.grid(row=1, column=1)
+
+        tk.Button(self, text="OK", command=self.ok, bg='light blue').grid(row=1, column=0)
+
+    def ok(self):
+        self.destroy()
