@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 
 def readme():
@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sentences',
-      version='0.1.7',
+      version='2.2',
       description='sentence generator',
       long_description=readme(),
       keywords='',
@@ -22,12 +22,12 @@ setup(name='sentences',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words'],
+      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui'],
       entry_points={
-          'console_scripts': ['gen_pdf=sentences.guimain:main_app'],
+          'console_scripts': ['gen_pdf = sentences.guimain:main_app'],
       },
       package_data={
-          '': ['data/*.csv', 'data/*.cfg']
+          '': ['data/*.csv', 'data/default.cfg', 'data/*.txt', 'data/*.ico']
       },
       install_requires=['reportlab'],
       include_package_data=True,

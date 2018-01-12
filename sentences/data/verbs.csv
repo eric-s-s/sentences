@@ -1,63 +1,63 @@
-# infinitive, past tense, preposition, number of objects, preposition between objects
-arrest, null, null
-bang, null, null
-bite, bit, null
-bore, null, null
-break, broke, null
+# infinitive, irregular past, preposition, number of objects (default is 1), preposition between objects (defaults to false)
+arrest
+bang
+bite, bit
+bore
+break, broke
 bring, brought, null, 2
 bring, brought, to, 2, true
-build, built, null
-buy, bought, null
-catch, caught, null
-cook, null, null
-cut, cut, null
+build, built
+buy, bought
+catch, caught
+cook
+cut, cut
 cut, cut, with, 2, true
-disgust, null, null
-draw, drew, null
-eat, ate, null
-excite, null, null
+disgust
+draw, drew
+eat, ate
+excite
 fall, fell, on
-feed, fed, null
-fight, fought, null
-find, found, null
-freeze, froze, null
-get, got, null
+feed, fed
+fight, fought
+find, found
+freeze, froze
+get, got
 give, gave, null, 2
-grab, null, null
-hate, null, null
-have, had, null
-hit, hit, null
+grab
+hate
+have, had
+hit, hit
 hit, hit, with, 2, true
-hold, held, null
-interest, null, null
+hold, held
+interest
 jump, null, on
-kick, null, null
-kill, null, null
-kiss, null, null
-like, null, null
-love, null, null
-make, made, null
+kick
+kill
+kiss
+like
+love
+make, made
 make, made, out of, 2, true
-marry, null, null
-own, null, null
+marry
+own
 pick, null, up
 play, null, with
-pull, null, null
-push, null, null
-ride, rode, null
-see, saw, null
-sell, sold, null
+pull
+push
+ride, rode
+see, saw
+sell, sold
 sell, sold, to, 2, true
-shake, shook, null
+shake, shook
 show, null, null, 2
 sleep, slept, on
-smell, null, null
-steal, stole, null
-surprise, null, null
-take, took, null
+smell
+steal, stole
+surprise
+take, took
 teach, taught, null, 2
-throw, threw, null
+throw, threw
 throw, threw, at, 2, true
-use, null, null
-wash, null, null
-wear, wore, null
+use
+wash
+wear, wore

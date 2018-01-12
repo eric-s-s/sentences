@@ -14,6 +14,7 @@ from sentences.gui.paragraphtype import ParagraphType
 from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.filemanagement import FileManagement
 from sentences.gui.gui_tools import IntSpinBox, CancelableMessagePopup
+from sentences.gui.readme_text import ReadMeText
 
 
 class MainFrame(tk.Tk):
@@ -53,6 +54,9 @@ class MainFrame(tk.Tk):
         pdf_button = tk.Button(master=action_frame, text='Make me some PDFs',
                                command=self.create_texts, bg='chartreuse2')
         pdf_button.grid(row=2, column=1, padx=padx, pady=pady)
+
+        help_btn = tk.Button(master=action_frame, text='Help', command=self.read_me, bg='light blue')
+        help_btn.grid(row=3, column=2, sticky=(tk.E,))
 
         action_frame.grid(row=0, column=0, columnspan=2)
 
@@ -112,6 +116,20 @@ class MainFrame(tk.Tk):
         loader = ConfigLoader()
         loader.revert_to_default()
         self.load_config()
+
+    @staticmethod
+    def read_me():
+        popup = tk.Toplevel()
+
+        scrollbar = tk.Scrollbar(popup)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        text_frame = ReadMeText(popup)
+
+        text_frame.config(wrap=tk.WORD)
+        text_frame.pack(expand=True, fill=tk.BOTH)
+
+        text_frame.config(yscrollcommand=scrollbar.set)
+        scrollbar.config(command=text_frame.yview)
 
 
 def main_app():

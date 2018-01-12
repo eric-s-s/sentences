@@ -41,9 +41,9 @@ executables = [
                )
 ]
 
-setup(name='test_cx',
-      version='2.1',
-      description='a simple cx_freeze test',
+setup(name='sentence_mangler',
+      version='2.2',
+      description='a gui to create random sentences with errors',
       options=options,
       executables=executables,
 
@@ -59,10 +59,10 @@ setup(name='test_cx',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words', 'sentences.gui'],
+      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui'],
 
       package_data={
-          '': ['data/*.csv', 'data/*.cfg', 'data/*.ico']
+          '': ['data/*.csv', 'data/default.cfg', 'data/*.txt', 'data/*.ico']
       },
       install_requires=['reportlab'],
       include_package_data=True,
