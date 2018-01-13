@@ -24,7 +24,7 @@ class MainFrame(tk.Tk):
 
         action_frame = tk.Frame(master=self)
         self.font_size = IntSpinBox(master=action_frame, range_=(2, 20))
-        self.font_size.set_int(13)
+        self.file_prefix = tk.StringVar()
 
         self._pack_action_frame(action_frame)
 
@@ -49,11 +49,15 @@ class MainFrame(tk.Tk):
         for row, kwargs in enumerate(button_kwargs):
             tk.Button(master=action_frame, **kwargs).grid(row=row, column=0, padx=padx, pady=pady)
 
-        tk.Label(master=action_frame, text='Font Size').grid(row=0, column=1, padx=padx, pady=pady)
-        self.font_size.grid(row=1, column=1, padx=padx, pady=pady)
+        tk.Entry(master=action_frame, textvar=self.file_prefix).grid(row=0, column=1, sticky=tk.E, padx=2, pady=pady)
+        self.font_size.grid(row=1, column=1, padx=2, pady=pady, sticky=tk.E)
+
         pdf_button = tk.Button(master=action_frame, text='Make me some PDFs',
                                command=self.create_texts, bg='chartreuse2')
         pdf_button.grid(row=2, column=1, padx=padx, pady=pady)
+
+        tk.Label(master=action_frame, text='Add a file prefix').grid(row=0, column=2, padx=2, pady=pady, sticky=tk.W)
+        tk.Label(master=action_frame, text='Font Size').grid(row=1, column=2, padx=2, pady=pady, sticky=tk.W)
 
         help_btn = tk.Button(master=action_frame, text='Help', command=self.read_me, bg='light blue')
         help_btn.grid(row=3, column=2, sticky=(tk.E,))
@@ -90,8 +94,14 @@ class MainFrame(tk.Tk):
 
     def load_config(self):
         loader = ConfigLoader()
+        self._load_local(loader.state)
         for frame in self.frames:
             loader.set_up_frame(frame)
+
+    def _load_local(self, state):
+        self.font_size.set_int(state['font_size'])
+        file_prefix = state['file_prefix']
+        self.file_prefix.set(file_prefix if file_prefix is not None else '')
 
     def set_config(self):
         save_config(self.get_state())
@@ -100,7 +110,14 @@ class MainFrame(tk.Tk):
         answer = {}
         for frame in self.frames:
             answer.update(frame.get_values())
+        answer.update(self._get_local())
         return answer
+
+    def _get_local(self):
+        file_prefix = self.file_prefix.get().strip()
+        if not file_prefix:
+            file_prefix = None
+        return {'font_size': self.font_size.get_int(), 'file_prefix': file_prefix}
 
     def create_texts(self):
         state = self.get_state()

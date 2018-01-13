@@ -178,6 +178,10 @@ class TestConfigLoader(unittest.TestCase):
             ('num_paragraphs', 4),
             ('paragraph_size', 15),
             ('', None),
+            ('# MAIN', None),
+            ('font_size', 13),
+            ('file_prefix', None),
+            ('', None)
         ]
         self.assertEqual(_get_key_value_list(DEFAULT_CONFIG), answer)
 
@@ -197,6 +201,8 @@ class TestConfigLoader(unittest.TestCase):
         save_config({'paragraph_type': 'bobo', 'paragraph_size': 10})
         with open(CONFIG_FILE, 'r') as f:
             config_text = f.read()
+        for line in config_text.split('\n'):
+            print(repr(line))
 
         answer = default_text.replace('paragraph_size = 15', 'paragraph_size = 10')
         answer = answer.replace('paragraph_type = chain', 'paragraph_type = bobo')
@@ -227,6 +233,9 @@ class TestConfigLoader(unittest.TestCase):
             'subject_pool': 5,
             'num_paragraphs': 4,
             'paragraph_size': 15,
+
+            'font_size': 13,
+            'file_prefix': None
         })
 
     def test_load_config_bad_file_ValueError(self):
@@ -296,6 +305,9 @@ class TestConfigLoader(unittest.TestCase):
             'subject_pool': 5,
             'num_paragraphs': 4,
             'paragraph_size': 15,
+
+            'font_size': 13,
+            'file_prefix': None
         }
         self.assertEqual(answer, expected)
 
