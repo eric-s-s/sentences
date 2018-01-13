@@ -16,7 +16,7 @@ setup(name='sentences',
       author_email='shaweric01@gmail.com',
       license='MIT',
       classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         "Operating System :: Windows",
         'Intended Audience :: Developers',
         'Programming Language :: Python',

@@ -1,4 +1,4 @@
-sentences v2.1
+sentences v2.2
 ==============
 
 This module creates randomly generated paragraphs and then assigns specific kinds of errors to those paragraphs.
@@ -34,21 +34,22 @@ GUI options details:
     - *Factory Reset*: overwrites the config file and default word files without saving them.
     - *Make me some PDFs*: Creates an error file and an answer file in your save_folder.
 - **File Management Options**: Set where to save files, and where the word lists are located.
-    - You can customize your word lists. Use the defaults as templates, or simply edit the default. Then use "New
+    - Customizing your word lists: You can customize your word lists.
+      Use the defaults as templates, or simply edit the default. Then use "New
       default word files" to move your changed files and make new defaults.
     - Each "SET" button allows you to choose the location of the file.
 - **Error Options**: Choose the frequency of errors and what kinds of errors occur.
     - *% chance for error*: The chance that any one word or punctuation will get a grammatical error.
     - *noun errors*: Errors such as: "a water", "the rices", "cat" (no article or plural ending), "a cats"
-    - *verb errors*: Mixing up third-person an non-third-person endings. Swapping tenses.
-    - *is do errors*: Changing "subj VERB" to "subj. BE-VERB infinitive" (He plays. -> He is play.)
-    - *transpose preposition errors*: Putting the prepositional phrase between subject and verb ("He with a cat plays.")
-    - *period errors*: Changing period and capital letter to comma and lower-case letter (without a conjunction)
+    - *verb errors*: Mixes up third-person and non-third-person endings. Swaps tenses.
+    - *is do errors*: Changes "subj VERB" to "subj. BE-VERB infinitive" (He plays. -> He is play.)
+    - *transpose preposition errors*: Puts the prepositional phrase between subject and verb ("He with a cat plays.")
+    - *period errors*: Changes period and capital letter to comma and lower-case letter (without a conjunction)
 - **Paragraph Type Options**: Choose size of paragraph, how many paragraph and how subjects are selected.
     - *choose a paragraph type*: Determines the algorithm for selecting subjects.
         - *pool*: Creates a pool of subjects of size: "subject pool size". Each sentence randomly selects a subject
           from the pool.
-        - *chain*: The object of the previous sentence becomes the subject of the current sentence.
+        - *chain*: Each object becomes the subject of the subsequent sentence.
     - *number of paragraphs*: How many paragraphs are in the PDFs.
     - *sentences per paragraph*: How many sentences in each paragraph.
     - *subject pool size*: The size of the subject pool. If "chain" is selected, this is ignored.
@@ -57,7 +58,3 @@ GUI options details:
     - *% chance of plural noun*: The probability that any countable noun will be assigned as plural.
     - *% chance of negative verb*: The probability that any verb will be assigned as negative (go -> don't go).
     - *% chance of pronoun*: The probability that any subject or object will be a randomly selected pronoun.
-
-
-
-

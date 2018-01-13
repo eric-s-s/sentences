@@ -30,7 +30,7 @@ class TestLoader(unittest.TestCase):
         filename = os.path.join(DATA_PATH, VERBS_CSV)
 
         answer = load_csv(filename)
-        self.assertIn(['hit', 'hit', 'null'], answer)
+        self.assertIn(['hit', 'hit'], answer)
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)
 

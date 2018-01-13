@@ -1,10 +1,11 @@
 import unittest
 import os
+from tkinter.font import nametofont
 
 from sentences import DATA_PATH
 
 from sentences.gui.readme_text import (get_read_me_paragraphs, group_text, is_new_paragraph,
-                                       find_second_margin)
+                                       find_second_margin, ReadMeText)
 
 
 TEST_LINES = """sentences v2.1
@@ -57,3 +58,15 @@ class TestReadMeText(unittest.TestCase):
         with open(os.path.join(DATA_PATH, 'README.txt'), 'r') as f:
             paragraphs = group_text(f.read().split('\n'))
         self.assertEqual(paragraphs, get_read_me_paragraphs())
+
+    def test_ReadMeText(self):
+        text = ReadMeText()
+        self.assertEqual(text.cget('state'), 'disabled')
+        fontsize = nametofont(text.cget('font')).cget('size')
+        for index, paragraph in enumerate(get_read_me_paragraphs()):
+            tag_name = str(index)
+            self.assertEqual(text.get(*text.tag_ranges(tag_name)), paragraph + '\n\n')
+            self.assertEqual(text.tag_cget(tag_name, 'lmargin1'), '0')
+            lmargin2 = str(find_second_margin(paragraph) * fontsize)
+            self.assertEqual(text.tag_cget(tag_name, 'lmargin2'), lmargin2)
+
