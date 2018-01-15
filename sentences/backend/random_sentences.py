@@ -12,6 +12,13 @@ class RandomSentences(object):
         self._countable = countable_list[:]
         self._verbs = verb_list[:]
         self._uncountable = uncountable_list[:]
+        self._check_empty_lists()
+
+    def _check_empty_lists(self):
+        if not self._verbs:
+            raise ValueError('There are no verbs in the verb list.')
+        if not self._countable and not self._uncountable:
+            raise ValueError('There are no countable nouns AND no uncountable nouns.')
 
     def sentence(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
@@ -28,22 +35,20 @@ class RandomSentences(object):
 
         objects = []
         object_position = 0
-        overflow_count = 0
-        max_loops = 500
+        loop_count = 0
+        max_loops_until_repeats_allowed = 100
         while object_position < object_count:
             if object_position == 0:
                 new_obj = self.object(p_pronoun)
             else:
                 new_obj = self.object(p_pronoun=0)
 
-            if new_obj not in objects:
+            if new_obj not in objects or loop_count > max_loops_until_repeats_allowed:
                 objects.append(new_obj)
                 object_position += 1
 
-            overflow_count += 1
-            if overflow_count > max_loops:
-                raise OverflowError('Not enough Nouns and Pronouns to satisfy object count.')
-
+            loop_count += 1
+                            
         if insert_preposition:
             action.insert(-1, objects.pop(0))
         action = action + objects

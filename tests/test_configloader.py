@@ -201,8 +201,6 @@ class TestConfigLoader(unittest.TestCase):
         save_config({'paragraph_type': 'bobo', 'paragraph_size': 10})
         with open(CONFIG_FILE, 'r') as f:
             config_text = f.read()
-        for line in config_text.split('\n'):
-            print(repr(line))
 
         answer = default_text.replace('paragraph_size = 15', 'paragraph_size = 10')
         answer = answer.replace('paragraph_type = chain', 'paragraph_type = bobo')

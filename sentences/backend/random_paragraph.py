@@ -22,24 +22,27 @@ class RandomParagraph(object):
             else:
                 safety_count += 1
                 if safety_count > safety_limit:
-                    raise OverflowError('pool size is too large for available nouns loaded from file')
+                    raise ValueError('pool size is too large for available nouns loaded from file')
         return pool
 
     def create_pool_paragraph(self, pool_size, num_sentences):
         subjects = self.get_subject_pool(pool_size)
         paragraph = []
-        safety_count = 0
-        too_many_excepts = 100 + num_sentences
+        exception_count = 0
+        exceptions_until_repetition = 100 + num_sentences
         while len(paragraph) < num_sentences:
             predicate = self._word_maker.predicate(self._p_pronoun)
+            subj = None
             try:
                 subj = get_subj(subjects, predicate)
+            except ValueError:
+                exception_count += 1
+                if exception_count > exceptions_until_repetition:
+                    subj = random.choice(subjects)
+
+            if subj is not None:
                 predicate.insert(0, subj)
                 paragraph.append(predicate)
-            except ValueError:
-                safety_count += 1
-                if safety_count > too_many_excepts:
-                    raise OverflowError('Too many failures to find subj different from predicate.')
         return paragraph
 
     def create_chain_paragraph(self, num_sentences):

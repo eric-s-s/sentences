@@ -3,6 +3,7 @@
 
 import os
 from datetime import datetime
+import re
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -15,27 +16,28 @@ PAGE_WIDTH = A4[0]
 styles = getSampleStyleSheet()
 
 
-def create_pdf(save_folder, answer_texts, error_texts, error_font_size=13):
-    file_prefix = get_file_prefix(save_folder)
+def create_pdf(save_folder, answer_texts, error_texts, error_font_size=13, named_prefix=''):
+    file_prefix = get_file_prefix(save_folder, named_prefix)
     answer_filename = os.path.join(save_folder, file_prefix + 'answer.pdf')
     error_filename = os.path.join(save_folder, file_prefix + 'error.pdf')
     save_paragraphs_to_pdf(answer_filename, answer_texts, error_font_size - 1)
     save_paragraphs_to_pdf(error_filename, error_texts, error_font_size)
 
 
-def get_file_prefix(folder):
+def get_file_prefix(folder, named_prefix=''):
     current = os.listdir(folder)
-    current = [file_name for file_name in current if is_numbered_pdf(file_name)]
-    if not current:
+    group = [file_name for file_name in current if is_numbered_member_of_prefix_group(file_name, named_prefix)]
+    if not group:
         next_num = 1
     else:
-        current.sort()
-        next_num = int(current[-1].split('_')[0]) + 1
-    return '{:0>2}_'.format(next_num)
+        group.sort()
+        slice_at = len(named_prefix)
+        next_num = int(group[-1][slice_at: slice_at + 2]) + 1
+    return '{}{:0>2}_'.format(named_prefix, next_num)
 
 
-def is_numbered_pdf(filename: str):
-    return filename[2] == '_' and filename[:2].isdigit() and filename.endswith('.pdf')
+def is_numbered_member_of_prefix_group(filename: str, prefix):
+    return filename.startswith(prefix) and re.match('{}\d\d_'.format(prefix), filename) is not None
 
 
 def save_paragraphs_to_pdf(file_name, paragraphs, font_size):

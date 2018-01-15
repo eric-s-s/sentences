@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.messagebox import showerror
 import os
 
 from sentences import DATA_PATH
@@ -15,6 +16,8 @@ from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.filemanagement import FileManagement
 from sentences.gui.gui_tools import IntSpinBox, CancelableMessagePopup
 from sentences.gui.readme_text import ReadMeText
+
+from sentences.backend.loader import LoaderError
 
 
 class MainFrame(tk.Tk):
@@ -121,13 +124,20 @@ class MainFrame(tk.Tk):
 
     def create_texts(self):
         state = self.get_state()
-        self.paragraph_generator.update_options(state)
-        answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
-        create_pdf(state['save_directory'], answer, error, error_font_size=self.font_size.get_int())
-        if not self.do_not_show_popup.get():
-            CancelableMessagePopup('success',
-                                   'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
-                                   self.do_not_show_popup)
+        file_prefix = self.file_prefix.get().strip()
+        font_size = self.font_size.get_int()
+        try:
+            self.paragraph_generator.update_options(state)
+            answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
+            create_pdf(state['save_directory'], answer, error, error_font_size=font_size, named_prefix=file_prefix)
+        except (ValueError, LoaderError) as e:
+            message = '{}: {}'.format(e.__class__.__name__, e.args[0])
+            showerror('Uh-oh!', message)
+        else:
+            if not self.do_not_show_popup.get():
+                CancelableMessagePopup('success',
+                                       'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
+                                       self.do_not_show_popup)
 
     def revert_to_original(self):
         loader = ConfigLoader()

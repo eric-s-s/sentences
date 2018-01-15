@@ -7,9 +7,18 @@ from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 
 
+class LoaderError(ValueError):
+    pass
+
+
 def load_csv(filename):
-    with open(filename, 'r') as f:
-        lines = f.read().split('\n')
+    try:
+        with open(filename, 'r') as f:
+            lines = f.read().split('\n')
+    except (OSError, UnicodeError):
+        message = ('Could not read CSV file. If you edited it in MSWord or something similar, ' +
+                   'it got formatted. Use "notepad"')
+        raise LoaderError(message)
     return [split_and_strip(line) for line in lines if line.strip() and not line.startswith('#')]
 
 
@@ -18,15 +27,28 @@ def split_and_strip(line):
 
 
 def countable_nouns(filename=''):
-    new_filename = _default_or_file_name(filename, COUNTABLE_NOUNS_CSV)
-    raw_lines = load_csv(new_filename)
-    return [Noun(*line) for line in raw_lines]
+    return _nouns(filename, countable=True)
 
 
 def uncountable_nouns(filename=''):
-    new_filename = _default_or_file_name(filename, UNCOUNTABLE_NOUNS_CSV)
+    return _nouns(filename, countable=False)
+
+
+def _nouns(filename='', countable=True):
+    if countable:
+        class_ = Noun
+        default = COUNTABLE_NOUNS_CSV
+    else:
+        class_ = UncountableNoun
+        default = UNCOUNTABLE_NOUNS_CSV
+
+    new_filename = _default_or_file_name(filename, default)
     raw_lines = load_csv(new_filename)
-    return [UncountableNoun(*line) for line in raw_lines]
+    try:
+        noun_list = [class_(*line) for line in raw_lines]
+    except TypeError:
+        raise LoaderError('CSVs for nouns can only contain two columns: "noun" and "irregular plural"')
+    return noun_list
 
 
 def verbs(filename=''):

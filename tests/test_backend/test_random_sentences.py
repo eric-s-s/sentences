@@ -26,6 +26,14 @@ class TestRawWordsRandomisation(unittest.TestCase):
         ]
         self.generator = RandomSentences(self.verbs, self.countable, self.uncountable)
 
+    def test_raises_error_if_no_verbs(self):
+        self.assertRaises(ValueError, RandomSentences, [], [Noun('dog')], [Noun('cat')])
+
+    def test_raises_error_if_no_nouns_in_both_countable_and_uncountable(self):
+        self.assertRaises(ValueError, RandomSentences, [Verb('go')], [], [])
+        self.assertIsInstance(RandomSentences([Verb('go')], [Noun('dog')], []), RandomSentences)
+        self.assertIsInstance(RandomSentences([Verb('go')], [], [Noun('dog')]), RandomSentences)
+
     def test_makes_copy_of_input_list(self):
         random.seed(148)
         for index in range(4):
@@ -197,9 +205,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
             self.assertIn(noun_1, test_membership)
             self.assertIn(noun_2, test_membership)
 
-    def test_error_raised_when_not_enough_objects(self):
+    def test_two_objects_the_same_when_no_other_options(self):
+        random.seed(101)
         verb_list = [
             {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
         ]
         generator = RandomSentences(verb_list, [Noun('dog')], [])
-        self.assertRaises(OverflowError, generator.predicate, 0.0)
+        self.assertEqual(generator.predicate(), [Verb('give'), Noun('dog'), Noun('dog'), period])

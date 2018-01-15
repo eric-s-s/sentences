@@ -2,7 +2,8 @@ import unittest
 
 import os
 
-from sentences.backend.loader import load_csv, split_and_strip, countable_nouns, uncountable_nouns, verbs, get_verb_dict
+from sentences.backend.loader import (load_csv, split_and_strip,
+                                      countable_nouns, uncountable_nouns, verbs, get_verb_dict, LoaderError)
 from sentences.words.noun import Noun, UncountableNoun
 from sentences.words.verb import Verb
 from sentences.words.word import Preposition
@@ -18,6 +19,10 @@ class TestLoader(unittest.TestCase):
     def test_load_csv_ignores_blank_lines(self):
         filename = os.path.join(TESTS_FILES, 'blank_lines.csv')
         self.assertEqual(load_csv(filename), [['a', 'b'], ['c', 'd'], ['e', 'f']])
+
+    def test_load_csv_LoaderError(self):
+        self.assertRaises(LoaderError, load_csv, os.path.join(DATA_PATH, 'go_time.ico'))
+        self.assertRaises(LoaderError, load_csv, 'does_not_exist')
 
     def test_load_csv_nouns(self):
         filename = os.path.join(DATA_PATH, COUNTABLE_NOUNS_CSV)
@@ -43,6 +48,15 @@ class TestLoader(unittest.TestCase):
     def test_uncountable_nouns_empty(self):
         answer = uncountable_nouns()
         self.assertIn(UncountableNoun('water'), answer)
+
+    def test_countable_nouns_and_uncountable_nouns_wrong_number_of_columns(self):
+        self.assertRaises(LoaderError, countable_nouns, os.path.join(DATA_PATH, VERBS_CSV))
+        self.assertRaises(LoaderError, uncountable_nouns, os.path.join(DATA_PATH, VERBS_CSV))
+
+    def test_countable_and_uncountable_nouns_empty_csv(self):
+        empty = os.path.join(TESTS_FILES, 'empty.csv')
+        self.assertEqual(countable_nouns(empty), [])
+        self.assertEqual(uncountable_nouns(empty), [])
 
     def test_get_verb_dict_empty_strings(self):
         expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
@@ -89,7 +103,10 @@ class TestLoader(unittest.TestCase):
         self.assertIn(grab, answer)
         self.assertIn(fall, answer)
 
-    def test_load_verbs_with_insert_preposition(self):
+    def test_verbs_empty_csv(self):
+        self.assertEqual(verbs(os.path.join(TESTS_FILES, 'empty.csv')), [])
+
+    def test_verbs_with_insert_preposition(self):
         filename = os.path.join(TESTS_FILES, 'bring_to.csv')
         answer = verbs(filename)
         bring_to = {'verb': Verb('bring', '', 'brought'), 'preposition': Preposition('to'),
