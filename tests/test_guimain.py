@@ -197,6 +197,19 @@ class TestGuiMain(unittest.TestCase):
         mock_error.assert_called_with('Uh-oh!', 'ValueError: There are no countable nouns AND no uncountable nouns.')
 
     @patch("sentences.guimain.showerror")
+    def test_create_text_error_pool_not_large_enough(self, mock_error):
+        loader = ConfigLoader()
+        loader.save_and_reload({'paragraph_type': 'pool', 'probability_pronoun': 0})
+        for file_name in (UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV):
+            with open(os.path.join(APP_FOLDER, file_name), 'w') as f:
+                f.write('dog')
+        main = MainFrame()
+
+        main.create_texts()
+        mock_error.assert_called_with('Uh-oh!',
+                                      'ValueError: pool size is too large for available nouns loaded from file')
+
+    @patch("sentences.guimain.showerror")
     def test_reload_files_bad_verbs(self, mock_error):
         main = MainFrame()
         with open(os.path.join(APP_FOLDER, VERBS_CSV), 'w') as f:
