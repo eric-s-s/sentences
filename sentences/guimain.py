@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.messagebox import showerror
 import os
 
 from sentences import DATA_PATH
@@ -16,6 +17,8 @@ from sentences.gui.filemanagement import FileManagement
 from sentences.gui.gui_tools import IntSpinBox, CancelableMessagePopup
 from sentences.gui.readme_text import ReadMeText
 
+from sentences.backend.loader import LoaderError
+
 
 class MainFrame(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -24,14 +27,22 @@ class MainFrame(tk.Tk):
 
         action_frame = tk.Frame(master=self)
         self.font_size = IntSpinBox(master=action_frame, range_=(2, 20))
-        self.font_size.set_int(13)
+        self.file_prefix = tk.StringVar()
 
         self._pack_action_frame(action_frame)
 
         self.frames = self._pack_set_variable_frames()
         self.load_config()
 
-        self.paragraph_generator = ParagraphsGenerator(self.get_state())
+        try:
+            self.paragraph_generator = ParagraphsGenerator(self.get_state())
+        except LoaderError as e:
+            self.default_word_files()
+            self.revert_to_original()
+            self.paragraph_generator = ParagraphsGenerator(self.get_state())
+            message = ('On loading, caught the following error:\n{}: {}\n\n' +
+                       'The original word files were moved to <name>_old_(number).csv and replaced with new files.')
+            showerror('Bad start file', message.format(e.__class__.__name__, e.args[0]))
 
         self.do_not_show_popup = tk.IntVar()
         self.do_not_show_popup.set(0)
@@ -49,11 +60,15 @@ class MainFrame(tk.Tk):
         for row, kwargs in enumerate(button_kwargs):
             tk.Button(master=action_frame, **kwargs).grid(row=row, column=0, padx=padx, pady=pady)
 
-        tk.Label(master=action_frame, text='Font Size').grid(row=0, column=1, padx=padx, pady=pady)
-        self.font_size.grid(row=1, column=1, padx=padx, pady=pady)
+        tk.Entry(master=action_frame, textvar=self.file_prefix).grid(row=0, column=1, sticky=tk.E, padx=2, pady=pady)
+        self.font_size.grid(row=1, column=1, padx=2, pady=pady, sticky=tk.E)
+
         pdf_button = tk.Button(master=action_frame, text='Make me some PDFs',
                                command=self.create_texts, bg='chartreuse2')
         pdf_button.grid(row=2, column=1, padx=padx, pady=pady)
+
+        tk.Label(master=action_frame, text='Add a file prefix').grid(row=0, column=2, padx=2, pady=pady, sticky=tk.W)
+        tk.Label(master=action_frame, text='Font Size').grid(row=1, column=2, padx=2, pady=pady, sticky=tk.W)
 
         help_btn = tk.Button(master=action_frame, text='Help', command=self.read_me, bg='light blue')
         help_btn.grid(row=3, column=2, sticky=(tk.E,))
@@ -82,7 +97,10 @@ class MainFrame(tk.Tk):
         return error_details, file_management, grammar_details, paragraph_type
 
     def reload_files(self):
-        self.paragraph_generator.load_lists_from_file()
+        try:
+            self.paragraph_generator.load_lists_from_file()
+        except LoaderError as e:
+            showerror('Bad file', '{}: {}'.format(e.__class__.__name__, e.args[0]))
 
     def default_word_files(self):
         home = self.get_state()['home_directory']
@@ -90,8 +108,14 @@ class MainFrame(tk.Tk):
 
     def load_config(self):
         loader = ConfigLoader()
+        self._load_local(loader.state)
         for frame in self.frames:
             loader.set_up_frame(frame)
+
+    def _load_local(self, state):
+        self.font_size.set_int(state['font_size'])
+        file_prefix = state['file_prefix']
+        self.file_prefix.set(file_prefix if file_prefix is not None else '')
 
     def set_config(self):
         save_config(self.get_state())
@@ -100,26 +124,39 @@ class MainFrame(tk.Tk):
         answer = {}
         for frame in self.frames:
             answer.update(frame.get_values())
+        answer.update(self._get_local())
         return answer
+
+    def _get_local(self):
+        file_prefix = self.file_prefix.get().strip()
+        if not file_prefix:
+            file_prefix = None
+        return {'font_size': self.font_size.get_int(), 'file_prefix': file_prefix}
 
     def create_texts(self):
         state = self.get_state()
-        self.paragraph_generator.update_options(state)
-        answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
-        create_pdf(state['save_directory'], answer, error, error_font_size=self.font_size.get_int())
-        if not self.do_not_show_popup.get():
-            CancelableMessagePopup('success',
-                                   'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
-                                   self.do_not_show_popup)
+        file_prefix = self.file_prefix.get().strip()
+        font_size = self.font_size.get_int()
+        try:
+            self.paragraph_generator.update_options(state)
+            answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
+            create_pdf(state['save_directory'], answer, error, error_font_size=font_size, named_prefix=file_prefix)
+        except ValueError as e:
+            message = '{}: {}'.format(e.__class__.__name__, e.args[0])
+            showerror('Uh-oh!', message)
+        else:
+            if not self.do_not_show_popup.get():
+                CancelableMessagePopup('success',
+                                       'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
+                                       self.do_not_show_popup)
 
     def revert_to_original(self):
         loader = ConfigLoader()
         loader.revert_to_default()
         self.load_config()
 
-    @staticmethod
-    def read_me():
-        popup = tk.Toplevel()
+    def read_me(self):
+        popup = tk.Toplevel(self)
 
         scrollbar = tk.Scrollbar(popup)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)

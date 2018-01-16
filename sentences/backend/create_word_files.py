@@ -1,3 +1,4 @@
+import shutil
 import os
 from sentences import DATA_PATH, VERBS_CSV, UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV
 
@@ -24,8 +25,7 @@ def copy_to_numbered_old_file(directory, filename):
         save_destination = os.path.join(directory, use_filename)
         filename_already_exists = os.path.exists(save_destination)
 
-    with open(os.path.join(directory, filename), 'r') as read_file:
-        with open(save_destination, 'w') as write_file:
-            write_file.write(read_file.read())
+    src = os.path.join(directory, filename)
+    shutil.copy(src, save_destination)
 
     return save_destination

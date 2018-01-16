@@ -1,4 +1,4 @@
-sentences v2.2
+sentences v2.3
 ==============
 
 This app creates randomly generated paragraphs and then assigns specific
@@ -14,7 +14,9 @@ GUI options details:
       verbs, this will reload those files into the app.
     - "New default word files": Moves "nouns.csv", "verbs.csv" and "uncountable.csv" to new locations (such as
       "nouns_old_01.csv") and then copies the default word files.
-    - "Factory Reset": overwrites the config file and default word files without saving them.
+    - "Factory Reset": Overwrites the config file and default word files without saving them.
+    - "Add a file prefix": When the file is created, this prefix is added to the filename.
+    - "Font size": The font size of the error file from 2-20.
     - "Make me some PDFs": Creates an error file and an answer file in your save_folder.
 - FILE MANAGEMENT OPTIONS: Set where to save files, and where the word lists are located.
     - Customizing your word lists: You can customize your word lists.

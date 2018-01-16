@@ -63,8 +63,8 @@ class TestRandomParagraph(unittest.TestCase):
                          [Noun('cat'), Noun('water'), Noun('sand'), Noun('milk'), Noun('frog'), Noun('rice'),
                           they, she, Noun('dog'), we, Noun('pig'), i, it, you, he])
 
-    def test_get_subject_pool_raises_overflow_error(self):
-        self.assertRaises(OverflowError, self.rp.get_subject_pool, 16)
+    def test_get_subject_pool_raises_value_error(self):
+        self.assertRaises(ValueError, self.rp.get_subject_pool, 16)
 
     def test_create_pool_paragraph_is_correct_length(self):
         verb_list = [{'verb': Verb('play'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
@@ -86,15 +86,25 @@ class TestRandomParagraph(unittest.TestCase):
             self.assertIn(subject, subjects)
             self.assertNotIn(subject, predicate)
 
-    def test_create_pool_paragraph_raises_overflow_error_very_very_edge_case(self):
+    def test_create_pool_paragraph_repeats_very_very_edge_case(self):
         random.seed(20)
         verb_list = [{'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
 
-        raise_error = RandomParagraph(0.0, verb_list, [Noun('cat')], [Noun('water')])
+        repeats = RandomParagraph(0.0, verb_list, [Noun('cat')], [Noun('water')])
 
-        self.assertRaises(OverflowError, raise_error.create_pool_paragraph, 2, 10)
-        no_error = RandomParagraph(0.0, self.verbs, [Noun('cat')], [Noun('water')])
-        no_error.create_pool_paragraph(2, 100)
+        answer = repeats.create_pool_paragraph(2, 2)
+        expected = [
+            [Noun('water'), Verb('give'), Noun('cat'), Noun('water'), period],
+            [Noun('cat'), Verb('give'), Noun('cat'), Noun('water'), period]
+        ]
+        self.assertEqual(answer, expected)
+
+        no_prepositions = [verb_dict for verb_dict in self.verbs if verb_dict['preposition'] is None]
+        no_repeats = RandomParagraph(0.0, no_prepositions, [Noun('cat')], [Noun('water')])
+        answer = no_repeats.create_pool_paragraph(2, 100)
+        for sentence in answer:
+            self.assertEqual(len(sentence), 4)
+            self.assertNotEqual(sentence[0], sentence[2])
 
     def test_create_pool_paragraph_output(self):
         random.seed(3)

@@ -7,9 +7,18 @@ from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 
 
+class LoaderError(ValueError):
+    pass
+
+
 def load_csv(filename):
-    with open(filename, 'r') as f:
-        lines = f.read().split('\n')
+    try:
+        with open(filename, 'r') as f:
+            lines = f.read().split('\n')
+    except (OSError, UnicodeError):
+        message = ('Could not read CSV file. If you edited it in MSWord or something similar, ' +
+                   'it got formatted. Use "notepad"')
+        raise LoaderError(message)
     return [split_and_strip(line) for line in lines if line.strip() and not line.startswith('#')]
 
 
@@ -18,21 +27,37 @@ def split_and_strip(line):
 
 
 def countable_nouns(filename=''):
-    new_filename = _default_or_file_name(filename, COUNTABLE_NOUNS_CSV)
-    raw_lines = load_csv(new_filename)
-    return [Noun(*line) for line in raw_lines]
+    return _nouns(filename, countable=True)
 
 
 def uncountable_nouns(filename=''):
-    new_filename = _default_or_file_name(filename, UNCOUNTABLE_NOUNS_CSV)
+    return _nouns(filename, countable=False)
+
+
+def _nouns(filename='', countable=True):
+    if countable:
+        class_ = Noun
+        default = COUNTABLE_NOUNS_CSV
+        columns = 2
+    else:
+        class_ = UncountableNoun
+        default = UNCOUNTABLE_NOUNS_CSV
+        columns = 1
+
+    new_filename = _default_or_file_name(filename, default)
     raw_lines = load_csv(new_filename)
-    return [UncountableNoun(*line) for line in raw_lines]
+
+    return [class_(*line[:columns]) for line in raw_lines]
 
 
 def verbs(filename=''):
     new_filename = _default_or_file_name(filename, VERBS_CSV)
     raw_lines = load_csv(new_filename)
-    return [get_verb_dict(verb_line) for verb_line in raw_lines]
+    try:
+        answer = [get_verb_dict(verb_line) for verb_line in raw_lines]
+    except ValueError:
+        raise LoaderError('Bad values in columns for CSV for verbs. See default for example.')
+    return answer
 
 
 def _default_or_file_name(file_name, default_name):
@@ -71,6 +96,6 @@ def get_verb_dict(str_lst):
 def _make_list_correct_len_with_nulls(input_list):
     expected_len = 5
     diff = expected_len - len(input_list)
-    output_list = input_list[:] + diff * ['null']
+    output_list = input_list[:expected_len] + diff * ['null']
 
     return [value if value else 'null' for value in output_list]

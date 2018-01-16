@@ -178,6 +178,10 @@ class TestConfigLoader(unittest.TestCase):
             ('num_paragraphs', 4),
             ('paragraph_size', 15),
             ('', None),
+            ('# MAIN', None),
+            ('font_size', 13),
+            ('file_prefix', None),
+            ('', None)
         ]
         self.assertEqual(_get_key_value_list(DEFAULT_CONFIG), answer)
 
@@ -227,6 +231,9 @@ class TestConfigLoader(unittest.TestCase):
             'subject_pool': 5,
             'num_paragraphs': 4,
             'paragraph_size': 15,
+
+            'font_size': 13,
+            'file_prefix': None
         })
 
     def test_load_config_bad_file_ValueError(self):
@@ -296,6 +303,9 @@ class TestConfigLoader(unittest.TestCase):
             'subject_pool': 5,
             'num_paragraphs': 4,
             'paragraph_size': 15,
+
+            'font_size': 13,
+            'file_prefix': None
         }
         self.assertEqual(answer, expected)
 

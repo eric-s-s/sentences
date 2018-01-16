@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sentences',
-      version='2.2',
+      version='2.3',
       description='sentence generator',
       long_description=readme(),
       keywords='',

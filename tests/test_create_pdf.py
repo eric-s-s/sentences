@@ -5,10 +5,12 @@ import unittest
 
 from reportlab.pdfgen.canvas import Canvas
 
-from sentences.create_pdf import get_file_prefix, is_numbered_pdf, insert_footer, save_paragraphs_to_pdf, create_pdf
+from sentences.create_pdf import (get_file_prefix, is_numbered_member_of_prefix_group,
+                                  insert_footer, save_paragraphs_to_pdf, create_pdf)
+from tests import TESTS_FILES
 
 
-SAVE_FOLDER = 'delete_me_dir'
+SAVE_FOLDER = os.path.join(TESTS_FILES, 'delete_me_dir')
 
 
 def make_save_folder():
@@ -35,31 +37,30 @@ class TestCreatePDF(unittest.TestCase):
     def tearDown(self):
         rm_save_folder()
 
-    def test_is_numbered_pdf_true(self):
-        self.assertTrue(is_numbered_pdf('01_thing.pdf'))
-        self.assertTrue(is_numbered_pdf('10_thing.pdf'))
-        self.assertTrue(is_numbered_pdf('99_thing.pdf'))
-        self.assertTrue(is_numbered_pdf('00_thing.pdf'))
+    def test_is_numbered_member_of_prefix_group_true(self):
+        self.assertTrue(is_numbered_member_of_prefix_group('01_thing.pdf', prefix=''))
+        self.assertTrue(is_numbered_member_of_prefix_group('10_thing.pdf', prefix=''))
+        self.assertTrue(is_numbered_member_of_prefix_group('99_thing.pdf', prefix=''))
+        self.assertTrue(is_numbered_member_of_prefix_group('00_thing.pdf', prefix=''))
+        self.assertTrue(is_numbered_member_of_prefix_group('01_thing.txt', prefix=''))
 
-    def test_is_numbered_pdf_false(self):
-        self.assertFalse(is_numbered_pdf('1_thing.pdf'))
-        self.assertFalse(is_numbered_pdf('100_thing.pdf'))
-        self.assertFalse(is_numbered_pdf('01 thing.pdf'))
-        self.assertFalse(is_numbered_pdf('thing.pdf'))
-        self.assertFalse(is_numbered_pdf('01_thing.txt'))
+    def test_is_numbered_member_of_prefix_group_false(self):
+        self.assertFalse(is_numbered_member_of_prefix_group('1_thing.pdf', prefix=''))
+        self.assertFalse(is_numbered_member_of_prefix_group('100_thing.pdf', prefix=''))
+        self.assertFalse(is_numbered_member_of_prefix_group('01 thing.pdf', prefix=''))
+        self.assertFalse(is_numbered_member_of_prefix_group('thing.pdf', prefix=''))
 
     def test_get_file_prefix_no_files(self):
         self.assertEqual(get_file_prefix(SAVE_FOLDER), '01_')
 
-    def test_get_file_prefix_no_numbered_pdf_files(self):
-        filenames = ['not_pdf.txt', '01_text.txt', '1_too_few_digits.pdf', '010_too_many_digits.pdf',
-                     '01 no_underscore.pdf', 'no_digits.pdf']
-        for filename in filenames:
+    def test_get_file_prefix_no_named_prefix(self):
+        file_names = ['not_pdf.txt', '01_text.txt', '1_too_few_digits.pdf', '010_too_many_digits.pdf',
+                      '01 no_underscore.pdf', 'no_digits.pdf']
+        for filename in file_names:
             with open(os.path.join(SAVE_FOLDER, filename), 'w') as f:
                 f.write('ipso lorum')
-        self.assertEqual(get_file_prefix(SAVE_FOLDER), '01_')
+        self.assertEqual(get_file_prefix(SAVE_FOLDER), '02_')
 
-    def test_get_file_prefix_numbered_pdf(self):
         with open(os.path.join(SAVE_FOLDER, '02_thing.pdf'), 'w') as f:
             f.write('ipso lorum')
         self.assertEqual(get_file_prefix(SAVE_FOLDER), '03_')
@@ -71,6 +72,13 @@ class TestCreatePDF(unittest.TestCase):
         with open(os.path.join(SAVE_FOLDER, '29_thing.pdf'), 'w') as f:
             f.write('ipso lorum')
         self.assertEqual(get_file_prefix(SAVE_FOLDER), '30_')
+
+    def test_get_file_prefix_with_named_prefix_ignores_others(self):
+        file_names = ['prefix_01_stuff.txt', '05_stuff.txt', 'oopsy11.txt']
+        for filename in file_names:
+            with open(os.path.join(SAVE_FOLDER, filename), 'w') as f:
+                f.write('ipso lorum')
+        self.assertEqual(get_file_prefix(SAVE_FOLDER, 'prefix_'), 'prefix_02_')
 
     def test_insert_footer(self):
         class Doc(object):
@@ -109,3 +117,30 @@ class TestCreatePDF(unittest.TestCase):
         for file_name in (error_1, error_2, answer_1, answer_2):
             self.assertTrue(os.path.exists(file_name))
 
+    def test_create_pdfs_saves_files_with_named_prefix(self):
+        error_1 = os.path.join(SAVE_FOLDER, 'bob01_error.pdf')
+        error_2 = os.path.join(SAVE_FOLDER, 'bob02_error.pdf')
+        answer_1 = os.path.join(SAVE_FOLDER, 'bob01_answer.pdf')
+        answer_2 = os.path.join(SAVE_FOLDER, 'bob02_answer.pdf')
+
+        other_answer = os.path.join(SAVE_FOLDER, 'joe_01_answer.pdf')
+        other_error = os.path.join(SAVE_FOLDER, 'joe_01_error.pdf')
+
+        for file_name in (error_1, error_2, answer_1, answer_2, other_answer, other_error):
+            self.assertFalse(os.path.exists(file_name))
+
+        create_pdf(SAVE_FOLDER, self.answer, self.error, named_prefix='bob')
+        for file_name in (error_1, answer_1):
+            self.assertTrue(os.path.exists(file_name))
+        for file_name in (error_2, answer_2, other_answer, other_error):
+            self.assertFalse(os.path.exists(file_name))
+
+        create_pdf(SAVE_FOLDER, self.answer, self.error, named_prefix='joe_')
+        for file_name in (error_1, answer_1, other_answer, other_error):
+            self.assertTrue(os.path.exists(file_name))
+        for file_name in (error_2, answer_2):
+            self.assertFalse(os.path.exists(file_name))
+
+        create_pdf(SAVE_FOLDER, self.answer, self.error, named_prefix='bob')
+        for file_name in (error_1, error_2, answer_1, answer_2):
+            self.assertTrue(os.path.exists(file_name))
