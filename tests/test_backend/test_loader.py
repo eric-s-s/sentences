@@ -50,8 +50,17 @@ class TestLoader(unittest.TestCase):
         self.assertIn(UncountableNoun('water'), answer)
 
     def test_countable_nouns_and_uncountable_nouns_wrong_number_of_columns(self):
-        self.assertRaises(LoaderError, countable_nouns, os.path.join(DATA_PATH, VERBS_CSV))
-        self.assertRaises(LoaderError, uncountable_nouns, os.path.join(DATA_PATH, VERBS_CSV))
+        too_many_cols = os.path.join(TESTS_FILES, 'too_many.csv')
+        with open(too_many_cols, 'w') as f:
+            f.write('one, two, three, four, five')
+
+        one_val = uncountable_nouns(too_many_cols)
+        self.assertEqual(one_val[0], UncountableNoun('one', ''))
+
+        two_vals = countable_nouns(too_many_cols)
+        self.assertEqual(two_vals[0], Noun('one', 'two'))
+
+        os.remove(too_many_cols)
 
     def test_countable_and_uncountable_nouns_empty_csv(self):
         empty = os.path.join(TESTS_FILES, 'empty.csv')
@@ -112,4 +121,11 @@ class TestLoader(unittest.TestCase):
         bring_to = {'verb': Verb('bring', '', 'brought'), 'preposition': Preposition('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])
-        print(os.path.dirname(os.path.dirname(__file__)))
+
+    def test_verbs_bad_verb_file(self):
+        bad_verbs = os.path.join(TESTS_FILES, 'bad_verbs.csv')
+        with open(bad_verbs, 'w') as f:
+            f.write('some, of, these, should, be, ints, or, bools')
+
+        self.assertRaises(LoaderError, verbs, bad_verbs)
+        os.remove(bad_verbs)

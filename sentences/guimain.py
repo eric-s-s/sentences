@@ -34,7 +34,15 @@ class MainFrame(tk.Tk):
         self.frames = self._pack_set_variable_frames()
         self.load_config()
 
-        self.paragraph_generator = ParagraphsGenerator(self.get_state())
+        try:
+            self.paragraph_generator = ParagraphsGenerator(self.get_state())
+        except LoaderError as e:
+            self.default_word_files()
+            self.revert_to_original()
+            self.paragraph_generator = ParagraphsGenerator(self.get_state())
+            message = ('On loading, caught the following error:\n{}: {}\n\n' +
+                       'The original word files were moved to <name>_old_(number).csv and replaced with new files.')
+            showerror('Bad start file', message.format(e.__class__.__name__, e.args[0]))
 
         self.do_not_show_popup = tk.IntVar()
         self.do_not_show_popup.set(0)
@@ -89,7 +97,10 @@ class MainFrame(tk.Tk):
         return error_details, file_management, grammar_details, paragraph_type
 
     def reload_files(self):
-        self.paragraph_generator.load_lists_from_file()
+        try:
+            self.paragraph_generator.load_lists_from_file()
+        except LoaderError as e:
+            showerror('Bad file', '{}: {}'.format(e.__class__.__name__, e.args[0]))
 
     def default_word_files(self):
         home = self.get_state()['home_directory']
@@ -130,7 +141,7 @@ class MainFrame(tk.Tk):
             self.paragraph_generator.update_options(state)
             answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
             create_pdf(state['save_directory'], answer, error, error_font_size=font_size, named_prefix=file_prefix)
-        except (ValueError, LoaderError) as e:
+        except ValueError as e:
             message = '{}: {}'.format(e.__class__.__name__, e.args[0])
             showerror('Uh-oh!', message)
         else:
@@ -144,9 +155,8 @@ class MainFrame(tk.Tk):
         loader.revert_to_default()
         self.load_config()
 
-    @staticmethod
-    def read_me():
-        popup = tk.Toplevel()
+    def read_me(self):
+        popup = tk.Toplevel(self)
 
         scrollbar = tk.Scrollbar(popup)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
