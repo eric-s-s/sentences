@@ -1,7 +1,7 @@
 import os
 import unittest
 from unittest.mock import patch
-from shutil import rmtree, copytree
+import shutil
 
 import tkinter as tk
 
@@ -29,19 +29,19 @@ def rm_config():
 
 def rm_app_folder():
     if os.path.exists(APP_FOLDER):
-        rmtree(APP_FOLDER)
+        shutil.rmtree(APP_FOLDER)
 
 
 def mv_app_folder():
     src_target = APP_FOLDER
     if os.path.exists(src_target):
-        copytree(src_target, SAVE_APP_FOLDER)
+        shutil.copytree(src_target, SAVE_APP_FOLDER)
 
 
 def restore_app_folder():
     if os.path.exists(SAVE_APP_FOLDER):
-        copytree(SAVE_APP_FOLDER, APP_FOLDER)
-        rmtree(SAVE_APP_FOLDER)
+        shutil.copytree(SAVE_APP_FOLDER, APP_FOLDER)
+        shutil.rmtree(SAVE_APP_FOLDER)
 
 
 def mv_config():
@@ -220,6 +220,19 @@ class TestGuiMain(unittest.TestCase):
         for file_name in (COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV):
             expected = os.path.join(APP_FOLDER, file_name.replace('.csv', '_old_01.csv'))
             self.assertTrue(os.path.exists(expected))
+
+    @patch("sentences.guimain.showerror")
+    def test_init_bad_files_unreadable(self, mock_error):
+        ConfigLoader()
+        shutil.copy(os.path.join(DATA_PATH, 'go_time.ico', ), os.path.join(APP_FOLDER, COUNTABLE_NOUNS_CSV))
+        MainFrame()
+        message = ('On loading, caught the following error:\n' +
+                   'LoaderError: Could not read CSV file. ' +
+                   'If you edited it in MSWord or something similar, it got formatted. Use "notepad"\n\n' +
+                   'The original word files were moved to <name>_old_(number).csv and replaced with new files.')
+        mock_error.assert_called_with('Bad start file', message)
+        with open(os.path.join(APP_FOLDER, COUNTABLE_NOUNS_CSV.replace('.csv', '_old_01.csv')), 'r') as f:
+            self.assertEqual(f.read(), '')
 
     @patch("sentences.guimain.showerror")
     def test_create_texts_missing_words(self, mock_error):

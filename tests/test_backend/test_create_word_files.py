@@ -1,6 +1,6 @@
 import unittest
 
-from shutil import rmtree
+import shutil
 import os
 
 from sentences import DATA_PATH, VERBS_CSV, UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV
@@ -14,7 +14,7 @@ DIR_TO_DELETE = os.path.join(TESTS_FILES, 'dir_to_delete')
 
 def rm_test_dir():
     if os.path.exists(DIR_TO_DELETE):
-        rmtree(DIR_TO_DELETE)
+        shutil.rmtree(DIR_TO_DELETE)
 
 
 def copy_all_csv():
@@ -86,6 +86,13 @@ class TestCreateWordFiles(unittest.TestCase):
             does_not_exists = expected[index:]
             self.assertTrue(all(os.path.exists(file) for file in exists))
             self.assertFalse(any(os.path.exists(file) for file in does_not_exists))
+
+    def test_copy_to_numbered_old_file_unreadable_file(self):
+        bad_file = os.path.join(DIR_TO_DELETE, 'oops.csv')
+        shutil.copy(os.path.join(DATA_PATH, 'go_time.ico'), bad_file)
+        copy_to_numbered_old_file(DIR_TO_DELETE, 'oops.csv')
+        with open(bad_file.replace('.csv', '_old_01.csv'), 'r') as f:
+            self.assertEqual(f.read(), '')
 
     def test_create_default_word_files_empty_dir(self):
         expected = (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV)
