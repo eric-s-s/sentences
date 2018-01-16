@@ -8,7 +8,7 @@ from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
 from sentences.words.word import Word, Preposition
 
-i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
+i, me, you, he, him, she, her, it, we, us, they, them = Pronoun.lowers()
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
@@ -39,16 +39,16 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertFalse(is_third_person(Word('dog')))
 
     def test_is_third_person_pronouns_true(self):
-        for third_person in [he, she, it, him, her]:
+        p_nouns = [he, she, it, him, her]
+        capitals = [p_noun.capitalize() for p_noun in p_nouns]
+        for third_person in p_nouns + capitals:
             self.assertTrue(is_third_person(third_person))
 
     def test_is_third_person_pronouns_false(self):
-        for not_it in [i, me, you, we, us, they, them]:
+        p_nouns = [i, you, we, us, they, them]
+        capitals = [p_noun.capitalize() for p_noun in p_nouns]
+        for not_it in p_nouns + capitals:
             self.assertFalse(is_third_person(not_it))
-
-    def test_is_third_person_capitalized_pronouns_as_words(self):
-        for word in [Word('He'), Word('She'), Word('It')]:
-            self.assertTrue(is_third_person(word))
 
     def test_is_third_person_all_non_plural_nouns(self):
         noun = Noun('dog')
@@ -110,9 +110,10 @@ class TestInvestigationTools(unittest.TestCase):
 
     def test_get_present_be_verb_is(self):
         predicate = [Verb('play').third_person(), period]
-        subjs = [he, him, she, her, it, Word('He'), Word('She'), Word('It'),
-                 UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite()]
-        for subj in subjs:
+        base_pronouns = [he, him, she, her, it]
+        capital_pronouns = [pronoun.capitalize() for pronoun in base_pronouns]
+        nouns = [UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite()]
+        for subj in base_pronouns + capital_pronouns + nouns:
             self.assertEqual(get_present_be_verb([subj] + predicate), Word('is'))
 
     def test_get_present_be_verb_am(self):

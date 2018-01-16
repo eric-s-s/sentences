@@ -1,6 +1,7 @@
 .idea/
 *.pyc
-build/*
+build/
 dist/
 pdfs/
 sentences/data/config.cfg
+sentences.egg-info/

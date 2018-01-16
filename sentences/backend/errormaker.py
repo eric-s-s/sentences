@@ -6,6 +6,7 @@ from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNo
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, NegativeVerb, PastVerb
 from sentences.words.word import Word, Preposition
+from sentences.words.pronoun import Pronoun
 
 
 def copy_paragraph(lst_of_lst):
@@ -163,6 +164,9 @@ def make_verb_error(verb, is_third_person_noun):
 
 
 def de_capitalize(to_de_capitalize):
+    if isinstance(to_de_capitalize, Pronoun):
+        return to_de_capitalize.de_capitalize()
+
     old_value = to_de_capitalize.value
     new_value = old_value[0].lower() + old_value[1:]
     if isinstance(to_de_capitalize, Noun):

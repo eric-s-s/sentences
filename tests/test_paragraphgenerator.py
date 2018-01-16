@@ -16,7 +16,7 @@ from tests import TESTS_FILES
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
-i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
+i, me, you, he, him, she, her, it, we, us, they, them = Pronoun.lowers()
 
 
 delete_me = os.path.join(TESTS_FILES, 'delete_me_{}')

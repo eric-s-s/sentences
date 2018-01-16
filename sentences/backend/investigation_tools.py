@@ -35,10 +35,10 @@ def find_subject(raw_sentence) -> int:
 
 def is_third_person(word) -> bool:
     if isinstance(word, Pronoun):
-        return word in (Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT)
+        return word.de_capitalize() in (Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT)
     if isinstance(word, Noun):
         return not isinstance(word, PluralNoun)
-    return word in [Word('He'), Word('She'), Word('It')]
+    return False
 
 
 def is_word_in_sentence(word, raw_sentence):

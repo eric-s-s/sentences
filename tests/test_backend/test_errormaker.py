@@ -25,11 +25,15 @@ class TestErrorMaker(unittest.TestCase):
             self.assertEqual(noun, to_test)
             self.assertEqual(type(noun), type(to_test))
 
-    def test_de_capitalize_other(self):
+    def test_de_capitalize_with_pronoun(self):
         pronoun = Pronoun.HE
+        self.assertEqual(de_capitalize(pronoun.capitalize()), pronoun)
+        self.assertEqual(de_capitalize(pronoun), pronoun)
+
+    def test_de_capitalize_other(self):
         word = Word('He')
         verb = Verb('He')
-        for test_word in [pronoun, word, verb]:
+        for test_word in [word, verb]:
             to_test = de_capitalize(test_word.capitalize())
             self.assertEqual(to_test.value, 'he')
             self.assertEqual(type(to_test), Word)
