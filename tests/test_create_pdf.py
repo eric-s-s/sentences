@@ -7,9 +7,10 @@ from reportlab.pdfgen.canvas import Canvas
 
 from sentences.create_pdf import (get_file_prefix, is_numbered_member_of_prefix_group,
                                   insert_footer, save_paragraphs_to_pdf, create_pdf)
+from tests import TESTS_FILES
 
 
-SAVE_FOLDER = 'delete_me_dir'
+SAVE_FOLDER = os.path.join(TESTS_FILES, 'delete_me_dir')
 
 
 def make_save_folder():
@@ -143,4 +144,3 @@ class TestCreatePDF(unittest.TestCase):
         create_pdf(SAVE_FOLDER, self.answer, self.error, named_prefix='bob')
         for file_name in (error_1, error_2, answer_1, answer_2):
             self.assertTrue(os.path.exists(file_name))
-
