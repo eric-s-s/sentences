@@ -1,8 +1,9 @@
-import os
 import unittest
 from unittest.mock import patch
-import shutil
 
+import filecmp
+import os
+import shutil
 import tkinter as tk
 
 from sentences import DATA_PATH, APP_NAME
@@ -224,15 +225,16 @@ class TestGuiMain(unittest.TestCase):
     @patch("sentences.guimain.showerror")
     def test_init_bad_files_unreadable(self, mock_error):
         ConfigLoader()
-        shutil.copy(os.path.join(DATA_PATH, 'go_time.ico', ), os.path.join(APP_FOLDER, COUNTABLE_NOUNS_CSV))
+        src = os.path.join(DATA_PATH, 'go_time.ico')
+        dst = os.path.join(APP_FOLDER, COUNTABLE_NOUNS_CSV)
+        shutil.copy(src, dst)
         MainFrame()
         message = ('On loading, caught the following error:\n' +
                    'LoaderError: Could not read CSV file. ' +
                    'If you edited it in MSWord or something similar, it got formatted. Use "notepad"\n\n' +
                    'The original word files were moved to <name>_old_(number).csv and replaced with new files.')
         mock_error.assert_called_with('Bad start file', message)
-        with open(os.path.join(APP_FOLDER, COUNTABLE_NOUNS_CSV.replace('.csv', '_old_01.csv')), 'r') as f:
-            self.assertEqual(f.read(), '')
+        filecmp.cmp(src, dst.replace('.csv', '_old_01.csv'), shallow=False)
 
     @patch("sentences.guimain.showerror")
     def test_create_texts_missing_words(self, mock_error):

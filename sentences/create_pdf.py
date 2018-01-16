@@ -37,7 +37,7 @@ def get_file_prefix(folder, named_prefix=''):
 
 
 def is_numbered_member_of_prefix_group(filename: str, prefix):
-    return filename.startswith(prefix) and re.match('{}\d\d_'.format(prefix), filename) is not None
+    return re.match('{}\d\d_'.format(prefix), filename) is not None
 
 
 def save_paragraphs_to_pdf(file_name, paragraphs, font_size):

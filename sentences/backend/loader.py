@@ -95,7 +95,7 @@ def get_verb_dict(str_lst):
 
 def _make_list_correct_len_with_nulls(input_list):
     expected_len = 5
-    diff = max(0, expected_len - len(input_list))
+    diff = expected_len - len(input_list)
     output_list = input_list[:expected_len] + diff * ['null']
 
     return [value if value else 'null' for value in output_list]

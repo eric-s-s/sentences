@@ -1,5 +1,6 @@
 import unittest
 
+import filecmp
 import shutil
 import os
 
@@ -87,12 +88,11 @@ class TestCreateWordFiles(unittest.TestCase):
             self.assertTrue(all(os.path.exists(file) for file in exists))
             self.assertFalse(any(os.path.exists(file) for file in does_not_exists))
 
-    def test_copy_to_numbered_old_file_unreadable_file(self):
+    def test_copy_to_numbered_old_file_non_text_file(self):
         bad_file = os.path.join(DIR_TO_DELETE, 'oops.csv')
         shutil.copy(os.path.join(DATA_PATH, 'go_time.ico'), bad_file)
-        copy_to_numbered_old_file(DIR_TO_DELETE, 'oops.csv')
-        with open(bad_file.replace('.csv', '_old_01.csv'), 'r') as f:
-            self.assertEqual(f.read(), '')
+        destination = copy_to_numbered_old_file(DIR_TO_DELETE, 'oops.csv')
+        self.assertTrue(filecmp.cmp(bad_file, destination, shallow=False))
 
     def test_create_default_word_files_empty_dir(self):
         expected = (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV)
