@@ -2,20 +2,24 @@ from sentences.words.word import Word
 
 
 class Noun(Word):
-    def __init__(self, word: str, irregular_plural: str= '', base: str = None):
-        self._plural = irregular_plural
+    def __init__(self, word, irregular_plural='', base=''):
+        self._irregular = irregular_plural
         super(Noun, self).__init__(word)
         self._base_noun = base
-        if self._base_noun is None:
+        if self._base_noun == '':
             self._base_noun = word
 
     @property
     def base_noun(self):
         return self._base_noun
 
+    @property
+    def irregular_plural(self):
+        return self._irregular
+
     def capitalize(self):
         value = super(Noun, self).capitalize().value
-        return self.__class__(value, self._plural, self.base_noun)
+        return self.__class__(value, self._irregular, self.base_noun)
 
     def indefinite(self) -> 'Noun':
         article = 'a '
@@ -33,8 +37,8 @@ class Noun(Word):
     def plural(self) -> 'Noun':
         class_ = _get_plural_class(self)
 
-        if self._plural:
-            return class_(self._plural, base=self.base_noun)
+        if self._irregular:
+            return class_(self._irregular, base=self.base_noun)
         current = self.value
         if any(current.endswith('{}fe'.format(vowel)) for vowel in 'aeiou'):
             plural_val = current[:-2] + 'ves'
@@ -55,7 +59,7 @@ class Noun(Word):
         return super(Noun, self).__hash__()
 
     def __repr__(self):
-        return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self._plural, self.base_noun)
+        return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self._irregular, self.base_noun)
 
 
 class PluralNoun(Noun):
