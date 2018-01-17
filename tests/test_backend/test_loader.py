@@ -82,7 +82,7 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'null'])
         self.assertEqual(
             answer,
-            {'verb': Verb('fly', '', 'flew'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
+            {'verb': Verb('fly', 'flew', ''), 'preposition': None, 'objects': 1, 'insert_preposition': False})
 
     def test_get_verb_dict_null_values(self):
         answer = get_verb_dict(['fly', 'null', 'null'])
@@ -94,14 +94,14 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertEqual(
             answer,
-            {'verb': Verb('fly', '', 'flew'), 'preposition': Preposition('with'),
+            {'verb': Verb('fly', 'flew', ''), 'preposition': Preposition('with'),
              'objects': 2, 'insert_preposition': False})
 
     def test_get_verb_dict_too_many_values(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2', 'true', 'nsa', 'adfhgoerwi'])
         self.assertEqual(
             answer,
-            {'verb': Verb('fly', '', 'flew'), 'preposition': Preposition('with'),
+            {'verb': Verb('fly', 'flew', ''), 'preposition': Preposition('with'),
              'objects': 2, 'insert_preposition': True})
 
     def test_get_verb_dict_preposition_is_Preposition(self):
@@ -110,9 +110,9 @@ class TestLoader(unittest.TestCase):
 
     def test_verbs_empty(self):
         answer = verbs()
-        give = {'verb': Verb('give', '', 'gave'), 'preposition': None, 'objects': 2, 'insert_preposition': False}
+        give = {'verb': Verb('give', 'gave', ''), 'preposition': None, 'objects': 2, 'insert_preposition': False}
         grab = {'verb': Verb('grab'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
-        fall = {'verb': Verb('fall', '', 'fell'), 'preposition': Preposition('on'), 'objects': 1,
+        fall = {'verb': Verb('fall', 'fell', ''), 'preposition': Preposition('on'), 'objects': 1,
                 'insert_preposition': False}
 
         self.assertIn(give, answer)
@@ -125,7 +125,7 @@ class TestLoader(unittest.TestCase):
     def test_verbs_with_insert_preposition(self):
         filename = os.path.join(TESTS_FILES, 'bring_to.csv')
         answer = verbs(filename)
-        bring_to = {'verb': Verb('bring', '', 'brought'), 'preposition': Preposition('to'),
+        bring_to = {'verb': Verb('bring', 'brought', ''), 'preposition': Preposition('to'),
                     'objects': 2, 'insert_preposition': True}
         self.assertEqual(answer, [bring_to])
 

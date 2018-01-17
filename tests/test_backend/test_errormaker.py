@@ -48,9 +48,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_verb_error(verb, is_third_person_noun=True)
             if index in plus_ed:
-                self.assertEqual(PastVerb('played', 'play'), to_test)
+                self.assertEqual(PastVerb('played', '', 'play'), to_test)
             elif index in plus_ed_plus_s:
-                self.assertEqual(PastVerb('playeds', 'play'), to_test)
+                self.assertEqual(PastVerb('playeds', '', 'play'), to_test)
             else:
                 self.assertEqual(Verb('play'), to_test)
 
@@ -62,9 +62,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_verb_error(verb, is_third_person_noun=True)
             if index in plus_ed:
-                self.assertEqual(NegativePastVerb("didn't play", 'play'), to_test)
+                self.assertEqual(NegativePastVerb("didn't play", '', 'play'), to_test)
             elif index in plus_ed_plus_s:
-                self.assertEqual(NegativePastVerb("didn't plays", "play"), to_test)
+                self.assertEqual(NegativePastVerb("didn't plays", '', "play"), to_test)
             else:
                 self.assertEqual(Verb('play').negative(), to_test)
 
@@ -75,9 +75,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_verb_error(verb, is_third_person_noun=False)
             if index in plus_ed:
-                self.assertEqual(PastVerb('played', 'play'), to_test)
+                self.assertEqual(PastVerb('played', '', 'play'), to_test)
             else:
-                self.assertEqual(ThirdPersonVerb('plays', 'play'), to_test)
+                self.assertEqual(ThirdPersonVerb('plays', '', 'play'), to_test)
 
     def test_make_verb_error_present_negative_not_third_person(self):
         random.seed(6)
@@ -86,9 +86,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_verb_error(verb, is_third_person_noun=False)
             if index in plus_ed:
-                self.assertEqual(NegativePastVerb("didn't play", 'play'), to_test)
+                self.assertEqual(NegativePastVerb("didn't play", '', 'play'), to_test)
             else:
-                self.assertEqual(NegativeThirdPersonVerb("doesn't play", 'play'), to_test)
+                self.assertEqual(NegativeThirdPersonVerb("doesn't play", '', 'play'), to_test)
 
     def test_make_verb_error_past_tense(self):
         random.seed(6)
@@ -97,7 +97,7 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_verb_error(verb, is_third_person_noun=random.choice([True, False]))
             if index in plus_s:
-                self.assertEqual(ThirdPersonVerb('plays', 'play'), to_test)
+                self.assertEqual(ThirdPersonVerb('plays', '', 'play'), to_test)
             else:
                 self.assertEqual(Verb('play'), to_test)
 
@@ -108,9 +108,9 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_verb_error(verb, is_third_person_noun=random.choice([True, False]))
             if index in plus_s:
-                self.assertEqual(NegativeThirdPersonVerb("doesn't play", 'play'), to_test)
+                self.assertEqual(NegativeThirdPersonVerb("doesn't play", '', 'play'), to_test)
             else:
-                self.assertEqual(NegativeVerb("don't play", 'play'), to_test)
+                self.assertEqual(NegativeVerb("don't play", '', 'play'), to_test)
 
     def test_make_noun_error_uncountable_not_definite(self):
         random.seed(10)
@@ -212,13 +212,13 @@ class TestErrorMaker(unittest.TestCase):
         self.assertEqual(make_is_do_error(verb.third_person(), Word('is')), Word('is not go'))
 
     def test_is_do_error_past_not_negative(self):
-        verb = Verb('go', '', 'went').past_tense()
+        verb = Verb('go', 'went', '').past_tense()
         self.assertEqual(make_is_do_error(verb, Word('am')), Word('was go'))
         self.assertEqual(make_is_do_error(verb, Word('are')), Word('were go'))
         self.assertEqual(make_is_do_error(verb, Word('is')), Word('was go'))
 
     def test_is_do_error_past_negative(self):
-        verb = Verb('go', '', 'went').negative().past_tense()
+        verb = Verb('go', 'went', '').negative().past_tense()
         self.assertEqual(make_is_do_error(verb, Word('am')), Word('was not go'))
         self.assertEqual(make_is_do_error(verb, Word('are')), Word('were not go'))
         self.assertEqual(make_is_do_error(verb, Word('is')), Word('was not go'))
@@ -772,8 +772,8 @@ class TestErrorMaker(unittest.TestCase):
 
     def test_regression_test_make_verb_error_make_is_do_error(self):
         random.seed(10)
-        verb = Verb('go', '', 'went').negative().third_person()
+        verb = Verb('go', 'went').negative().third_person()
         error = make_verb_error(verb, True)
-        self.assertEqual(error, NegativePastVerb("didn't goes", 'go', 'went'))
+        self.assertEqual(error, NegativePastVerb("didn't goes", 'went', 'go'))
         new_error = make_is_do_error(error, Word('is'))
         self.assertEqual(new_error, Word('was not go'))

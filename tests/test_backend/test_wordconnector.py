@@ -14,12 +14,12 @@ class TestWordConnector(unittest.TestCase):
 
     def test_connect_words_with_punctuation(self):
         lst = [Word('on').capitalize(), Word('Tuesday'), Punctuation.COMMA, Pronoun.I,
-               Verb('see', '', 'saw').past_tense(), Noun('A').indefinite(), Punctuation.COMMA, Noun('B').indefinite(),
+               Verb('see', 'saw', '').past_tense(), Noun('A').indefinite(), Punctuation.COMMA, Noun('B').indefinite(),
                Punctuation.COMMA, Word('and'), Noun('C').indefinite(), Punctuation.EXCLAMATION]
         self.assertEqual(connect_words(lst), "On Tuesday, I saw an A, a B, and a C!")
 
     def test_complex_case(self):
-        lst = [Pronoun.US.subject().capitalize(), Verb('eat', '', 'ate').negative().past_tense(),
+        lst = [Pronoun.US.subject().capitalize(), Verb('eat', 'ate', '').negative().past_tense(),
                Noun('cake').plural().capitalize().definite(), Word('or'),
                Noun('octopus', 'octopodes').definite().plural().capitalize(), Punctuation.PERIOD]
         self.assertEqual(connect_words(lst), "We didn't eat the Cakes or The octopodes.")

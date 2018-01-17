@@ -73,7 +73,7 @@ def get_verb_dict(str_lst):
 
     if past_tense == 'null':
         past_tense = ''
-    verb = Verb(infinitive, '', past_tense)
+    verb = Verb(infinitive, past_tense, '')
 
     if preposition_str == 'null':
         preposition = None

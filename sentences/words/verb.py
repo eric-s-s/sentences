@@ -2,7 +2,7 @@ from sentences.words.word import Word
 
 
 class Verb(Word):
-    def __init__(self, value, infinitive='', irregular_past=''):
+    def __init__(self, value, irregular_past='', infinitive=''):
         super(Verb, self).__init__(value)
         self._irregular_past = irregular_past
         self._inf = infinitive
@@ -19,37 +19,37 @@ class Verb(Word):
 
     def add_ed(self):
         value = super(Verb, self).add_ed().value
-        return self.__class__(value, self.infinitive, self.irregular_past)
+        return self.__class__(value, self.irregular_past, self.infinitive)
 
     def add_s(self):
         value = super(Verb, self).add_s().value
-        return self.__class__(value, self.infinitive, self.irregular_past)
+        return self.__class__(value, self.irregular_past, self.infinitive)
 
     def past_tense(self):
         past_tense_value = self._irregular_past
         if not past_tense_value:
             past_tense_value = Word(self._inf).add_ed().value
-        return PastVerb(past_tense_value, self._inf, self._irregular_past)
+        return PastVerb(past_tense_value, self._irregular_past, self._inf)
 
     def third_person(self):
         with_s = Word(self._inf).add_s().value
         if with_s == 'haves':
             with_s = 'has'
-        return ThirdPersonVerb(with_s, self._inf, self._irregular_past)
+        return ThirdPersonVerb(with_s, self._irregular_past, self._inf)
 
     def capitalize(self):
         class_ = self.__class__
-        return class_(self.value.capitalize(), self._inf, self._irregular_past)
+        return class_(self.value.capitalize(), self._irregular_past, self._inf)
 
     def negative(self):
-        return NegativeVerb("don't " + self.infinitive, self._inf, self._irregular_past)
+        return NegativeVerb("don't " + self.infinitive, self._irregular_past, self._inf)
 
     def to_base_verb(self):
-        return Verb(self._inf, '', self._irregular_past)
+        return Verb(self._inf, self._irregular_past, '')
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r})'.format(
-            self.__class__.__name__, self.value, self._inf, self._irregular_past
+            self.__class__.__name__, self.value, self._irregular_past, self._inf
         )
 
     def __eq__(self, other):
@@ -62,20 +62,20 @@ class Verb(Word):
 
 class PastVerb(Verb):
     def negative(self):
-        return NegativePastVerb("didn't " + self.infinitive, self.infinitive, self.irregular_past)
+        return NegativePastVerb("didn't " + self.infinitive, self.irregular_past, self.infinitive)
 
 
 class NegativeVerb(Verb):
     def past_tense(self):
-        return NegativePastVerb("didn't " + self.infinitive, self.infinitive, self.irregular_past)
+        return NegativePastVerb("didn't " + self.infinitive, self.irregular_past, self.infinitive)
 
     def third_person(self):
-        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.infinitive, self.irregular_past)
+        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.irregular_past, self.infinitive)
 
 
 class ThirdPersonVerb(Verb):
     def negative(self):
-        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.infinitive, self.irregular_past)
+        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.irregular_past, self.infinitive)
 
 
 class NegativePastVerb(NegativeVerb, PastVerb):
