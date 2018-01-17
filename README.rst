@@ -1,4 +1,4 @@
-sentences v2.3
+sentences v2.4
 ==============
 
 This module creates randomly generated paragraphs and then assigns specific kinds of errors to those paragraphs.
@@ -43,6 +43,7 @@ GUI options details:
 - **Error Options**: Choose the frequency of errors and what kinds of errors occur.
     - *% chance for error*: The chance that any one word or punctuation will get a grammatical error.
     - *noun errors*: Errors such as: "a water", "the rices", "cat" (no article or plural ending), "a cats"
+    - *pronoun errors*: Mixes up object and subject pronouns.
     - *verb errors*: Mixes up third-person and non-third-person endings. Swaps tenses.
     - *is do errors*: Changes "subj VERB" to "subj. BE-VERB infinitive" (He plays. -> He is play.)
     - *transpose preposition errors*: Puts the prepositional phrase between subject and verb ("He with a cat plays.")

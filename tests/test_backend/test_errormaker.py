@@ -297,8 +297,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(2)
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_noun_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_noun_errors()
         error_paragraph = [
             [Noun('Dog', '', 'dog'), grab.third_person(), Noun('cat'), Punctuation.EXCLAMATION],
             [IndefiniteNoun('A cats', 'a catses', 'cat'), grab, Noun('dog'), Punctuation.EXCLAMATION]
@@ -307,8 +307,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().bold(), grab.third_person(), cat.plural().bold(), Punctuation.EXCLAMATION],
             [cat.plural().definite().bold(), grab, dog.definite().bold(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 4)
 
     def test_error_maker_create_noun_errors_some_errors(self):
         dog = Noun('dog')
@@ -319,8 +320,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(2)
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
-        all_error_maker.create_noun_errors()
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker.create_noun_errors()
         error_paragraph = [
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.capitalize(), grab, dog, Punctuation.EXCLAMATION]
@@ -329,8 +330,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().bold(), grab, dog.definite().bold(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_pronoun_errors_it_and_you(self):
         grab = Verb('grab')
@@ -338,8 +339,8 @@ class TestErrorMaker(unittest.TestCase):
             [CapitalPronoun.IT, grab, Pronoun.IT, Punctuation.EXCLAMATION],
             [CapitalPronoun.YOU, grab, Pronoun.YOU, Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_pronoun_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_pronoun_errors()
         error_paragraph = [
             [CapitalPronoun.IT, grab, Pronoun.IT, Punctuation.EXCLAMATION],
             [CapitalPronoun.YOU, grab, Pronoun.YOU, Punctuation.EXCLAMATION]
@@ -348,8 +349,8 @@ class TestErrorMaker(unittest.TestCase):
             [CapitalPronoun.IT, grab, Pronoun.IT, Punctuation.EXCLAMATION],
             [CapitalPronoun.YOU, grab, Pronoun.YOU, Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_pronoun_errors_all_errors(self):
         grab = Verb('grab')
@@ -357,8 +358,8 @@ class TestErrorMaker(unittest.TestCase):
             [CapitalPronoun.I, grab, Pronoun.THEM, Punctuation.EXCLAMATION],
             [CapitalPronoun.SHE, grab, Pronoun.US, Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_pronoun_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_pronoun_errors()
         error_paragraph = [
             [CapitalPronoun.ME, grab, Pronoun.THEY, Punctuation.EXCLAMATION],
             [CapitalPronoun.HER, grab, Pronoun.WE, Punctuation.EXCLAMATION]
@@ -367,9 +368,9 @@ class TestErrorMaker(unittest.TestCase):
             [CapitalPronoun.I.bold(), grab, Pronoun.THEM.bold(), Punctuation.EXCLAMATION],
             [CapitalPronoun.SHE.bold(), grab, Pronoun.US.bold(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
-        self.assertEqual(all_error_maker.error_count, 4)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 4)
 
     def test_error_maker_create_pronoun_errors_some_errors(self):
         grab = Verb('grab')
@@ -401,8 +402,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(2)
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_verb_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_verb_errors()
         error_paragraph = [
             [dog.indefinite(), grab, cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.third_person(), dog.definite(), Punctuation.EXCLAMATION]
@@ -411,8 +412,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.third_person().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.bold(), dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 2)
 
     def test_error_maker_create_verb_errors_some_errors_present_tense(self):
         dog = Noun('dog')
@@ -423,8 +425,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(4)
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
-        all_error_maker.create_verb_errors()
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker.create_verb_errors()
         error_paragraph = [
             [dog.indefinite(), grab, cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -433,8 +435,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.third_person().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_verb_errors_all_errors_past_tense(self):
         dog = Noun('dog')
@@ -445,8 +447,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(2)
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_verb_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_verb_errors()
         error_paragraph = [
             [dog.indefinite(), grab, cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.third_person(), dog.definite(), Punctuation.EXCLAMATION]
@@ -455,8 +457,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.past_tense().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense().bold(), dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_verb_errors_some_errors_past_tense(self):
         dog = Noun('dog')
@@ -467,8 +469,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(4)
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
-        all_error_maker.create_verb_errors()
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker.create_verb_errors()
         error_paragraph = [
             [dog.indefinite(), grab, cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
@@ -477,8 +479,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.past_tense().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_is_do_errors_all_errors_present_tense(self):
         dog = Noun('dog')
@@ -488,8 +490,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_is_do_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_is_do_errors()
         error_paragraph = [
             [dog.indefinite(), Word('is grab'), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), Word('are grab'), dog.definite(), Punctuation.EXCLAMATION]
@@ -498,8 +500,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.third_person().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.bold(), dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 2)
 
     def test_error_maker_create_is_do_errors_some_errors_present_tense(self):
         dog = Noun('dog')
@@ -510,8 +513,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(8)
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
-        all_error_maker.create_is_do_errors()
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker.create_is_do_errors()
         error_paragraph = [
             [dog.indefinite(), Word('is grab'), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -520,8 +523,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.third_person().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_is_do_errors_all_errors_past_tense(self):
         dog = Noun('dog')
@@ -532,8 +535,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(2)
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_is_do_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_is_do_errors()
         error_paragraph = [
             [dog.indefinite(), Word('was grab'), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), Word('were grab'), dog.definite(), Punctuation.EXCLAMATION]
@@ -542,8 +545,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.past_tense().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense().bold(), dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_is_do_errors_some_errors_past_tense(self):
         dog = Noun('dog')
@@ -554,8 +557,8 @@ class TestErrorMaker(unittest.TestCase):
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(8)
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
-        all_error_maker.create_is_do_errors()
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker.create_is_do_errors()
         error_paragraph = [
             [dog.indefinite(), Word('was grab'), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
@@ -564,8 +567,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite(), grab.past_tense().bold(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite(), grab.past_tense(), dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_is_do_errors_all_pronouns(self):
         predicate = [Verb('go'), Noun('home'), Punctuation.PERIOD]  # type: List[Any]
@@ -591,8 +594,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_period_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_period_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
             [DefinitePluralNoun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.COMMA]
@@ -601,8 +604,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION.bold()],
             [cat.plural().definite().capitalize().bold(), grab, dog.definite(), Punctuation.EXCLAMATION.bold()]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 2)
 
     def test_error_maker_create_period_errors_some_errors(self):
         dog = Noun('dog')
@@ -612,9 +616,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
         random.seed(1)
-        all_error_maker.create_period_errors()
+        error_maker.create_period_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.COMMA],
             [DefinitePluralNoun('the cats', '', 'cat'), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -623,8 +627,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION.bold()],
             [cat.plural().definite().capitalize().bold(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_preposition_transpose_errors_no_prepositions(self):
         dog = Noun('dog')
@@ -634,9 +638,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
         random.seed(1)
-        all_error_maker.create_preposition_transpose_errors()
+        error_maker.create_preposition_transpose_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
@@ -645,8 +649,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
             [cat.plural().definite().capitalize(), grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_preposition_transpose_errors_all_errors(self):
         dog = Noun('dog')
@@ -661,8 +665,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), jump.third_person(), on, cat.plural(), Punctuation.EXCLAMATION],
             [cat.definite().capitalize(), hit, dog.definite(), with_, pig.indefinite(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        all_error_maker.create_preposition_transpose_errors()
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_preposition_transpose_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), on, cat.plural(), jump.third_person(), Punctuation.EXCLAMATION],
             [cat.definite().capitalize(), with_, pig.indefinite(), hit, dog.definite(), Punctuation.EXCLAMATION]
@@ -673,8 +677,9 @@ class TestErrorMaker(unittest.TestCase):
             [cat.definite().capitalize(), hit, dog.definite(), with_.bold(), pig.indefinite().bold(),
              Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 2)
 
     def test_error_maker_create_preposition_transpose_errors_some_errors(self):
         dog = Noun('dog')
@@ -689,8 +694,8 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), jump.third_person(), on, cat.plural(), Punctuation.EXCLAMATION],
             [cat.definite().capitalize(), hit, dog.definite(), with_, pig.indefinite(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=0.5)
-        all_error_maker.create_preposition_transpose_errors()
+        error_maker = ErrorMaker(paragraph, p_error=0.5)
+        error_maker.create_preposition_transpose_errors()
         error_paragraph = [
             [dog.indefinite().capitalize(), on, cat.plural(), jump.third_person(), Punctuation.EXCLAMATION],
             [cat.definite().capitalize(), hit, dog.definite(), with_, pig.indefinite(), Punctuation.EXCLAMATION]
@@ -700,8 +705,8 @@ class TestErrorMaker(unittest.TestCase):
              Punctuation.EXCLAMATION],
             [cat.definite().capitalize(), hit, dog.definite(), with_, pig.indefinite(), Punctuation.EXCLAMATION]
         ]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_all_errors(self):
         dog = Noun('dog')
@@ -712,17 +717,17 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), hit.third_person(), Pronoun.ME, with_, cat.plural(),
              Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
         random.seed(1)
-        all_error_maker.create_all_errors()
+        error_maker.create_all_errors()
         error_paragraph = [
             [dog.capitalize(), Preposition('with'), cat.indefinite(), Word('was hit'), Pronoun.I, Punctuation.COMMA]
         ]
         answer_paragraph = [
             [dog.indefinite().capitalize().bold(), hit.third_person().bold(), Pronoun.ME.bold(), with_.bold(),
              cat.plural().bold(), Punctuation.EXCLAMATION.bold()]]
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_find_subject_special_case_special_cases(self):
         go = Verb('go')
@@ -772,9 +777,9 @@ class TestErrorMaker(unittest.TestCase):
             [dog.indefinite().capitalize(), jump.third_person(), on, cat.plural(), Punctuation.EXCLAMATION],
             [dog.indefinite().capitalize(), jump.third_person().negative(), on, cat.plural(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
         random.seed(456)
-        all_error_maker.create_all_errors()
+        error_maker.create_all_errors()
         error_paragraph = [
             [dog.plural().indefinite().capitalize(), on, cat.plural().indefinite(), Word('is jump'), Punctuation.COMMA],
             [dog.plural(), on, cat, Word('were not jump'), Punctuation.COMMA],
@@ -786,8 +791,8 @@ class TestErrorMaker(unittest.TestCase):
              cat.plural().bold(), Punctuation.EXCLAMATION.bold()]
         ]
 
-        self.assertEqual(all_error_maker.error_paragraph, error_paragraph)
-        self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_count_and_reset(self):
         dog = Noun('dog')
@@ -796,16 +801,16 @@ class TestErrorMaker(unittest.TestCase):
         paragraph = [
             [dog.indefinite().capitalize(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION]
         ]
-        all_error_maker = ErrorMaker(paragraph, p_error=1.0)
-        self.assertEqual(all_error_maker.error_count, 0)
-        all_error_maker.create_all_errors()
-        self.assertEqual(all_error_maker.error_count, 4)
-        all_error_maker.reset()
-        self.assertEqual(all_error_maker.error_count, 0)
-        self.assertEqual(all_error_maker.error_paragraph, paragraph)
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        self.assertEqual(error_maker.error_count, 0)
+        error_maker.create_all_errors()
+        self.assertEqual(error_maker.error_count, 4)
+        error_maker.reset()
+        self.assertEqual(error_maker.error_count, 0)
+        self.assertEqual(error_maker.error_paragraph, paragraph)
 
-        all_error_maker.create_noun_errors()
-        self.assertEqual(all_error_maker.error_count, 2)
+        error_maker.create_noun_errors()
+        self.assertEqual(error_maker.error_count, 2)
 
     def test_already_has_error(self):
         dog = Noun('dog')

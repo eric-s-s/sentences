@@ -158,6 +158,7 @@ class TestConfigLoader(unittest.TestCase):
             ('error_probability', 0.2),
             ('', None),
             ('noun_errors', True),
+            ('pronoun_errors', False),
             ('verb_errors', True),
             ('punctuation_errors', True),
             ('is_do_errors', False),
@@ -217,6 +218,7 @@ class TestConfigLoader(unittest.TestCase):
 
             'error_probability': 0.2,
             'noun_errors': True,
+            'pronoun_errors': False,
             'verb_errors': True,
             'punctuation_errors': True,
             'is_do_errors': False,
@@ -289,6 +291,7 @@ class TestConfigLoader(unittest.TestCase):
 
             'error_probability': 0.2,
             'noun_errors': True,
+            'pronoun_errors': False,
             'verb_errors': True,
             'punctuation_errors': True,
             'is_do_errors': False,
@@ -532,6 +535,7 @@ class TestConfigLoader(unittest.TestCase):
         loader.set_up_frame(ed)
         answer = {'error_probability': 0.2,
                   'noun_errors': True,
+                  'pronoun_errors': False,
                   'verb_errors': True,
                   'is_do_errors': False,
                   'preposition_transpose_errors': False,

@@ -76,6 +76,7 @@ class TestParagraphGenerator(unittest.TestCase):
 
             'error_probability': 0.2,
             'noun_errors': True,
+            'pronoun_errors': False,
             'verb_errors': True,
             'punctuation_errors': True,
             'is_do_errors': False,
@@ -338,6 +339,34 @@ class TestParagraphGenerator(unittest.TestCase):
         self.assertEqual(answer.count('<bold>the dog</bold>'), 7)
         self.assertEqual(answer.count('<bold>the dog</bold>'), 7)
         self.assertTrue(answer.endswith(' -- error count: 30'))
+
+    def test_create_answer_and_error_texts_pronoun_errors(self):
+        create_test_csvs(['dog'], ['water'], ['like'])
+
+        self.config_state['error_probability'] = 1.0
+        self.config_state['probability_pronoun'] = 1.0
+        self.config_state['pronoun_errors'] = True
+        self.config_state['verb_errors'] = False
+        self.config_state['punctuation_errors'] = False
+
+        seed(34349)
+
+        pg = ParagraphsGenerator(self.config_state)
+        answer, error = pg.create_answer_and_error_texts()
+        expected_answer = (
+            "<bold>She</bold> likes <bold>him</bold>. <bold>He</bold> likes <bold>me</bold>! <bold>I</bold> like " +
+            "it. It likes <bold>me</bold>. <bold>I</bold> don't like <bold>them</bold>. <bold>They</bold> like it" +
+            ". It likes you. You like <bold>us</bold>. <bold>We</bold> like <bold>her</bold>! <bold>She</bold> li" +
+            "kes <bold>them</bold>! <bold>They</bold> like <bold>me</bold>. <bold>I</bold> don't like <bold>her</" +
+            "bold>! <bold>She</bold> likes <bold>us</bold>. <bold>We</bold> like you! You like <bold>me</bold>. -" +
+            "- error count: 22")
+        expected_error = (
+            "Her likes he. Him likes I! Me like it. It likes I. Me don't like they. Them like it. It likes you. Y" +
+            "ou like we. Us like she! Her likes they! Them like I. Me don't like she! Her likes we. Us like you! " +
+            "You like I."
+        )
+        self.assertEqual(answer, expected_answer)
+        self.assertEqual(error, expected_error)
 
     def test_create_answer_and_error_texts_verb_errors(self):
         create_test_csvs(['dog'], ['water'], ['like'])
