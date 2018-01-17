@@ -7,7 +7,8 @@ from sentences.words.noun import (Noun, DefiniteNoun, UncountableNoun, PluralNou
                                   DefinitePluralNoun, IndefiniteNoun)
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import Verb, ThirdPersonVerb, PastVerb, NegativeVerb, NegativeThirdPersonVerb, NegativePastVerb
+from sentences.words.verb import (Verb, ThirdPersonVerb, PastVerb,
+                                  NegativeVerb, NegativeThirdPersonVerb, NegativePastVerb)
 
 
 class TestGrammarizer(unittest.TestCase):
@@ -44,7 +45,7 @@ class TestGrammarizer(unittest.TestCase):
 
         paragraph = [
             [UncountableNoun('money'), Verb('grab'), UncountableNoun('tea'), Punctuation.EXCLAMATION],
-            [Pronoun.IT, Verb('have', '', 'had'), Noun('watch'), Punctuation.PERIOD]
+            [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), Punctuation.PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
         self.assertEqual(grammarizer._raw, paragraph)
@@ -168,10 +169,10 @@ class TestGrammarizer(unittest.TestCase):
     def test_generate_paragraph_returns_sentences_with_capitals(self):
         paragraph = [
             [Noun('money'), Verb('grab'), Noun('tea'), Punctuation.EXCLAMATION],
-            [Noun('tea'), Verb('ride', '', 'rode'), Noun('apple'), Punctuation.PERIOD],
+            [Noun('tea'), Verb('ride', 'rode', ''), Noun('apple'), Punctuation.PERIOD],
             [Noun('apple'), Verb('surprise'), Noun('gold'), Punctuation.PERIOD],
-            [Noun('gold'), Verb('cut', '', 'cut'), Pronoun.IT, Punctuation.PERIOD],
-            [Pronoun.IT, Verb('have', '', 'had'), Noun('watch'), Punctuation.PERIOD]
+            [Noun('gold'), Verb('cut', 'cut', ''), Pronoun.IT, Punctuation.PERIOD],
+            [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), Punctuation.PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
         paragraph = grammarizer.generate_paragraph()
@@ -201,7 +202,7 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = [[Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
-        expected = [[IndefiniteNoun('A cat', '', 'cat'), ThirdPersonVerb('grabs', 'grab'),
+        expected = [[IndefiniteNoun('A cat', '', 'cat'), ThirdPersonVerb('grabs', '', 'grab'),
                      DefiniteNoun('the cat', '', 'cat'), Punctuation.EXCLAMATION]]
         self.assertEqual(paragraph, expected)
 
@@ -217,7 +218,7 @@ class TestGrammarizer(unittest.TestCase):
         raw_paragraph = [[UncountableNoun('water'), Verb('grab'), UncountableNoun('water'), Punctuation.PERIOD]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        expected = [[UncountableNoun('Water', '', 'water'), ThirdPersonVerb('grabs', 'grab'),
+        expected = [[UncountableNoun('Water', '', 'water'), ThirdPersonVerb('grabs', '', 'grab'),
                      DefiniteUncountableNoun('the water', '', 'water'), Punctuation.PERIOD]]
         self.assertEqual(paragraph, expected)
 
@@ -227,7 +228,7 @@ class TestGrammarizer(unittest.TestCase):
             [Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = ThirdPersonVerb('grabs', 'grab')
+        target_verb = ThirdPersonVerb('grabs', '', 'grab')
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
@@ -237,7 +238,7 @@ class TestGrammarizer(unittest.TestCase):
             [Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = NegativeThirdPersonVerb("doesn't grab", 'grab')
+        target_verb = NegativeThirdPersonVerb("doesn't grab", '', 'grab')
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
@@ -263,39 +264,40 @@ class TestGrammarizer(unittest.TestCase):
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = NegativeVerb("don't grab", 'grab')
+        target_verb = NegativeVerb("don't grab", '', 'grab')
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_past_tense_positive(self):
         raw_paragraph = [[UncountableNoun('water'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Noun('cat'), Verb('eat', '', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Pronoun.I, Verb('sing', '', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Noun('cat'), Verb('eat', 'ate', ''), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.I, Verb('sing', 'sang', ''), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.YOU, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Pronoun.WE, Verb('sing', '', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Pronoun.THEY, Verb('eat', '', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.WE, Verb('sing', 'sang', ''), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.THEY, Verb('eat', 'ate', ''), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0,
                                   probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
-        target_verbs = [PastVerb('grabbed', 'grab'), PastVerb('ate', 'eat', 'ate'), PastVerb('sang', 'sing', 'sang')]
+        target_verbs = [PastVerb('grabbed', '', 'grab'), PastVerb('ate', 'ate', 'eat'),
+                        PastVerb('sang', 'sang', 'sing')]
         for sentence in paragraph:
             self.assertIn(sentence[1], target_verbs)
 
     def test_generate_paragraph_past_tense_negative(self):
         raw_paragraph = [[UncountableNoun('water'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Noun('cat'), Verb('eat', '', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Pronoun.I, Verb('sing', '', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Noun('cat'), Verb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.I, Verb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.YOU, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Pronoun.WE, Verb('sing', '', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
-                         [Pronoun.THEY, Verb('eat', '', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.WE, Verb('sing', 'sang'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [Pronoun.THEY, Verb('eat', 'ate'), Noun('cat'), Punctuation.EXCLAMATION],
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0,
                                   probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
-        target_verbs = [NegativePastVerb("didn't grab", 'grab'),
-                        NegativePastVerb("didn't eat", 'eat', 'ate'),
-                        NegativePastVerb("didn't sing", 'sing', 'sang')]
+        target_verbs = [NegativePastVerb("didn't grab", '', 'grab'),
+                        NegativePastVerb("didn't eat", 'ate', 'eat'),
+                        NegativePastVerb("didn't sing", 'sang', 'sing')]
         for sentence in paragraph:
             self.assertIn(sentence[1], target_verbs)
 
@@ -356,9 +358,9 @@ class TestGrammarizer(unittest.TestCase):
         paragraph_1 = grammarizer.generate_paragraph()
         paragraph_2 = grammarizer.generate_paragraph()
         answer = [
-            [UncountableNoun('money').capitalize(), ThirdPersonVerb('grabs', 'grab'),
+            [UncountableNoun('money').capitalize(), ThirdPersonVerb('grabs', '', 'grab'),
              DefiniteUncountableNoun('the money', base='money'), Punctuation.EXCLAMATION],
-            [IndefiniteNoun('A cat', base='cat'), ThirdPersonVerb('grabs', 'grab'),
+            [IndefiniteNoun('A cat', base='cat'), ThirdPersonVerb('grabs', '', 'grab'),
              DefiniteNoun('the cat', base='cat'), Punctuation.EXCLAMATION]
         ]
         self.assertEqual(answer, paragraph_1)
