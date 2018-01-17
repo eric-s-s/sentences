@@ -3,28 +3,12 @@ from enum import Enum
 from sentences.words.word import Word
 
 
-class Pronoun(Enum):
-    I = 'I'
-    ME = 'me'
-
-    YOU = 'you'
-
-    HE = 'he'
-    HIM = 'him'
-
-    SHE = 'she'
-    HER = 'her'
-
-    IT = 'it'
-
-    WE = 'we'
-    US = 'us'
-
-    THEY = 'they'
-    THEM = 'them'
-
+class AbstractPronoun(Enum):
     def capitalize(self):
-        return Word(self.value.capitalize())
+        raise NotImplementedError
+
+    def de_capitalize(self):
+        raise NotImplementedError
 
     def bold(self):
         return Word(self.value).bold()
@@ -50,6 +34,60 @@ class Pronoun(Enum):
         return self
 
     def is_pair(self, other):
-        if not isinstance(other, Pronoun):
+        if not isinstance(other, AbstractPronoun):
             return False
         return self.subject() == other.subject()
+
+
+class Pronoun(AbstractPronoun):
+    I = 'I'
+    ME = 'me'
+
+    YOU = 'you'
+
+    HE = 'he'
+    HIM = 'him'
+
+    SHE = 'she'
+    HER = 'her'
+
+    IT = 'it'
+
+    WE = 'we'
+    US = 'us'
+
+    THEY = 'they'
+    THEM = 'them'
+
+    def capitalize(self):
+        return getattr(CapitalPronoun, self.name)
+
+    def de_capitalize(self):
+        return self
+
+
+class CapitalPronoun(AbstractPronoun):
+    I = 'I'
+    ME = 'Me'
+
+    YOU = 'You'
+
+    HE = 'He'
+    HIM = 'Him'
+
+    SHE = 'She'
+    HER = 'Her'
+
+    IT = 'It'
+
+    WE = 'We'
+    US = 'Us'
+
+    THEY = 'They'
+    THEM = 'Them'
+
+    def capitalize(self):
+        return self
+
+    def de_capitalize(self):
+        return getattr(Pronoun, self.name)
