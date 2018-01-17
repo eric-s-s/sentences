@@ -1,5 +1,6 @@
 import random
 import unittest
+from typing import List, Any
 
 from sentences.backend.errormaker import (de_capitalize, copy_paragraph, make_verb_error, make_noun_error,
                                           make_is_do_error, find_subject_special_case, ErrorMaker)
@@ -9,7 +10,7 @@ from sentences.words.punctuation import Punctuation
 from sentences.words.verb import (Verb, ThirdPersonVerb, PastVerb,
                                   NegativeVerb, NegativeThirdPersonVerb, NegativePastVerb)
 from sentences.words.word import Word, Preposition
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 
 
 class TestErrorMaker(unittest.TestCase):
@@ -25,11 +26,16 @@ class TestErrorMaker(unittest.TestCase):
             self.assertEqual(noun, to_test)
             self.assertEqual(type(noun), type(to_test))
 
+    def test_de_capitalize_with_pronoun(self):
+        expected = Pronoun.I
+        capital = expected.capitalize()
+        for p_noun in (expected, capital):
+            self.assertEqual(de_capitalize(p_noun), expected)
+
     def test_de_capitalize_other(self):
-        pronoun = Pronoun.HE
         word = Word('He')
         verb = Verb('He')
-        for test_word in [pronoun, word, verb]:
+        for test_word in [word, verb]:
             to_test = de_capitalize(test_word.capitalize())
             self.assertEqual(to_test.value, 'he')
             self.assertEqual(type(to_test), Word)
@@ -499,15 +505,17 @@ class TestErrorMaker(unittest.TestCase):
         self.assertEqual(all_error_maker.answer_paragraph, answer_paragraph)
 
     def test_error_maker_create_is_do_errors_all_pronouns(self):
-        predicate = [Verb('go'), Noun('home'), Punctuation.PERIOD]
+        predicate = [Verb('go'), Noun('home'), Punctuation.PERIOD]  # type: List[Any]
         expected = {
-            (Pronoun.I, Word('I')): Word('am go'),
-            (Pronoun.HE, Pronoun.SHE, Pronoun.IT, Word('He'), Word('She'), Word('It')): Word('is go'),
-            (Pronoun.YOU, Pronoun.WE, Pronoun.THEY, Word('You'), Word('We'), Word('They')): Word('are go')
+            (Pronoun.I, CapitalPronoun.I): Word('am go'),
+            (Pronoun.HE, Pronoun.SHE, Pronoun.IT,
+             CapitalPronoun.HE, CapitalPronoun.SHE, CapitalPronoun.IT): Word('is go'),
+            (Pronoun.YOU, Pronoun.WE, Pronoun.THEY,
+             CapitalPronoun.YOU, CapitalPronoun.WE, CapitalPronoun.THEY): Word('are go')
         }
         for subj_list, is_do in expected.items():
             for subj in subj_list:
-                paragraph = [[subj] + predicate]
+                paragraph = [[subj] + predicate]  # type: List[Any]
                 error_maker = ErrorMaker(paragraph, p_error=1.0)
                 error_maker.create_is_do_errors()
                 self.assertEqual(error_maker.error_paragraph[0][1], is_do)

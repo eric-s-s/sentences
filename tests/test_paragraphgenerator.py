@@ -6,9 +6,8 @@ from sentences.paragraphsgenerator import ParagraphsGenerator
 
 from sentences import COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
 from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.noun import Noun
-from sentences.words.word import Word
 from sentences.words.punctuation import Punctuation
 
 from tests import TESTS_FILES
@@ -177,12 +176,11 @@ class TestParagraphGenerator(unittest.TestCase):
                 self.assertIsInstance(sentence[0], Noun)
                 self.assertIsInstance(sentence[2], Noun)
 
-        capital_pronouns = [Word('I'), Word('You'), Word('They'), Word('We'), Word('He'), Word('She'), Word('It')]
         pg.update_options({'probability_pronoun': 1.0})
         for _ in range(10):
             paragraph = pg.create_paragraph()
             for sentence in paragraph:
-                self.assertIn(sentence[0], capital_pronouns)
+                self.assertIn(sentence[0], CapitalPronoun)
                 self.assertIsInstance(sentence[2], Pronoun)
 
     def test_create_paragraph_paragraph_size(self):

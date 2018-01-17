@@ -41,14 +41,16 @@ class TestAbstractPronoun(unittest.TestCase):
         cls.values = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
 
     def test_order(self):
+        # names = ['I', 'ME', 'YOU', 'HE', 'HIM', 'SHE', 'HER', 'IT', 'WE', 'US', 'THEY', 'THEM']
         p_list = list(self.pronoun.__members__.values())
         expected = [getattr(self.pronoun, name) for name in self.names]
         self.assertEqual(p_list, expected)
 
     def test_pronoun_values(self):
+
         for name, value in zip(self.names, self.values):
             self.assertEqual(getattr(self.pronoun, name).value, value)
-        
+
     def test_pronoun_object(self):
         self.assertEqual(self.pronoun.I.object(), self.pronoun.ME)
         self.assertEqual(self.pronoun.ME.object(), self.pronoun.ME)
@@ -77,28 +79,18 @@ class TestAbstractPronoun(unittest.TestCase):
         self.assertEqual(self.pronoun.THEY.subject(), self.pronoun.THEY)
         self.assertEqual(self.pronoun.THEM.subject(), self.pronoun.THEY)
 
-    # def test_pronoun_capitalize(self):
-    #     self.assertEqual(self.pronoun.I.capitalize(), CapitalPronoun.I)
-    #     self.assertEqual(self.pronoun.ME.capitalize(), CapitalPronoun.ME)
-    #     self.assertEqual(self.pronoun.YOU.capitalize(), CapitalPronoun.YOU)
-    #     self.assertEqual(self.pronoun.HE.capitalize(), CapitalPronoun.HE)
-    #     self.assertEqual(self.pronoun.HIM.capitalize(), CapitalPronoun.HIM)
-    #     self.assertEqual(self.pronoun.SHE.capitalize(), CapitalPronoun.SHE)
-    #     self.assertEqual(self.pronoun.HER.capitalize(), CapitalPronoun.HER)
-    #     self.assertEqual(self.pronoun.IT.capitalize(), CapitalPronoun.IT)
-    #     self.assertEqual(self.pronoun.WE.capitalize(), CapitalPronoun.WE)
-    #     self.assertEqual(self.pronoun.US.capitalize(), CapitalPronoun.US)
-    #     self.assertEqual(self.pronoun.THEY.capitalize(), CapitalPronoun.THEY)
-    #     self.assertEqual(self.pronoun.THEM.capitalize(), CapitalPronoun.THEM)
-
     def test_bold(self):
-        self.assertEqual(self.pronoun.I.bold(), Word('<bold>{}</bold>'.format(self.pronoun.I.value)))
+        for pronoun in self.pronoun.__members__.values():
+            self.assertEqual(pronoun.bold(), Word('<bold>{}</bold>'.format(pronoun.value)))
 
     def test_is_pair_non_pronoun(self):
         self.assertFalse(self.pronoun.ME.is_pair('me'))
 
     def test_is_pair_different_type_pronoun(self):
-        self.assertFalse(self.pronoun.I.is_pair(CapitalPronoun.I))
+        other_type = Pronoun
+        if self.pronoun == Pronoun:
+            other_type = CapitalPronoun
+        self.assertFalse(self.pronoun.I.is_pair(other_type.I))
 
     def test_is_pair_true_on_pairs(self):
         self.assertTrue(self.pronoun.I.is_pair(self.pronoun.ME))
@@ -133,95 +125,39 @@ class TestAbstractPronoun(unittest.TestCase):
                     self.assertFalse(first[1].is_pair(second[1]))
 
 
-class TestPronoun(unittest.TestCase):
+class TestPronoun(TestAbstractPronoun):
 
-    def test_pronoun_values(self):
-        self.assertEqual(I.value, 'I')
-        self.assertEqual(me.value, 'me')
-        self.assertEqual(you.value, 'you')
-        self.assertEqual(he.value, 'he')
-        self.assertEqual(him.value, 'him')
-        self.assertEqual(she.value, 'she')
-        self.assertEqual(her.value, 'her')
-        self.assertEqual(it.value, 'it')
-        self.assertEqual(we.value, 'we')
-        self.assertEqual(us.value, 'us')
-        self.assertEqual(they.value, 'they')
-        self.assertEqual(them.value, 'them')
-
-    def test_pronoun_object(self):
-        self.assertEqual(I.object(), me)
-        self.assertEqual(me.object(), me)
-        self.assertEqual(you.object(), you)
-        self.assertEqual(he.object(), him)
-        self.assertEqual(him.object(), him)
-        self.assertEqual(she.object(), her)
-        self.assertEqual(her.object(), her)
-        self.assertEqual(it.object(), it)
-        self.assertEqual(we.object(), us)
-        self.assertEqual(us.object(), us)
-        self.assertEqual(they.object(), them)
-        self.assertEqual(them.object(), them)
-
-    def test_pronoun_subject(self):
-        self.assertEqual(I.subject(), I)
-        self.assertEqual(me.subject(), I)
-        self.assertEqual(you.subject(), you)
-        self.assertEqual(he.subject(), he)
-        self.assertEqual(him.subject(), he)
-        self.assertEqual(she.subject(), she)
-        self.assertEqual(her.subject(), she)
-        self.assertEqual(it.subject(), it)
-        self.assertEqual(we.subject(), we)
-        self.assertEqual(us.subject(), we)
-        self.assertEqual(they.subject(), they)
-        self.assertEqual(them.subject(), they)
+    @classmethod
+    def setUpClass(cls):
+        super(TestPronoun, cls).setUpClass()
+        cls.pronoun = Pronoun
+        cls.values = ['I', 'me', 'you', 'he', 'him', 'she', 'her', 'it', 'we', 'us', 'they', 'them']
 
     def test_pronoun_capitalize(self):
-        self.assertEqual(I.capitalize(), CapitalPronoun.I)
-        self.assertEqual(me.capitalize(), CapitalPronoun.ME)
-        self.assertEqual(you.capitalize(), CapitalPronoun.YOU)
-        self.assertEqual(he.capitalize(), CapitalPronoun.HE)
-        self.assertEqual(him.capitalize(), CapitalPronoun.HIM)
-        self.assertEqual(she.capitalize(), CapitalPronoun.SHE)
-        self.assertEqual(her.capitalize(), CapitalPronoun.HER)
-        self.assertEqual(it.capitalize(), CapitalPronoun.IT)
-        self.assertEqual(we.capitalize(), CapitalPronoun.WE)
-        self.assertEqual(us.capitalize(), CapitalPronoun.US)
-        self.assertEqual(they.capitalize(), CapitalPronoun.THEY)
-        self.assertEqual(them.capitalize(), CapitalPronoun.THEM)
+        for name in self.names:
+            current = getattr(self.pronoun, name)
+            capital = getattr(CapitalPronoun, name)
+            self.assertEqual(current.capitalize(), capital)
 
-    def test_bold(self):
-        self.assertEqual(I.bold(), Word('<bold>I</bold>'))
+    def test_pronoun_de_capitalize(self):
+        for pronoun in self.pronoun.__members__.values():
+            self.assertEqual(pronoun.de_capitalize(), pronoun)
 
-    def test_is_pair_non_pronoun(self):
-        self.assertFalse(me.is_pair('me'))
 
-    def test_is_pair_different_type_pronoun(self):
-        self.assertFalse(I.is_pair(CapitalPronoun.I))
+class TestCapitalPronoun(TestAbstractPronoun):
 
-    def test_is_pair_true_on_pairs(self):
-        self.assertTrue(I.is_pair(me))
-        self.assertTrue(I.is_pair(I))
-        self.assertTrue(he.is_pair(him))
-        self.assertTrue(him.is_pair(he))
-        self.assertTrue(she.is_pair(her))
-        self.assertTrue(her.is_pair(she))
-        self.assertTrue(we.is_pair(us))
-        self.assertTrue(us.is_pair(we))
-        self.assertTrue(them.is_pair(they))
-        self.assertTrue(they.is_pair(them))
+    @classmethod
+    def setUpClass(cls):
+        super(TestCapitalPronoun, cls).setUpClass()
+        cls.pronoun = CapitalPronoun
+        cls.values = ['I', 'Me', 'You', 'He', 'Him', 'She', 'Her', 'It', 'We', 'Us', 'They', 'Them']
 
-    def test_is_pair_true_on_equal(self):
-        for pronoun in Pronoun:
-            self.assertTrue(pronoun.is_pair(pronoun))
+    def test_pronoun_de_capitalize(self):
+        for name in self.names:
+            current = getattr(self.pronoun, name)
+            lower = getattr(Pronoun, name)
+            self.assertEqual(current.de_capitalize(), lower)
 
-    def test_is_pair_false(self):
-        pairs = [(I, me), (you, you), (he, him), (she, her), (it, it), (we, us), (they, them)]
-        for first in pairs:
-            for second in pairs:
-                if first != second:
-                    self.assertFalse(first[0].is_pair(second[0]))
-                    self.assertFalse(first[1].is_pair(second[0]))
-                    self.assertFalse(first[0].is_pair(second[1]))
-                    self.assertFalse(first[1].is_pair(second[1]))
+    def test_pronoun_capitalize(self):
+        for pronoun in self.pronoun.__members__.values():
+            self.assertEqual(pronoun.capitalize(), pronoun)
