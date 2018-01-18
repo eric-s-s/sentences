@@ -34,13 +34,11 @@ def find_subject(raw_sentence) -> int:
 
 
 def is_third_person(word) -> bool:
-    if isinstance(word, (Pronoun, CapitalPronoun)):
-        pronouns = [Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT]
-        capitals = [CapitalPronoun.HE, CapitalPronoun.HIM, CapitalPronoun.SHE, CapitalPronoun.HER, CapitalPronoun.IT]
-        return word in pronouns or word in capitals
     if isinstance(word, Noun):
         return not isinstance(word, PluralNoun)
-    return False
+    pronouns = [Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT]
+    capitals = [CapitalPronoun.HE, CapitalPronoun.HIM, CapitalPronoun.SHE, CapitalPronoun.HER, CapitalPronoun.IT]
+    return word in pronouns or word in capitals
 
 
 def is_word_in_sentence(word, raw_sentence):
