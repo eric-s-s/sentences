@@ -26,30 +26,30 @@ class Verb(Word):
         return self.__class__(value, self.irregular_past, self.infinitive)
 
     def past_tense(self):
-        past_tense_value = self._irregular_past
+        past_tense_value = self.irregular_past
         if not past_tense_value:
-            past_tense_value = Word(self._inf).add_ed().value
-        return PastVerb(past_tense_value, self._irregular_past, self._inf)
+            past_tense_value = Word(self.infinitive).add_ed().value
+        return PastVerb(past_tense_value, self.irregular_past, self.infinitive)
 
     def third_person(self):
-        with_s = Word(self._inf).add_s().value
+        with_s = Word(self.infinitive).add_s().value
         if with_s == 'haves':
             with_s = 'has'
-        return ThirdPersonVerb(with_s, self._irregular_past, self._inf)
+        return ThirdPersonVerb(with_s, self.irregular_past, self.infinitive)
 
     def capitalize(self):
         class_ = self.__class__
-        return class_(self.value.capitalize(), self._irregular_past, self._inf)
+        return class_(self.value.capitalize(), self.irregular_past, self.infinitive)
 
     def negative(self):
-        return NegativeVerb("don't " + self.infinitive, self._irregular_past, self._inf)
+        return NegativeVerb("don't " + self.infinitive, self.irregular_past, self.infinitive)
 
     def to_base_verb(self):
-        return Verb(self._inf, self._irregular_past, '')
+        return Verb(self.infinitive, self.irregular_past, '')
 
     def __repr__(self):
         return '{}({!r}, {!r}, {!r})'.format(
-            self.__class__.__name__, self.value, self._irregular_past, self._inf
+            self.__class__.__name__, self.value, self.irregular_past, self.infinitive
         )
 
     def __eq__(self, other):

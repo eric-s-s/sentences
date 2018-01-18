@@ -100,7 +100,7 @@ class ParagraphsGenerator(object):
             error_maker.create_period_errors: 'punctuation_errors',
         }
         for method in error_maker.method_order:
-            if self._options[options_keys[method]]:  # TODO
+            if self._options[options_keys[method]]:
                 method()
 
         error_count = ' -- error count: {}'

@@ -181,7 +181,7 @@ class TestParagraphGenerator(unittest.TestCase):
         for _ in range(10):
             paragraph = pg.create_paragraph()
             for sentence in paragraph:
-                self.assertIn(sentence[0], CapitalPronoun)
+                self.assertIsInstance(sentence[0], CapitalPronoun)
                 self.assertIsInstance(sentence[2], Pronoun)
 
     def test_create_paragraph_paragraph_size(self):

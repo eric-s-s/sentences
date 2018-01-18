@@ -202,9 +202,9 @@ class TestVerb(unittest.TestCase):
 
     def test_equality_by_all_three_values_and_type(self):
         test = Verb('a', 'b', 'c')
-        by_value = Verb('q', 'b', 'b')
-        by_infinitive = Verb('a', 'b', 'q')
+        by_value = Verb('q', 'b', 'c')
         by_irregular = Verb('a', 'q', 'c')
+        by_infinitive = Verb('a', 'b', 'q')
 
         for verb in [by_infinitive, by_value, by_irregular]:
             self.assertNotEqual(test, verb)
