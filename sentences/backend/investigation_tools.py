@@ -1,4 +1,4 @@
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.verb import Verb
 from sentences.words.noun import Noun, PluralNoun
 from sentences.words.word import Word
@@ -11,7 +11,7 @@ def get_present_be_verb(sentence):
     subj = sentence[subj_index]
     if requires_third_person(sentence):
         return Word('is')
-    elif subj in (Pronoun.I, Pronoun.ME, Word('I')):
+    elif subj in (Pronoun.I, Pronoun.ME, CapitalPronoun.I, CapitalPronoun.ME):
         return Word('am')
     else:
         return Word('are')
@@ -34,11 +34,11 @@ def find_subject(raw_sentence) -> int:
 
 
 def is_third_person(word) -> bool:
-    if isinstance(word, Pronoun):
-        return word in (Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT)
     if isinstance(word, Noun):
         return not isinstance(word, PluralNoun)
-    return word in [Word('He'), Word('She'), Word('It')]
+    pronouns = [Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT]
+    capitals = [CapitalPronoun.HE, CapitalPronoun.HIM, CapitalPronoun.SHE, CapitalPronoun.HER, CapitalPronoun.IT]
+    return word in pronouns or word in capitals
 
 
 def is_word_in_sentence(word, raw_sentence):

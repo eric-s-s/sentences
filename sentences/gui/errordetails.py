@@ -19,6 +19,7 @@ class ErrorDetails(SetVariablesFrame):
         self.error_probability.pack(side=tk.LEFT)
 
         self.noun_errors = tk.IntVar()
+        self.pronoun_errors = tk.IntVar()
         self.verb_errors = tk.IntVar()
         self.is_do_errors = tk.IntVar()
         self.preposition_transpose_errors = tk.IntVar()
@@ -30,6 +31,7 @@ class ErrorDetails(SetVariablesFrame):
         tk.Checkbutton(master=self, text='select/de-select all', variable=self.select_all,
                        command=self._toggle_all).pack(anchor=tk.W)
         tk.Checkbutton(master=self, text='noun errors', variable=self.noun_errors).pack(anchor=tk.W, padx=15)
+        tk.Checkbutton(master=self, text='pronoun errors', variable=self.pronoun_errors).pack(anchor=tk.W, padx=15)
         tk.Checkbutton(master=self, text='verb errors', variable=self.verb_errors).pack(anchor=tk.W, padx=15)
         tk.Checkbutton(master=self, text='is do errors', variable=self.is_do_errors).pack(anchor=tk.W, padx=15)
         tk.Checkbutton(
@@ -39,7 +41,7 @@ class ErrorDetails(SetVariablesFrame):
 
     def _toggle_all(self):
         all_state = self.select_all.get()
-        for intvar in [self.noun_errors, self.verb_errors, self.is_do_errors,
+        for intvar in [self.noun_errors, self.pronoun_errors, self.verb_errors, self.is_do_errors,
                        self.preposition_transpose_errors, self.punctuation_errors]:
             intvar.set(all_state)
 
@@ -48,6 +50,7 @@ class ErrorDetails(SetVariablesFrame):
         :keys:
         - error_probability
         - noun_errors
+        - pronoun_errors
         - verb_errors
         - 'is_do_errors'
         - 'preposition_transpose_errors'
@@ -56,6 +59,7 @@ class ErrorDetails(SetVariablesFrame):
         return {
             'error_probability': self.error_probability.get_probability(),
             'noun_errors': bool(self.noun_errors.get()),
+            'pronoun_errors': bool(self.pronoun_errors.get()),
             'verb_errors': bool(self.verb_errors.get()),
             'is_do_errors': bool(self.is_do_errors.get()),
             'preposition_transpose_errors': bool(self.preposition_transpose_errors.get()),

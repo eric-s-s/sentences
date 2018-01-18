@@ -7,6 +7,8 @@ from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, NegativeVerb, PastVerb
 from sentences.words.word import Word, Preposition
 
+from sentences.words.pronoun import AbstractPronoun, Pronoun, CapitalPronoun
+
 
 def copy_paragraph(lst_of_lst):
     return [lst[:] for lst in lst_of_lst]
@@ -39,8 +41,10 @@ class ErrorMaker(object):
 
     @property
     def method_order(self):
-        methods = [self.create_noun_errors, self.create_verb_errors, self.create_is_do_errors,
-                   self.create_preposition_transpose_errors, self.create_period_errors]
+        methods = [
+            self.create_noun_errors, self.create_pronoun_errors, self.create_verb_errors, self.create_is_do_errors,
+            self.create_preposition_transpose_errors, self.create_period_errors
+        ]
         return methods
 
     def reset(self):
@@ -58,6 +62,19 @@ class ErrorMaker(object):
                         if index == 0:
                             new_noun = new_noun.capitalize()
                         sentence[index] = new_noun
+                        self._answer[s_index][index] = self._answer[s_index][index].bold()
+
+    def create_pronoun_errors(self):
+        excluded = [Pronoun.YOU, Pronoun.IT, CapitalPronoun.YOU, CapitalPronoun.IT]
+        for s_index, sentence in enumerate(self._error_paragraph):
+            for index, word in enumerate(sentence):
+                if isinstance(word, AbstractPronoun) and word not in excluded:
+                    if random.random() < self.p_error:
+                        self._error_count += 1
+                        new_pronoun = word.object()
+                        if new_pronoun == word:
+                            new_pronoun = word.subject()
+                        sentence[index] = new_pronoun
                         self._answer[s_index][index] = self._answer[s_index][index].bold()
 
     def create_verb_errors(self):
@@ -163,6 +180,9 @@ def make_verb_error(verb, is_third_person_noun):
 
 
 def de_capitalize(to_de_capitalize):
+    if isinstance(to_de_capitalize, AbstractPronoun):
+        return to_de_capitalize.de_capitalize()
+
     old_value = to_de_capitalize.value
     new_value = old_value[0].lower() + old_value[1:]
     if isinstance(to_de_capitalize, Noun):

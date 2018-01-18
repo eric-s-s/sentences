@@ -14,6 +14,7 @@ class TestErrorDetails(unittest.TestCase):
         self.assertEqual(answer, {
             'error_probability': 0.0,
             'noun_errors': False,
+            'pronoun_errors': False,
             'verb_errors': False,
             'is_do_errors': False,
             'preposition_transpose_errors': False,
@@ -33,6 +34,7 @@ class TestErrorDetails(unittest.TestCase):
         self.assertEqual(self.frame.get_values(), {
             'error_probability': 0.0,
             'noun_errors': True,
+            'pronoun_errors': True,
             'verb_errors': True,
             'is_do_errors': True,
             'preposition_transpose_errors': True,
@@ -43,6 +45,7 @@ class TestErrorDetails(unittest.TestCase):
         self.assertEqual(self.frame.get_values(), {
             'error_probability': 0.0,
             'noun_errors': False,
+            'pronoun_errors': False,
             'verb_errors': False,
             'is_do_errors': False,
             'preposition_transpose_errors': False,
@@ -52,6 +55,7 @@ class TestErrorDetails(unittest.TestCase):
     def test_set_get_values(self):
         self.frame.set_variable('error_probability', 0.3)
         self.frame.set_variable('noun_errors', True)
+        self.frame.set_variable('pronoun_errors', True)
         self.frame.set_variable('verb_errors', False)
         self.frame.set_variable('is_do_errors', True)
         self.frame.set_variable('preposition_transpose_errors', False)
@@ -59,6 +63,7 @@ class TestErrorDetails(unittest.TestCase):
         self.assertEqual(self.frame.get_values(), {
             'error_probability': 0.3,
             'noun_errors': True,
+            'pronoun_errors': True,
             'verb_errors': False,
             'is_do_errors': True,
             'preposition_transpose_errors': False,

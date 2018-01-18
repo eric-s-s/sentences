@@ -16,6 +16,7 @@ class ParagraphsGenerator(object):
 
         - 'error_probability'
         - 'noun_errors'
+        - 'pronoun_errors'
         - 'verb_errors'
         - 'is_do_errors'
         - 'preposition_transpose_errors'
@@ -92,6 +93,7 @@ class ParagraphsGenerator(object):
 
         options_keys = {
             error_maker.create_noun_errors: 'noun_errors',
+            error_maker.create_pronoun_errors: 'pronoun_errors',
             error_maker.create_verb_errors: 'verb_errors',
             error_maker.create_is_do_errors: 'is_do_errors',
             error_maker.create_preposition_transpose_errors: 'preposition_transpose_errors',

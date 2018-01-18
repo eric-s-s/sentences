@@ -76,6 +76,18 @@ class TestNoun(unittest.TestCase):
         self.assertIsInstance(noun, UncountableNoun)
         self.assertIsInstance(noun, DefiniteUncountableNoun)
 
+    def test_noun_values(self):
+        test = Noun('a', 'b', 'c')
+        self.assertEqual(test.value, 'a')
+        self.assertEqual(test.irregular_plural, 'b')
+        self.assertEqual(test.base_noun, 'c')
+
+    def test_noun_empty_values(self):
+        test = Noun('a')
+        self.assertEqual(test.value, 'a')
+        self.assertEqual(test.irregular_plural, '')
+        self.assertEqual(test.base_noun, 'a')
+
     def test_capitalize_is_still_noun(self):
         noun = Noun('dog').capitalize()
         self.assertIsInstance(noun, Noun)

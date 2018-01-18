@@ -11,7 +11,7 @@ from sentences.words.word import Preposition
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
-i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
+i, me, you, he, him, she, her, it, we, us, they, them = Pronoun.__members__.values()
 
 
 class TestRawWordsRandomisation(unittest.TestCase):

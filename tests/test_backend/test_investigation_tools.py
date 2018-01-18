@@ -1,14 +1,15 @@
 import unittest
+from typing import List, Any
 
 from sentences.backend.investigation_tools import (requires_third_person, is_third_person, find_subject,
                                                    is_word_in_sentence, get_present_be_verb)
 from sentences.words.noun import Noun, UncountableNoun
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
 from sentences.words.word import Word, Preposition
 
-i, me, you, he, him, she, her, it, we, us, they, them = Pronoun
+i, me, you, he, him, she, her, it, we, us, they, them = Pronoun.__members__.values()
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
 
@@ -39,16 +40,18 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertFalse(is_third_person(Word('dog')))
 
     def test_is_third_person_pronouns_true(self):
-        for third_person in [he, she, it, him, her]:
+        names = ['HE', 'SHE', 'IT', 'HIM', 'HER']
+        lower = [getattr(Pronoun, name) for name in names]
+        upper = [getattr(CapitalPronoun, name) for name in names]
+        for third_person in lower + upper:
             self.assertTrue(is_third_person(third_person))
 
     def test_is_third_person_pronouns_false(self):
-        for not_it in [i, me, you, we, us, they, them]:
+        names = ['I', 'ME', 'YOU', 'WE', 'US', 'THEY', 'THEM']
+        lower = [getattr(Pronoun, name) for name in names]
+        upper = [getattr(CapitalPronoun, name) for name in names]
+        for not_it in lower + upper:
             self.assertFalse(is_third_person(not_it))
-
-    def test_is_third_person_capitalized_pronouns_as_words(self):
-        for word in [Word('He'), Word('She'), Word('It')]:
-            self.assertTrue(is_third_person(word))
 
     def test_is_third_person_all_non_plural_nouns(self):
         noun = Noun('dog')
@@ -110,14 +113,14 @@ class TestInvestigationTools(unittest.TestCase):
 
     def test_get_present_be_verb_is(self):
         predicate = [Verb('play').third_person(), period]
-        subjs = [he, him, she, her, it, Word('He'), Word('She'), Word('It'),
-                 UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite()]
-        for subj in subjs:
+        p_nouns = [he, him, she, her, it]
+        capital_p_nouns = [p_noun.capitalize() for p_noun in p_nouns]
+        subjs = [UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite()]
+        for subj in p_nouns + capital_p_nouns + subjs:
             self.assertEqual(get_present_be_verb([subj] + predicate), Word('is'))
 
     def test_get_present_be_verb_am(self):
-        predicate = [Verb('play'), period]
-        subjs = [i, me, i.capitalize()]
+        predicate = [Verb('play'), period]  # type: List[Any]
+        subjs = [Pronoun.I, Pronoun.ME, CapitalPronoun.I, CapitalPronoun.ME]
         for subj in subjs:
             self.assertEqual(get_present_be_verb([subj] + predicate), Word('am'))
-
