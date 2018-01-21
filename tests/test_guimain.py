@@ -10,7 +10,7 @@ from sentences import DATA_PATH, APP_NAME
 from tests import TESTS_FILES
 from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
                                     VERBS_CSV, DEFAULT_SAVE_DIR, ConfigLoader, get_documents_folder)
-
+from sentences.gui.filemanagement import FileManagement
 
 from sentences.guimain import MainFrame
 from sentences.words.verb import Verb
@@ -250,12 +250,58 @@ class TestGuiMain(unittest.TestCase):
         filecmp.cmp(src, dst.replace('.csv', '_old_01.csv'), shallow=False)
 
     @patch("sentences.guimain.showerror")
+    def test_change_file_bad_file_by_config(self, mock_error):
+        bad_file = os.path.join(DATA_PATH, 'go_time.ico')
+        main = MainFrame()
+        for count, key in enumerate(('countable_nouns', 'uncountable_nouns', 'verbs')):
+            self.assertEqual(mock_error.call_count, count)
+            main.revert_to_original()
+            loader = ConfigLoader()
+            loader.save_and_reload({key: bad_file})
+
+            main.load_config()
+            message = ('LoaderError: Could not read CSV file. ' +
+                       'If you edited it in MSWord or something similar, it got formatted. Use "notepad"')
+            mock_error.assert_called_with('Bad file', message)
+            self.assertEqual(mock_error.call_count, count + 1)
+
+    @patch("sentences.guimain.showerror")
+    def test_change_file_bad_file_showerror_called_on_value_change(self, mock_error):
+
+        bad_file = os.path.join(DATA_PATH, 'go_time.ico')
+        main = MainFrame()
+        files_frame = None
+        for child in main.winfo_children():
+            if isinstance(child, FileManagement):
+                files_frame = child
+        for count, key in enumerate(('countable_nouns', 'uncountable_nouns', 'verbs')):
+            self.assertEqual(mock_error.call_count, count)
+            main.revert_to_original()
+            files_frame.set_variable(key, bad_file)
+
+            message = ('LoaderError: Could not read CSV file. ' +
+                       'If you edited it in MSWord or something similar, it got formatted. Use "notepad"')
+            mock_error.assert_called_with('Bad file', message)
+            self.assertEqual(mock_error.call_count, count + 1)
+
+    @patch("sentences.guimain.showerror")
     def test_create_texts_missing_words(self, mock_error):
         ConfigLoader()
         with open(os.path.join(APP_FOLDER, VERBS_CSV), 'w') as f:
             f.write('')
         MainFrame().create_texts()
         mock_error.assert_called_with('Uh-oh!', 'ValueError: There are no verbs in the verb list.')
+
+    @patch("sentences.guimain.showerror")
+    def test_create_texts_reloads_words(self, mock_error):
+        ConfigLoader()
+        main = MainFrame()
+        with open(os.path.join(APP_FOLDER, VERBS_CSV), 'w') as f:
+            f.write('')
+        main.create_texts()
+        mock_error.assert_called_with('Uh-oh!', 'ValueError: There are no verbs in the verb list.')
+        self.assertFalse(os.path.exists(os.path.join(APP_FOLDER, DEFAULT_SAVE_DIR, '01_answer.pdf')))
+        self.assertFalse(os.path.exists(os.path.join(APP_FOLDER, DEFAULT_SAVE_DIR, '01_error.pdf')))
 
     @patch("sentences.guimain.CancelableMessagePopup")
     def test_message_popup_create_texts(self, mock_popup):

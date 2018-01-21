@@ -1,3 +1,4 @@
+from functools import wraps
 import tkinter as tk
 from tkinter.messagebox import showerror
 import os
@@ -18,6 +19,20 @@ from sentences.gui.gui_tools import IntSpinBox, CancelableMessagePopup
 from sentences.gui.readme_text import ReadMeText
 
 from sentences.backend.loader import LoaderError
+
+
+def catch_errors(title, extra_message=''):
+    def decorator(func):
+        @wraps(func)
+        def catch_wrapper(*args):
+            try:
+                return func(*args)
+            except (ValueError, LoaderError) as e:
+                message = extra_message + '{}: {}'.format(e.__class__.__name__, e.args[0])
+                showerror(title, message)
+
+        return catch_wrapper
+    return decorator
 
 
 class MainFrame(tk.Tk):
@@ -44,6 +59,10 @@ class MainFrame(tk.Tk):
                        'The original word files were moved to <name>_old_(number).csv and replaced with new files.')
             showerror('Bad start file', message.format(e.__class__.__name__, e.args[0]))
 
+        for frame in self.frames:
+            if isinstance(frame, FileManagement):
+                frame.trace_file_names(self.update_paragraph_generator)
+
         self.do_not_show_popup = tk.IntVar()
         self.do_not_show_popup.set(0)
 
@@ -53,11 +72,13 @@ class MainFrame(tk.Tk):
         button_kwargs = [
             {'text': 'Save current settings', 'command': self.set_config, 'bg': 'CadetBlue1'},
             {'text': 'Reset to saved settings', 'command': self.load_config, 'bg': 'aquamarine2'},
-            {'text': 'Update from word files', 'command': self.reload_files, 'bg': 'light goldenrod'},
+            {},
             {'text': 'New default word files', 'command': self.default_word_files, 'bg': 'plum1'},
             {'text': 'Factory Reset', 'command': self.revert_to_original, 'bg': 'firebrick1'},
         ]
         for row, kwargs in enumerate(button_kwargs):
+            if not kwargs:
+                continue
             tk.Button(master=action_frame, **kwargs).grid(row=row, column=0, padx=padx, pady=pady)
 
         tk.Entry(master=action_frame, textvar=self.file_prefix).grid(row=0, column=1, sticky=tk.E, padx=2, pady=pady)
@@ -96,6 +117,10 @@ class MainFrame(tk.Tk):
 
         return error_details, file_management, grammar_details, paragraph_type
 
+    @catch_errors('Bad file')
+    def update_paragraph_generator(self, *call_back_args):
+        self.paragraph_generator.update_options(self.get_state())
+
     def reload_files(self):
         try:
             self.paragraph_generator.load_lists_from_file()
@@ -133,22 +158,22 @@ class MainFrame(tk.Tk):
             file_prefix = None
         return {'font_size': self.font_size.get_int(), 'file_prefix': file_prefix}
 
+    @catch_errors('Uh-oh!')
     def create_texts(self):
         state = self.get_state()
         file_prefix = self.file_prefix.get().strip()
         font_size = self.font_size.get_int()
-        try:
-            self.paragraph_generator.update_options(state)
-            answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
-            create_pdf(state['save_directory'], answer, error, error_font_size=font_size, named_prefix=file_prefix)
-        except ValueError as e:
-            message = '{}: {}'.format(e.__class__.__name__, e.args[0])
-            showerror('Uh-oh!', message)
-        else:
-            if not self.do_not_show_popup.get():
-                CancelableMessagePopup('success',
-                                       'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
-                                       self.do_not_show_popup)
+
+        self.paragraph_generator.update_options(state)
+        self.paragraph_generator.load_lists_from_file()
+        answer, error = self.paragraph_generator.create_answer_and_error_paragraphs()
+        create_pdf(state['save_directory'], answer, error,
+                   error_font_size=font_size, named_prefix=file_prefix)
+
+        if not self.do_not_show_popup.get():
+            CancelableMessagePopup('success',
+                                   'Your files are located at:\n{}'.format(self.get_state()['save_directory']),
+                                   self.do_not_show_popup)
 
     def revert_to_original(self):
         loader = ConfigLoader()

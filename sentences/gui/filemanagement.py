@@ -41,3 +41,8 @@ class FileManagement(SetVariablesFrame):
             'uncountable_nouns': self.uncountable_nouns.get(),
             'verbs': self.verbs.get()
         }
+
+    def trace_file_names(self, callback):
+        self.countable_nouns.trace_variable('w', callback)
+        self.uncountable_nouns.trace_variable('w', callback)
+        self.verbs.trace_variable('w', callback)

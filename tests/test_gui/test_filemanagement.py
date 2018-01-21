@@ -66,3 +66,35 @@ class TestFileManagement(unittest.TestCase):
 
         FilenameVar.popup_func = original_file_var_func
         DirectoryVar.popup_func = original_dir_var_func
+
+    def test_trace_file_names(self):
+        class CountObj(object):
+            def __init__(self):
+                self.call_args = []
+
+            def call_with(self, *call_back_args):
+                self.call_args.append(call_back_args)
+
+        to_test = CountObj()
+        self.frame.trace_file_names(to_test.call_with)
+
+        self.frame.set_variable('home_directory', 'home')
+        self.frame.set_variable('save_directory', 'save')
+
+        self.assertEqual(to_test.call_args, [])
+
+        self.frame.set_variable('verbs', 'verbs')
+        self.frame.set_variable('verbs', 'also verbs')
+
+        self.assertEqual(len(to_test.call_args), 2)
+        self.assertEqual(to_test.call_args[0], to_test.call_args[1])
+
+        self.frame.set_variable('countable_nouns', 'countable')
+
+        self.assertEqual(len(to_test.call_args), 3)
+        self.assertNotEqual(to_test.call_args[2], to_test.call_args[0])
+
+        self.frame.set_variable('uncountable_nouns', 'uncountable')
+
+        self.assertEqual(len(to_test.call_args), 4)
+        self.assertNotEqual(to_test.call_args[3], to_test.call_args[0])
