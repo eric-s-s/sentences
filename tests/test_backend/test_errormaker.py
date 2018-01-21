@@ -301,12 +301,13 @@ class TestErrorMaker(unittest.TestCase):
         error_maker.create_noun_errors()
         error_paragraph = [
             [Noun('Dog', '', 'dog'), grab.third_person(), Noun('cat'), Punctuation.EXCLAMATION],
-            [IndefiniteNoun('A cats', 'a catses', 'cat'), grab, Noun('dog'), Punctuation.EXCLAMATION]
+            [IndefiniteNoun('A cats', '', 'cat'), grab, Noun('dog'), Punctuation.EXCLAMATION]
         ]
         answer_paragraph = [
             [dog.indefinite().bold(), grab.third_person(), cat.plural().bold(), Punctuation.EXCLAMATION],
             [cat.plural().definite().bold(), grab, dog.definite().bold(), Punctuation.EXCLAMATION]
         ]
+
         self.assertEqual(error_maker.error_paragraph, error_paragraph)
         self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
         self.assertEqual(error_maker.error_count, 4)

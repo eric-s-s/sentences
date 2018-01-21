@@ -211,7 +211,7 @@ class TestGrammarizer(unittest.TestCase):
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[PluralNoun('Cats', '', 'cat'), Verb('grab'),
-                     DefinitePluralNoun('the cats', 'the catses', 'cat'), Punctuation.EXCLAMATION]]
+                     DefinitePluralNoun('the cats', '', 'cat'), Punctuation.EXCLAMATION]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_uncountable_noun(self):

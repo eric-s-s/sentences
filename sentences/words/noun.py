@@ -19,59 +19,58 @@ class Noun(Word):
 
     def capitalize(self):
         value = super(Noun, self).capitalize().value
-        return self.__class__(value, self._irregular, self.base_noun)
+        return self.__class__(value, self.irregular_plural, self.base_noun)
 
     def indefinite(self) -> 'Noun':
         article = 'a '
         vowels = 'aeiouAEIOU'
         if any(self.value.startswith(vowel) for vowel in vowels):
             article = 'an '
-        return IndefiniteNoun(article + self.value, article + self.plural().value, self.base_noun)
+        return IndefiniteNoun(article + self.value, self.irregular_plural, self.base_noun)
 
     def definite(self) -> 'Noun':
-        class_ = _get_definite_class(self)
-
-        article = 'the '
-        return class_(article + self.value, article + self.plural().value, self.base_noun)
+        return DefiniteNoun('the ' + self.value, self.irregular_plural, self.base_noun)
 
     def plural(self) -> 'Noun':
-        class_ = _get_plural_class(self)
-
-        if self._irregular:
-            return class_(self._irregular, base=self.base_noun)
-        current = self.value
-        if any(current.endswith('{}fe'.format(vowel)) for vowel in 'aeiou'):
-            plural_val = current[:-2] + 'ves'
-        elif any(current.endswith('{}f'.format(vowel)) for vowel in 'al'):
-            plural_val = current[:-1] + 'ves'
-        else:
-            plural_val = self.add_s().value
-
-        return class_(plural_val, base=self.base_noun)
+        if self.irregular_plural:
+            return PluralNoun(self.irregular_plural, self.irregular_plural, base=self.base_noun)
+        return PluralNoun(get_plural_value(self), base=self.base_noun)
 
     def to_base_noun(self) -> 'Noun':
-        return Noun(self.base_noun)
+        return Noun(self.base_noun, self.irregular_plural)
     
     def __eq__(self, other):
-        return super(Noun, self).__eq__(other) and self.base_noun == other.base_noun
+        return (super(Noun, self).__eq__(other) and
+                (self.irregular_plural, self.base_noun) == (other.irregular_plural, other.base_noun))
 
     def __hash__(self):
         return super(Noun, self).__hash__()
 
     def __repr__(self):
-        return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self._irregular, self.base_noun)
+        return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self.irregular_plural, self.base_noun)
 
 
 class PluralNoun(Noun):
-    pass
+    def definite(self):
+        return DefinitePluralNoun('the ' + self.value, self.irregular_plural, self.base_noun)
 
 
 class DefiniteNoun(Noun):
-    pass
+    def plural(self):
+        plural_val = 'the ' + self.irregular_plural
+        if plural_val == 'the ':
+            plural_val = get_plural_value(self)
+        return DefinitePluralNoun(plural_val, self.irregular_plural, self.base_noun)
 
 
 class IndefiniteNoun(Noun):
-    pass
+    def plural(self):
+        if self.irregular_plural:
+            article = self.value.split(' ')[0]
+            plural_val = '{} {}'.format(article, self.irregular_plural)
+        else:
+            plural_val = get_plural_value(self)
+        return PluralNoun(plural_val, self.irregular_plural, self.base_noun)
 
 
 class DefinitePluralNoun(DefiniteNoun, PluralNoun):
@@ -79,26 +78,19 @@ class DefinitePluralNoun(DefiniteNoun, PluralNoun):
 
 
 class UncountableNoun(Noun):
-    pass
+    def definite(self):
+        return DefiniteUncountableNoun('the ' + self.value, self.irregular_plural, self.base_noun)
 
 
 class DefiniteUncountableNoun(UncountableNoun, DefiniteNoun):
     pass
 
 
-def _get_definite_class(noun):
-    current_class = noun.__class__
-    if isinstance(noun, DefiniteNoun):
-        return current_class
-    to_definite = {
-        UncountableNoun: DefiniteUncountableNoun,
-        PluralNoun: DefinitePluralNoun,
-
-    }
-    return to_definite.get(current_class, DefiniteNoun)
-
-
-def _get_plural_class(noun):
-    if isinstance(noun, DefiniteNoun):
-        return DefinitePluralNoun
-    return PluralNoun
+def get_plural_value(noun):
+    value = noun.value
+    if value.endswith('ife'):
+        return value[:-3] + 'ives'
+    elif any(value.endswith('{}f'.format(ending)) for ending in ('al', 'el', 'ar', 'ea', 'ol')):
+        return value[:-1] + 'ves'
+    else:
+        return noun.add_s().value
