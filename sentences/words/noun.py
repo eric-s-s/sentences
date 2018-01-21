@@ -21,6 +21,10 @@ class Noun(Word):
         value = super(Noun, self).capitalize().value
         return self.__class__(value, self.irregular_plural, self.base_noun)
 
+    def de_capitalize(self):
+        value = self.value[0].lower() + self.value[1:]
+        return self.__class__(value, self.irregular_plural, self.base_noun)
+
     def indefinite(self) -> 'Noun':
         article = 'a '
         vowels = 'aeiouAEIOU'
@@ -84,6 +88,29 @@ class UncountableNoun(Noun):
 
 class DefiniteUncountableNoun(UncountableNoun, DefiniteNoun):
     pass
+
+
+class ProperNoun(Noun):
+    def plural(self):
+        return PluralProperNoun(get_plural_value(self), self.irregular_plural, self.base_noun)
+
+    def definite(self):
+        return self.__class__('The ' + self.value, self.irregular_plural, self.base_noun)
+
+    def indefinite(self):
+        article = 'A '
+        vowels = 'aeiouAEIOU'
+        if any(self.value.startswith(vowel) for vowel in vowels):
+            article = 'An '
+        return IndefiniteNoun(article + self.value, self.irregular_plural, self.base_noun)
+
+    def capitalize(self):
+        return self
+
+
+class PluralProperNoun(ProperNoun, PluralNoun):
+    def plural(self):
+        return self
 
 
 def get_plural_value(noun):

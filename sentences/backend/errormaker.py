@@ -180,17 +180,12 @@ def make_verb_error(verb, is_third_person_noun):
 
 
 def de_capitalize(to_de_capitalize):
-    if isinstance(to_de_capitalize, AbstractPronoun):
+    try:
         return to_de_capitalize.de_capitalize()
-
-    old_value = to_de_capitalize.value
-    new_value = old_value[0].lower() + old_value[1:]
-    if isinstance(to_de_capitalize, Noun):
-        base = to_de_capitalize.base_noun
-        new_word = to_de_capitalize.__class__(new_value, base=base)
-    else:
-        new_word = Word(new_value)
-    return new_word
+    except AttributeError:
+        old_value = to_de_capitalize.value
+        new_value = old_value[0].lower() + old_value[1:]
+        return Word(new_value)
 
 
 def make_is_do_error(verb, be_verb):

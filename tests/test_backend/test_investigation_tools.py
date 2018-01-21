@@ -3,7 +3,7 @@ from typing import List, Any
 
 from sentences.backend.investigation_tools import (requires_third_person, is_third_person, find_subject,
                                                    is_word_in_sentence, get_present_be_verb)
-from sentences.words.noun import Noun, UncountableNoun
+from sentences.words.noun import Noun, UncountableNoun, ProperNoun, PluralProperNoun
 from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
@@ -58,12 +58,14 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertTrue(is_third_person(noun))
         self.assertTrue(is_third_person(noun.definite()))
         self.assertTrue(is_third_person(noun.indefinite()))
+        self.assertTrue(is_third_person(ProperNoun('Bob')))
 
     def test_is_third_person_plural_nouns(self):
         noun = Noun('dog')
         self.assertFalse(is_third_person(noun.plural()))
         self.assertFalse(is_third_person(noun.definite().plural()))
         self.assertFalse(is_third_person(noun.plural().definite()))
+        self.assertFalse(is_third_person(PluralProperNoun('The Bobs')))
 
     def test_requires_third_person(self):
         answer = [it, Verb('steal', 'stole'), her, exclamation]
@@ -106,7 +108,7 @@ class TestInvestigationTools(unittest.TestCase):
 
     def test_get_present_be_verb_are(self):
         predicate = [Verb('play'), period]
-        subjs = [you, them, they, we, us, Word('You'), Word('They'), Word('We'),
+        subjs = [you, them, they, we, us, Word('You'), Word('They'), Word('We'), PluralProperNoun('The Guys'),
                  Noun('dog').plural(), Noun('dog').definite().plural(), Noun('dog').plural().capitalize()]
         for subj in subjs:
             self.assertEqual(get_present_be_verb([subj] + predicate), Word('are'))
@@ -115,7 +117,8 @@ class TestInvestigationTools(unittest.TestCase):
         predicate = [Verb('play').third_person(), period]
         p_nouns = [he, him, she, her, it]
         capital_p_nouns = [p_noun.capitalize() for p_noun in p_nouns]
-        subjs = [UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite()]
+        subjs = [UncountableNoun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite(),
+                 ProperNoun('Joe')]
         for subj in p_nouns + capital_p_nouns + subjs:
             self.assertEqual(get_present_be_verb([subj] + predicate), Word('is'))
 
