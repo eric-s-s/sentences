@@ -449,3 +449,6 @@ class TestNoun(unittest.TestCase):
 
         self.assertEqual(noun.capitalize(), noun)
         self.assertEqual(plural.capitalize(), plural)
+
+        sports_team = PluralProperNoun('the Guys')
+        self.assertEqual(sports_team.capitalize(), PluralProperNoun('The Guys', '', 'the Guys'))

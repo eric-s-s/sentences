@@ -149,7 +149,7 @@ class ErrorMaker(object):
             method()
 
 
-def make_noun_error(noun):
+def make_noun_error(noun):  # TODO proper nouns
     basic = noun.to_base_noun()
     if isinstance(noun, UncountableNoun):
         choices = [basic.indefinite(), basic.plural()]

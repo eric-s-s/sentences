@@ -1,0 +1,10 @@
+# lines starting with '#' are ignored.
+# name, 's' or 'p' for singular or plural
+
+Tom, s
+Dick, s
+Harry, s
+the Joneses, p
+the Kaohsiung Elephants, p
+"Jaces, Cunning Castaways", p
+"Jesse, ""The Body"", Ventura", s

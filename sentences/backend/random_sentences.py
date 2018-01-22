@@ -5,7 +5,7 @@ from sentences.words.punctuation import Punctuation
 
 
 class RandomSentences(object):
-    def __init__(self, verb_list, countable_list, uncountable_list):
+    def __init__(self, verb_list, countable_list, uncountable_list):  # TODO proper nouns
         self._pronouns = list(Pronoun.__members__.values())
         self._endings = [Punctuation.PERIOD, Punctuation.PERIOD, Punctuation.EXCLAMATION]
 

@@ -105,7 +105,8 @@ class ProperNoun(Noun):
         return IndefiniteNoun(article + self.value, self.irregular_plural, self.base_noun)
 
     def capitalize(self):
-        return self
+        new_val = self.value[0].upper() + self.value[1:]
+        return self.__class__(new_val, self.irregular_plural, self.base_noun)
 
 
 class PluralProperNoun(ProperNoun, PluralNoun):

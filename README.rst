@@ -17,9 +17,11 @@ To create an msi or dmg file:
 
     $ python setup_cx_freeze.py bdist_msi  # or bdist_mac
 
-note: There is an issue with creating a shortcut. See details `here
+**note:** There is an issue with creating a shortcut. See details `here
 <https://stackoverflow.com/questions/24195311/how-to-set-shortcut-working-directory-in-cx-freeze-msi-bundle>`_.
 
+**note:** The `.msi` file does not seem to do updates. Each separate version of the program must be uninstalled before
+the new one can be installed.
 
 GUI options details:
 --------------------
@@ -27,8 +29,6 @@ GUI options details:
 - **Main Options**
     - *Save current settings*: Saves the current setting to the config file. They will be set at startup.
     - *Reset to saved settings*: Reloads the config file.
-    - *Update from word files*: If you altered the CSV files containing your pool of countable nouns, uncountable nouns and
-      verbs, this will reload those files into the app.
     - *New default word files*: Moves "nouns.csv", "verbs.csv" and "uncountable.csv" to new locations (such as
       "nouns_old_01.csv") and then copies the default word files.
     - *Factory Reset*: Overwrites the config file and default word files without saving them.

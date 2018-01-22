@@ -1,8 +1,9 @@
+import csv
 import os
 
 from sentences import DATA_PATH, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
 
-from sentences.words.noun import Noun, UncountableNoun
+from sentences.words.noun import Noun, UncountableNoun, ProperNoun, PluralProperNoun
 from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 
@@ -13,17 +14,19 @@ class LoaderError(ValueError):
 
 def load_csv(filename):
     try:
-        with open(filename, 'r') as f:
-            lines = f.read().split('\n')
+        with open(filename, 'r', newline='') as f:
+            csv_reader = csv.reader(f, delimiter=',', quotechar='"', doublequote=True)
+            raw = [row for row in csv_reader if row and not row[0].startswith('#')]
     except (OSError, UnicodeError):
         message = ('Could not read CSV file. If you edited it in MSWord or something similar, ' +
                    'it got formatted. Use "notepad"')
         raise LoaderError(message)
-    return [split_and_strip(line) for line in lines if line.strip() and not line.startswith('#')]
+    else:
+        return strip_spaces(raw)
 
 
-def split_and_strip(line):
-    return [word.strip() for word in line.split(',')]
+def strip_spaces(rows):
+    return [[word.strip() for word in row] for row in rows]
 
 
 def countable_nouns(filename=''):
@@ -48,6 +51,17 @@ def _nouns(filename='', countable=True):
     raw_lines = load_csv(new_filename)
 
     return [class_(*line[:columns]) for line in raw_lines]
+
+
+def proper_nouns(filename):
+    raw_lines = load_csv(filename)
+    return [_get_proper_noun_class(row)(row[0]) for row in raw_lines]
+
+
+def _get_proper_noun_class(row):
+    if len(row) < 2 or row[1] != 'p':
+        return ProperNoun
+    return PluralProperNoun
 
 
 def verbs(filename=''):
