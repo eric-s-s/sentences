@@ -50,6 +50,10 @@ class TestLoader(unittest.TestCase):
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)
 
+    def test_load_csv_empty_values(self):
+        filename = os.path.join(TESTS_FILES, 'only_commas.csv')
+        self.assertEqual(load_csv(filename), [])
+
     def test_countable_nouns_empty(self):
         answer = countable_nouns()
         self.assertIn(Noun('person', 'people'), answer)

@@ -22,11 +22,16 @@ def load_csv(filename):
                    'it got formatted. Use "notepad"')
         raise LoaderError(message)
     else:
-        return strip_spaces(raw)
+        answer = strip_spaces(raw)
+        return remove_empty_values(answer)
 
 
 def strip_spaces(rows):
     return [[word.strip() for word in row] for row in rows]
+
+
+def remove_empty_values(rows):
+    return [row for row in rows if not all(word == '' for word in row)]
 
 
 def countable_nouns(filename=''):
