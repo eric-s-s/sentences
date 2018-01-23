@@ -2,9 +2,9 @@ import random
 import string
 import unittest
 
-from sentences.backend.grammarizer import normalize_probability, get_nouns, Grammarizer
+from sentences.backend.grammarizer import normalize_probability, get_non_proper_nouns, Grammarizer
 from sentences.words.noun import (Noun, DefiniteNoun, UncountableNoun, PluralNoun, DefiniteUncountableNoun,
-                                  DefinitePluralNoun, IndefiniteNoun)
+                                  DefinitePluralNoun, IndefiniteNoun, ProperNoun, PluralProperNoun)
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import (Verb, ThirdPersonVerb, PastVerb,
@@ -20,24 +20,32 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(normalize_probability(-1), 0)
         self.assertEqual(normalize_probability(1.2), 1.0)
 
-    def test_get_nouns_no_nouns(self):
+    def test_get_non_proper_nouns_no_nouns(self):
         raw_paragraph = [
             [Pronoun.I, Verb('grab'), Pronoun.YOU, Punctuation.EXCLAMATION],
             [Pronoun.WE, Verb('cut', 'cut'), Pronoun.IT, Punctuation.PERIOD],
             [Pronoun.IT, Verb('have', 'had'), Pronoun.THEM, Punctuation.PERIOD]
         ]
-        self.assertEqual(get_nouns(raw_paragraph), [])
+        self.assertEqual(get_non_proper_nouns(raw_paragraph), [])
 
-    def test_get_nouns_with_nouns(self):
+    def test_get_non_proper_nouns_proper_nouns(self):
+        raw_paragraph = [
+            [ProperNoun('NASA'), Verb('grab'), ProperNoun('Joe'), Punctuation.EXCLAMATION],
+            [PluralProperNoun('the Things'), Verb('cut', 'cut'), ProperNoun('Bob'), Punctuation.PERIOD],
+            [Pronoun.IT, Verb('have', 'had'), Pronoun.THEM, Punctuation.PERIOD]
+        ]
+        self.assertEqual(get_non_proper_nouns(raw_paragraph), [])
+
+    def test_get_non_proper_nouns_with_nouns(self):
         paragraph = [
             [Noun('money'), Verb('grab'), Noun('tea'), Punctuation.EXCLAMATION],
             [Noun('tea'), Verb('ride', 'rode'), Noun('apple'), Punctuation.PERIOD],
             [Noun('apple'), Verb('surprise'), Noun('gold'), Punctuation.PERIOD],
-            [Noun('gold'), Verb('cut', 'cut'), Pronoun.IT, Punctuation.PERIOD],
+            [Noun('gold'), Verb('cut', 'cut'), ProperNoun('Joe'), Punctuation.PERIOD],
             [Pronoun.IT, Verb('have', 'had'), Noun('watch'), Punctuation.PERIOD]
         ]
 
-        self.assertEqual(get_nouns(paragraph),
+        self.assertEqual(get_non_proper_nouns(paragraph),
                          [Noun('money'), Noun('tea'), Noun('apple'), Noun('gold'), Noun('watch')])
 
     def test_grammarizer_init_defaults_and_paragraph_is_copy(self):
@@ -45,7 +53,8 @@ class TestGrammarizer(unittest.TestCase):
 
         paragraph = [
             [UncountableNoun('money'), Verb('grab'), UncountableNoun('tea'), Punctuation.EXCLAMATION],
-            [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), Punctuation.PERIOD]
+            [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), Punctuation.PERIOD],
+            [ProperNoun('Bob'), Verb('drive'), PluralProperNoun('Benzes')]
         ]
         grammarizer = Grammarizer(paragraph)
         self.assertEqual(grammarizer._raw, paragraph)
@@ -171,7 +180,7 @@ class TestGrammarizer(unittest.TestCase):
             [Noun('money'), Verb('grab'), Noun('tea'), Punctuation.EXCLAMATION],
             [Noun('tea'), Verb('ride', 'rode', ''), Noun('apple'), Punctuation.PERIOD],
             [Noun('apple'), Verb('surprise'), Noun('gold'), Punctuation.PERIOD],
-            [Noun('gold'), Verb('cut', 'cut', ''), Pronoun.IT, Punctuation.PERIOD],
+            [ProperNoun('the Dude'), Verb('cut', 'cut', ''), Pronoun.IT, Punctuation.PERIOD],
             [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), Punctuation.PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
@@ -225,7 +234,9 @@ class TestGrammarizer(unittest.TestCase):
     def test_generate_paragraph_present_tense_third_person_positive(self):
         raw_paragraph = [
             [UncountableNoun('water'), Verb('grab'), UncountableNoun('water'), Punctuation.EXCLAMATION],
-            [Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+            [Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [ProperNoun('Joe'), Verb('grab'), ProperNoun('Bob')]
+        ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = ThirdPersonVerb('grabs', '', 'grab')
@@ -235,7 +246,9 @@ class TestGrammarizer(unittest.TestCase):
     def test_generate_paragraph_present_tense_third_person_negative(self):
         raw_paragraph = [
             [UncountableNoun('water'), Verb('grab'), UncountableNoun('water'), Punctuation.EXCLAMATION],
-            [Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]]
+            [Noun('cat'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+            [ProperNoun('Joe'), Verb('grab'), Noun('cat')]
+        ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
         target_verb = NegativeThirdPersonVerb("doesn't grab", '', 'grab')
@@ -248,6 +261,7 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.YOU, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.WE, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [PluralProperNoun('Taiwanese'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
@@ -261,6 +275,7 @@ class TestGrammarizer(unittest.TestCase):
                          [Pronoun.YOU, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.WE, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
                          [Pronoun.THEY, Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION],
+                         [PluralProperNoun('Taiwanese'), Verb('grab'), Noun('cat'), Punctuation.EXCLAMATION]
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
@@ -365,3 +380,19 @@ class TestGrammarizer(unittest.TestCase):
         ]
         self.assertEqual(answer, paragraph_1)
         self.assertEqual(answer, paragraph_2)
+
+    def test_proper_noun_and_plural_proper_noun_do_not_change_except_capitalize(self):
+        raw_paragraph = [
+            [ProperNoun('Joe'), Verb('grab'), PluralProperNoun('the Guys'), Punctuation.PERIOD],
+            [PluralProperNoun('the Guys'), Verb('grab'), ProperNoun('Joe'), Punctuation.PERIOD],
+        ]
+
+        expected = [
+            [ProperNoun('Joe'), ThirdPersonVerb('grabs', '', 'grab'), PluralProperNoun('the Guys'), Punctuation.PERIOD],
+            [PluralProperNoun('The Guys', '', 'the Guys'), Verb('grab'), ProperNoun('Joe'), Punctuation.PERIOD],
+        ]
+        for probility_plural in (0.0, 0.2, 0.5, 1.0):
+            grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0,
+                                      probability_plural_noun=probility_plural)
+            answer = grammarizer.generate_paragraph()
+            self.assertEqual(answer, expected)

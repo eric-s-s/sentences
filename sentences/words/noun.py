@@ -18,7 +18,7 @@ class Noun(Word):
         return self._irregular
 
     def capitalize(self):
-        value = super(Noun, self).capitalize().value
+        value = self.value[0].upper() + self.value[1:]
         return self.__class__(value, self.irregular_plural, self.base_noun)
 
     def de_capitalize(self):
@@ -94,19 +94,17 @@ class ProperNoun(Noun):
     def plural(self):
         return PluralProperNoun(get_plural_value(self), self.irregular_plural, self.base_noun)
 
-    def definite(self):
-        return self.__class__('The ' + self.value, self.irregular_plural, self.base_noun)
+    def to_base_noun(self):
+        return self.__class__(self.base_noun, self.irregular_plural)
 
-    def indefinite(self):
-        article = 'A '
-        vowels = 'aeiouAEIOU'
-        if any(self.value.startswith(vowel) for vowel in vowels):
-            article = 'An '
-        return IndefiniteNoun(article + self.value, self.irregular_plural, self.base_noun)
-
-    def capitalize(self):
-        new_val = self.value[0].upper() + self.value[1:]
+    def de_capitalize(self):
+        new_val = self.value
+        if self._base_is_lower():
+            new_val = new_val[0].lower() + new_val[1:]
         return self.__class__(new_val, self.irregular_plural, self.base_noun)
+
+    def _base_is_lower(self):
+        return self.base_noun[0].islower()
 
 
 class PluralProperNoun(ProperNoun, PluralNoun):

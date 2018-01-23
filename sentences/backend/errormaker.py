@@ -2,7 +2,7 @@ import random
 
 from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person, get_present_be_verb, find_subject
-from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
+from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun, ProperNoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, NegativeVerb, PastVerb
 from sentences.words.word import Word, Preposition
@@ -149,9 +149,11 @@ class ErrorMaker(object):
             method()
 
 
-def make_noun_error(noun):  # TODO proper nouns
+def make_noun_error(noun):
     basic = noun.to_base_noun()
-    if isinstance(noun, UncountableNoun):
+    if isinstance(noun, ProperNoun):
+        choices = [basic.indefinite(), basic.definite()]
+    elif isinstance(noun, UncountableNoun):
         choices = [basic.indefinite(), basic.plural()]
     elif isinstance(noun, IndefiniteNoun):
         choices = [basic] * 3 + [basic.plural().indefinite(), basic.plural()]
