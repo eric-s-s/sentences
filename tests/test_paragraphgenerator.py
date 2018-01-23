@@ -7,7 +7,8 @@ from sentences.paragraphsgenerator import ParagraphsGenerator
 from sentences import COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, VERBS_CSV
 from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns, proper_nouns
 from sentences.words.pronoun import Pronoun, CapitalPronoun
-from sentences.words.noun import Noun
+from sentences.words.noun import Noun, ProperNoun, UncountableNoun
+from sentences.words.verb import Verb
 from sentences.words.punctuation import Punctuation
 
 from tests import TESTS_FILES
@@ -43,7 +44,7 @@ def short_line_print(short_text):
 def create_test_csvs(countable_list, uncountable_list, verb_list, proper_list):
     countable_text = '\n'.join(countable_list)
     uncountable_text = '\n'.join(uncountable_list)
-    proper_text = '\n'.join([line + ',p' for line in proper_list])
+    proper_text = '\n'.join([line + ',s' for line in proper_list])
     verb_text = '\n'.join(verb_list)
     for filename, text in zip((DELETE_ME_VERBS, DELETE_ME_COUNTABLE, DELETE_ME_UNCOUNTABLE, DELETE_ME_PROPER),
                               (verb_text, countable_text, uncountable_text, proper_text)):
@@ -98,7 +99,7 @@ class TestParagraphGenerator(unittest.TestCase):
 
     def test_create_test_csvs(self):
         values = (['a', 'b'], ['b', 'c'], ['d', 'e'], ['f', 'g'])
-        expected = ['a\nb', 'b\nc', 'd\ne', 'f,p\ng,p']
+        expected = ['a\nb', 'b\nc', 'd\ne', 'f,s\ng,s']
         create_test_csvs(*values)
         for index, filename in enumerate((DELETE_ME_COUNTABLE, DELETE_ME_UNCOUNTABLE,
                                           DELETE_ME_VERBS, DELETE_ME_PROPER)):
@@ -107,7 +108,7 @@ class TestParagraphGenerator(unittest.TestCase):
 
     def test_create_single_value_csvs(self):
         create_single_value_test_csvs('ab')
-        expected = ['ab', 'uncountable ab', 'ab', 'Ab,p']
+        expected = ['ab', 'uncountable ab', 'ab', 'Ab,s']
         for index, filename in enumerate((DELETE_ME_COUNTABLE, DELETE_ME_UNCOUNTABLE,
                                           DELETE_ME_VERBS, DELETE_ME_PROPER)):
             with open(filename, 'r') as f:
@@ -124,10 +125,10 @@ class TestParagraphGenerator(unittest.TestCase):
         self.assertEqual(pg._nouns_list, all_nouns)
 
     def assert_single_value_word_list(self, paragraph_generator, dummy_word):
-        self.assertEqual(paragraph_generator._verbs_list[0]['verb'].value, dummy_word)
-        self.assertEqual(paragraph_generator._nouns_list[0].value, dummy_word)
-        self.assertEqual(paragraph_generator._nouns_list[1].value, 'uncountable {}'.format(dummy_word))
-        self.assertEqual(paragraph_generator._nouns_list[2].value, dummy_word.capitalize())
+        self.assertEqual(paragraph_generator._verbs_list[0]['verb'], Verb(dummy_word))
+        self.assertEqual(paragraph_generator._nouns_list[0], Noun(dummy_word))
+        self.assertEqual(paragraph_generator._nouns_list[1], UncountableNoun('uncountable {}'.format(dummy_word)))
+        self.assertEqual(paragraph_generator._nouns_list[2], ProperNoun(dummy_word.capitalize()))
 
     def test_load_csv_reloads(self):
         create_single_value_test_csvs('cat')
@@ -136,7 +137,6 @@ class TestParagraphGenerator(unittest.TestCase):
 
         create_single_value_test_csvs('dog')
         pg.load_lists_from_file()
-        print(pg._nouns_list)
         self.assert_single_value_word_list(pg, 'dog')
 
     def test_update_options_empty_dict_does_not_change_dict_does_not_reload_files(self):
@@ -220,9 +220,9 @@ class TestParagraphGenerator(unittest.TestCase):
         for _ in range(3):
             self.assertEqual(len(pg.create_paragraph()), 2)
 
-    def test_create_paragraph_word_lists(self):  # TODO PROPER NOUNS
+    def test_create_paragraph_word_lists(self):
         seed(1234)
-        create_test_csvs(['dog'], ['water'], ['like'], [])
+        create_test_csvs(['dog'], ['water'], ['like'], ['Frank'])
         self.config_state['probability_pronoun'] = 0.0
         self.config_state['paragraph_size'] = 2
 
@@ -230,19 +230,19 @@ class TestParagraphGenerator(unittest.TestCase):
 
         raw_answer = pg.create_paragraph()
         answer = [[word.value for word in sentence] for sentence in raw_answer]
-        self.assertEqual(answer, [['Water', 'likes', 'dogs', '!'], ['The dogs', "don't like", 'the water', '.']])
+        self.assertEqual(answer, [['Water', "doesn't like", 'Frank', '.'], ['Frank', 'likes', 'the water', '.']])
 
         raw_answer = pg.create_paragraph()
         answer = [[word.value for word in sentence] for sentence in raw_answer]
-        self.assertEqual(answer, [['Water', 'likes', 'dogs', '!'], ['The dogs', 'like', 'the water', '.']])
+        self.assertEqual(answer, [['Frank', "doesn't like", 'a dog', '.'], ['The dog', 'likes', 'Frank', '.']])
 
         raw_answer = pg.create_paragraph()
         answer = [[word.value for word in sentence] for sentence in raw_answer]
-        self.assertEqual(answer, [['A dog', 'likes', 'water', '.'], ['The water', 'likes', 'the dog', '.']])
+        self.assertEqual(answer, [['Water', 'likes', 'Frank', '!'], ['Frank', 'likes', 'a dog', '.']])
 
     def test_create_paragraph_pool_paragraph(self):
         seed(8908)
-        create_test_csvs(['dog', 'cat', 'pig'], ['water'], ['like'], [])
+        create_test_csvs(['dog', 'cat'], ['water'], ['like'], ['My Great-Aunt Fanny'])
         self.config_state['probability_pronoun'] = 0.0
         self.config_state['paragraph_type'] = 'pool'
         self.config_state['subject_pool'] = 1
@@ -256,11 +256,10 @@ class TestParagraphGenerator(unittest.TestCase):
 
         pg.update_options({'subject_pool': 2})
         answer = pg.create_paragraph()
-        values = ['Water', 'The water', 'A pig', 'The pig']
+        values = ['Water', 'The water', 'My Great-Aunt Fanny']
         for sentence in answer:
             self.assertIn(sentence[0].value, values)
             self.assertIsInstance(sentence[2], Noun)
-            self.assertNotIn(sentence[2].value, values)
 
     def test_create_paragraph_chain_paragraph(self):
         seed(4569)
@@ -282,7 +281,7 @@ class TestParagraphGenerator(unittest.TestCase):
                 self.assertEqual(sentence[2].value, 'the water')
 
     def test_create_paragraph_probability_plural_noun(self):
-        create_test_csvs(['dog', 'cat'], ['water'], ['like'], [])
+        create_test_csvs(['dog', 'cat'], ['water'], ['like'], ['Abbey Normal'])
         self.config_state['probability_pronoun'] = 0.0
         self.config_state['probability_plural_noun'] = 1.0
 
@@ -290,7 +289,8 @@ class TestParagraphGenerator(unittest.TestCase):
         answer = pg.create_paragraph()
         noun_values = ['Dogs', 'The dogs', 'dogs', 'the dogs',
                        'Cats', 'The cats', 'cats', 'the cats',
-                       'Water', 'The water', 'water', 'the water']
+                       'Water', 'The water', 'water', 'the water',
+                       'Abbey Normal']
         for sentence in answer:
             self.assertIn(sentence[0].value, noun_values)
             self.assertIn(sentence[2].value, noun_values)
@@ -299,13 +299,14 @@ class TestParagraphGenerator(unittest.TestCase):
         answer = pg.create_paragraph()
         noun_values = ['A dog', 'The dog', 'a dog', 'the dog',
                        'A cat', 'The cat', 'a cat', 'the cat',
-                       'Water', 'The water', 'water', 'the water']
+                       'Water', 'The water', 'water', 'the water',
+                       'Abbey Normal']
         for sentence in answer:
             self.assertIn(sentence[0].value, noun_values)
             self.assertIn(sentence[2].value, noun_values)
 
     def test_create_paragraph_probability_negative_verb(self):
-        create_test_csvs(['dog', 'cat'], ['water'], ['like'], [])
+        create_test_csvs(['dog', 'cat'], ['water'], ['like'], ['Mom'])
         self.config_state['probability_pronoun'] = 0.0
         self.config_state['probability_plural_noun'] = 0.0
         self.config_state['probability_negative_verb'] = 1.0
@@ -323,7 +324,7 @@ class TestParagraphGenerator(unittest.TestCase):
             self.assertEqual(verb_value, sentence[1].value)
 
     def test_create_paragraph_tense(self):
-        create_test_csvs(['dog', 'cat'], ['water'], ['like'], [])
+        create_test_csvs(['dog', 'cat'], ['water'], ['like'], ['Dad'])
         self.config_state['probability_pronoun'] = 0.0
         self.config_state['probability_negative_verb'] = 0.0
         self.config_state['tense'] = 'simple_past'
@@ -480,17 +481,14 @@ class TestParagraphGenerator(unittest.TestCase):
         answers, errors = pg.create_answer_and_error_paragraphs()
         expected_answers = [
             "You use <bold>a dog</bold>. The dog <bold>likes</bold> water. -- error count: 2",
-            "Water uses <bold>a cat</bold>! The cat likes a dog<bold>.</bold> -- error count: 2",
-            "He <bold>likes</bold> <bold>a dog</bold>. The dog uses water! -- error count: 2"
+            "Water uses <bold>a cat</bold>! The cat doesn't like Joe<bold>.</bold> -- error count: 2",
+            "Joe likes <bold>cats</bold>. The cats don't like Bob. -- error count: 1"
         ]
         expected_errors = [
             "You use a dogs. The dog like water.",
-            "Water uses cat! The cat likes a dog,",
-            "He like dog. The dog uses water!"
+            "Water uses cat! The cat doesn't like Joe,",
+            "Joe likes cat. The cats don't like Bob."
         ]
-        for line in errors:
-            print(line)
-
         self.assertEqual(answers, expected_answers)
         self.assertEqual(errors, expected_errors)
 

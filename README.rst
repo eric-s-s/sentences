@@ -1,4 +1,4 @@
-sentences v2.4
+sentences v3.0
 ==============
 
 This module creates randomly generated paragraphs and then assigns specific kinds of errors to those paragraphs.

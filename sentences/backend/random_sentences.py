@@ -17,7 +17,7 @@ class RandomSentences(object):
         if not self._verbs:
             raise ValueError('There are no verbs in the verb list.')
         if not self._nouns:
-            raise ValueError('There are no countable nouns AND no uncountable nouns.')
+            raise ValueError('There are no nouns in any of the nouns lists.')
 
     def sentence(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)

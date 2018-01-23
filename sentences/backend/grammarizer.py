@@ -49,7 +49,7 @@ class Grammarizer(object):
             value['definite'] = False
 
     def set_nouns(self):
-        nouns = get_non_proper_nouns(self._raw)  # TODO ignore proper nouns
+        nouns = get_non_proper_nouns(self._raw)
         pool = {}
         for noun in nouns:
             use_plural = False
@@ -67,7 +67,7 @@ class Grammarizer(object):
             for original_wd in sentence:
                 new_wd = original_wd
 
-                if is_non_proper_noun(new_wd):  # TODO exclude proper nouns
+                if is_non_proper_noun(new_wd):
                     new_wd = self._modify_noun(new_wd)
 
                 if isinstance(new_wd, Verb):

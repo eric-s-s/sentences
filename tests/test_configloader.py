@@ -528,6 +528,7 @@ class TestConfigLoader(unittest.TestCase):
                   'save_directory': os.path.join(home, DEFAULT_SAVE_DIR),
                   'countable_nouns': os.path.join(home, COUNTABLE_NOUNS_CSV),
                   'uncountable_nouns': os.path.join(home, UNCOUNTABLE_NOUNS_CSV),
+                  'proper_nouns': os.path.join(home, PROPER_NOUNS_CSV),
                   'verbs': os.path.join(home, VERBS_CSV)}
 
         self.assertEqual(fm.get_values(), answer)

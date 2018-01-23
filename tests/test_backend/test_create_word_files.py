@@ -4,7 +4,7 @@ import filecmp
 import shutil
 import os
 
-from sentences import DATA_PATH, VERBS_CSV, UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV
+from sentences import DATA_PATH, VERBS_CSV, UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV
 from sentences.backend.create_word_files import create_default_word_files, copy_to_numbered_old_file
 
 from tests import TESTS_FILES
@@ -19,7 +19,7 @@ def rm_test_dir():
 
 
 def copy_all_csv():
-    for filename in (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV):
+    for filename in (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV):
         with open(os.path.join(DATA_PATH, filename), 'r') as read_file:
             with open(os.path.join(DIR_TO_DELETE, filename), 'w') as write_file:
                 write_file.write(read_file.read())
@@ -95,11 +95,13 @@ class TestCreateWordFiles(unittest.TestCase):
         self.assertTrue(filecmp.cmp(bad_file, destination, shallow=False))
 
     def test_create_default_word_files_empty_dir(self):
-        expected = (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV)
+        expected = (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV)
         for filename in expected:
             os.remove(os.path.join(DIR_TO_DELETE, filename))
 
         create_default_word_files(DIR_TO_DELETE)
+
+        self.assertEqual(sorted(os.listdir(DIR_TO_DELETE)), sorted(expected))
 
         for filename in expected:
             with open(os.path.join(DATA_PATH, filename), 'r') as original_file:
@@ -107,7 +109,7 @@ class TestCreateWordFiles(unittest.TestCase):
                     self.assertEqual(original_file.read(), new_file.read())
 
     def test_create_default_word_files_some_files_missing(self):
-        expected = (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV)
+        expected = (VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV)
 
         with open(os.path.join(DIR_TO_DELETE, COUNTABLE_NOUNS_CSV), 'w') as f:
             f.write('new file')
@@ -135,6 +137,13 @@ class TestCreateWordFiles(unittest.TestCase):
         create_default_word_files(DIR_TO_DELETE)
         create_default_word_files(DIR_TO_DELETE)
         create_default_word_files(DIR_TO_DELETE)
+
+        original = [VERBS_CSV, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV]
+        expected = original[:]
+        for num in range(1, 4):
+            new = [file.replace('.csv', '_old_{:0>2}.csv'.format(num)) for file in original]
+            expected += new
+        self.assertEqual(sorted(os.listdir(DIR_TO_DELETE)), sorted(expected))
 
         with open(os.path.join(DATA_PATH, VERBS_CSV), 'r') as f:
             original_text = f.read()

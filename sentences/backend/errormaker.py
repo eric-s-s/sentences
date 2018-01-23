@@ -135,14 +135,15 @@ class ErrorMaker(object):
 
     def _decapitalize_at_commas(self):
         last_index = len(self._error_paragraph) - 1
-        for index, sentence in enumerate(self._error_paragraph):
-            if sentence[-1] == Punctuation.COMMA and index < last_index:
-                to_alter_index = index + 1
-                to_alter = self._error_paragraph[to_alter_index]
-                to_decapitalize = to_alter[0]
+        for s_index, sentence in enumerate(self._error_paragraph):
+            if sentence[-1] == Punctuation.COMMA and s_index < last_index:
+                target_sentence_index = s_index + 1
+                target_sentence = self._error_paragraph[target_sentence_index]
+                to_decapitalize = target_sentence[0]
                 new_word = de_capitalize(to_decapitalize)
-                to_alter[0] = new_word
-                self._answer[to_alter_index][0] = self._answer[to_alter_index][0].bold()
+                target_sentence[0] = new_word
+                if to_decapitalize != new_word:
+                    self._answer[target_sentence_index][0] = self._answer[target_sentence_index][0].bold()
 
     def create_all_errors(self):
         for method in self.method_order:

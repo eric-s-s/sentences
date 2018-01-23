@@ -658,6 +658,31 @@ class TestErrorMaker(unittest.TestCase):
         self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
         self.assertEqual(error_maker.error_count, 2)
 
+    def test_error_maker_create_period_errors_does_not_bold_when_proper_noun_is_unchanged(self):
+        sox = PluralProperNoun('the Sox')
+        joe = ProperNoun('Joe')
+        grab = Verb('grab')
+        paragraph = [
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION],
+            [sox.capitalize(), grab, joe, Punctuation.EXCLAMATION],
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION]
+        ]
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_period_errors()
+        error_paragraph = [
+            [joe, grab.third_person(), sox, Punctuation.COMMA],
+            [sox, grab, joe, Punctuation.COMMA],
+            [joe, grab.third_person(), sox, Punctuation.COMMA]
+        ]
+        answer_paragraph = [
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION.bold()],
+            [sox.capitalize().bold(), grab, joe, Punctuation.EXCLAMATION.bold()],
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION.bold()]
+        ]
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 3)
+
     def test_error_maker_create_period_errors_some_errors(self):
         dog = Noun('dog')
         cat = Noun('cat')
