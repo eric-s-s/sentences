@@ -1,7 +1,4 @@
 import csv
-import os
-
-from sentences import DATA_PATH, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
 
 from sentences.words.noun import Noun, UncountableNoun, ProperNoun, PluralProperNoun
 from sentences.words.verb import Verb
@@ -15,7 +12,7 @@ class LoaderError(ValueError):
 def load_csv(filename):
     try:
         with open(filename, 'r', newline='') as f:
-            csv_reader = csv.reader(f, delimiter=',', quotechar='"', doublequote=True)
+            csv_reader = csv.reader(f, delimiter=',', quotechar='"', doublequote=True, skipinitialspace=True)
             raw = [row for row in csv_reader if row and not row[0].startswith('#')]
     except (OSError, UnicodeError):
         message = ('Could not read CSV file. If you edited it in MSWord or something similar, ' +
@@ -42,19 +39,15 @@ def uncountable_nouns(filename=''):
     return _nouns(filename, countable=False)
 
 
-def _nouns(filename='', countable=True):
+def _nouns(filename, countable=True):
     if countable:
         class_ = Noun
-        default = COUNTABLE_NOUNS_CSV
         columns = 2
     else:
         class_ = UncountableNoun
-        default = UNCOUNTABLE_NOUNS_CSV
         columns = 1
 
-    new_filename = _default_or_file_name(filename, default)
-    raw_lines = load_csv(new_filename)
-
+    raw_lines = load_csv(filename)
     return [class_(*line[:columns]) for line in raw_lines]
 
 
@@ -69,20 +62,13 @@ def _get_proper_noun_class(row):
     return PluralProperNoun
 
 
-def verbs(filename=''):
-    new_filename = _default_or_file_name(filename, VERBS_CSV)
-    raw_lines = load_csv(new_filename)
+def verbs(filename):
+    raw_lines = load_csv(filename)
     try:
         answer = [get_verb_dict(verb_line) for verb_line in raw_lines]
     except ValueError:
         raise LoaderError('Bad values in columns for CSV for verbs. See default for example.')
     return answer
-
-
-def _default_or_file_name(file_name, default_name):
-    if not file_name:
-        file_name = os.path.join(DATA_PATH, default_name)
-    return file_name
 
 
 def get_verb_dict(str_lst):

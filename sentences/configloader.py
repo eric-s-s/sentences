@@ -1,7 +1,8 @@
 import os
 
 from sentences.gui.gui_tools import SetVariablesFrame
-from sentences import DATA_PATH, APP_NAME, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV
+from sentences import (DATA_PATH, APP_NAME, DEFAULT_CONFIG, VERBS_CSV,
+                       COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV)
 
 DEFAULT_SAVE_DIR = 'pdfs'
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
@@ -47,8 +48,8 @@ class ConfigLoader(object):
 
     def _set_up_word_files(self):
         home_dir = self._dictionary['home_directory']
-        file_keys = ['countable_nouns', 'uncountable_nouns', 'verbs']
-        default_names = [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]
+        file_keys = ['countable_nouns', 'uncountable_nouns', 'proper_nouns', 'verbs']
+        default_names = [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, VERBS_CSV]
         for key, default_name in zip(file_keys, default_names):
             full_default_name = os.path.join(home_dir, default_name)
 
@@ -102,7 +103,7 @@ def create_default_config():
 
 
 def save_config(dictionary):
-    lines = _get_key_value_list(DEFAULT_CONFIG)
+    lines = get_key_value_pairs(DEFAULT_CONFIG)
     to_write = []
     for key, value in lines:
         if not key or key.startswith('#'):
@@ -110,31 +111,26 @@ def save_config(dictionary):
         else:
             if key in dictionary:
                 value = dictionary[key]
-            to_write.append(_create_line(key, value))
+            to_write.append(create_config_text_line(key, value))
     with open(CONFIG_FILE, 'w') as f:
         f.write('\n'.join(to_write))
 
 
 def load_config(config_file):
-    key_val_list = _get_key_value_list(config_file)
+    key_val_list = get_key_value_pairs(config_file)
     return {key: value for key, value in key_val_list if key and not key.startswith('#')}
 
 
-def _get_key_value_list(config_file):
+def get_key_value_pairs(config_file):
     with open(config_file, 'r') as f:
         lines = f.read().split('\n')
-    answer = []
-    for line in lines:
-        if line.startswith('#'):
-            answer.append((line, None))
-        else:
-            answer.append(_get_key_value(line))
-    return answer
+    return [get_single_key_value_pair(line) for line in lines]
 
 
-def _get_key_value(line):
-    if not line.strip():
-        return '', None
+def get_single_key_value_pair(line):
+    line = line.strip()
+    if not line or line.startswith('#'):
+        return line, None
     key, value = line.split('=')
     key = key.strip()
     value = value.strip()
@@ -153,7 +149,7 @@ def _get_key_value(line):
         return key, value
 
 
-def _create_line(key, value):
+def create_config_text_line(key, value):
     value_str = str(value)
     if value_str in ['True', 'False', 'None']:
         value_str = value_str.lower()

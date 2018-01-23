@@ -2,7 +2,7 @@ from sentences.backend.errormaker import ErrorMaker
 from sentences.backend.grammarizer import Grammarizer
 from sentences.backend.random_paragraph import RandomParagraph
 from sentences.backend.wordconnector import convert_paragraph
-from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns
+from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns, proper_nouns
 
 
 class ParagraphsGenerator(object):
@@ -12,6 +12,7 @@ class ParagraphsGenerator(object):
         :config_state required keys:
         - 'countable_nouns'
         - 'uncountable_nouns'
+        - 'proper_nouns'
         - 'verbs'
 
         - 'error_probability'
@@ -34,15 +35,16 @@ class ParagraphsGenerator(object):
         - 'paragraph_size'
         """
         self._options = {}
-        self._verbs_list = None  # type: list
-        self._countable_nouns_list = None  # type: list
-        self._uncountable_nouns_list = None  # type: list
+        self._verbs_list = []
+        self._nouns_list = []
         self.update_options(config_state)
 
     def load_lists_from_file(self):
         self._verbs_list = verbs(self._options['verbs'])
-        self._countable_nouns_list = countable_nouns(self._options['countable_nouns'])
-        self._uncountable_nouns_list = uncountable_nouns(self._options['uncountable_nouns'])
+
+        self._nouns_list = countable_nouns(self._options['countable_nouns'])
+        self._nouns_list += uncountable_nouns(self._options['uncountable_nouns'])
+        self._nouns_list += proper_nouns(self._options['proper_nouns'])
 
     def update_options(self, dictionary):
         reload_lists = self._is_reload_required(dictionary)
@@ -51,11 +53,12 @@ class ParagraphsGenerator(object):
             self.load_lists_from_file()
 
     def _is_reload_required(self, dictionary):
-        all_word_lists = (self._verbs_list, self._countable_nouns_list, self._uncountable_nouns_list)
-        if any(word_list is None for word_list in all_word_lists):
+        all_word_lists = (self._verbs_list, self._nouns_list)
+        if any(word_list == [] for word_list in all_word_lists):
             return True
 
-        file_keys = [key for key in ('verbs', 'countable_nouns', 'uncountable_nouns') if key in dictionary]
+        file_keys = [key for key in ('verbs', 'countable_nouns', 'uncountable_nouns', 'proper_nouns')
+                     if key in dictionary]
         if not file_keys:
             return False
         return any(dictionary[key] != self._options[key] for key in file_keys)
@@ -76,10 +79,7 @@ class ParagraphsGenerator(object):
 
     def _create_paragraph_generator(self):
         probability_pronoun = self._options['probability_pronoun']
-
-        return RandomParagraph(
-            probability_pronoun, self._verbs_list, self._countable_nouns_list, self._uncountable_nouns_list
-        )
+        return RandomParagraph(probability_pronoun, self._verbs_list, self._nouns_list)
 
     def _get_present_tense_bool(self):
         return self._options['tense'] == 'simple_present'

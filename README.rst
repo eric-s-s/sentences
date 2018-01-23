@@ -7,8 +7,8 @@ It outputs this text to a pdf file. To install and run:
 .. code-block:: bash
 
     $ git clone https://github.com/eric-s-s/sentences.git
-    $ cd dice-tables
-    $ python setup.py install
+    $ cd sentences
+    $ python setup.py install  # or pip install .
     $ gen_pdf
 
 To create an msi or dmg file:

@@ -54,16 +54,6 @@ class TestLoader(unittest.TestCase):
         filename = os.path.join(TESTS_FILES, 'only_commas.csv')
         self.assertEqual(load_csv(filename), [])
 
-    def test_countable_nouns_empty(self):
-        answer = countable_nouns()
-        self.assertIn(Noun('person', 'people'), answer)
-        self.assertIn(Noun('sheep', 'sheep'), answer)
-        self.assertIn(Noun('apple'), answer)
-
-    def test_uncountable_nouns_empty(self):
-        answer = uncountable_nouns()
-        self.assertIn(UncountableNoun('water'), answer)
-
     def test_countable_nouns_and_uncountable_nouns_wrong_number_of_columns(self):
         too_many_cols = os.path.join(TESTS_FILES, 'too_many.csv')
         with open(too_many_cols, 'w') as f:
@@ -139,17 +129,6 @@ class TestLoader(unittest.TestCase):
     def test_get_verb_dict_preposition_is_Preposition(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertIsInstance(answer['preposition'], Preposition)
-
-    def test_verbs_empty(self):
-        answer = verbs()
-        give = {'verb': Verb('give', 'gave', ''), 'preposition': None, 'objects': 2, 'insert_preposition': False}
-        grab = {'verb': Verb('grab'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
-        fall = {'verb': Verb('fall', 'fell', ''), 'preposition': Preposition('on'), 'objects': 1,
-                'insert_preposition': False}
-
-        self.assertIn(give, answer)
-        self.assertIn(grab, answer)
-        self.assertIn(fall, answer)
 
     def test_verbs_empty_csv(self):
         self.assertEqual(verbs(os.path.join(TESTS_FILES, 'empty.csv')), [])
