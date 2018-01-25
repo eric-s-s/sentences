@@ -4,6 +4,13 @@ from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 
 
+# TODO two-part verbs
+# TODO improve preposition insertion, it's automatic
+# TODO reformat verbs.csv
+
+# TODO verb, irregular past, preposition, obj num, is two-part
+
+
 class RandomSentences(object):
     def __init__(self, verb_list, noun_list):
         self._pronouns = list(Pronoun.__members__.values())

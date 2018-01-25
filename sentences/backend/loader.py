@@ -2,7 +2,7 @@ import csv
 
 from sentences.words.noun import Noun, UncountableNoun, ProperNoun, PluralProperNoun
 from sentences.words.verb import Verb
-from sentences.words.word import Preposition
+from sentences.words.word import Preposition, SeparableParticle
 
 
 class LoaderError(ValueError):
@@ -74,11 +74,21 @@ def verbs(filename):
 def get_verb_dict(str_lst):
     str_lst = _make_list_correct_len_with_nulls(str_lst)
 
-    infinitive, past_tense, preposition_str, obj_num_str, insert_preposition = str_lst
+    raw_infinitive, raw_past, preposition_str, obj_num_str = str_lst
+
+    infinitive, particle_inf = split_verb(raw_infinitive)
+    past_tense, particle_past = split_verb(raw_past)
+
+    _raise_error_for_bad_particles(particle_inf, particle_past, infinitive)
 
     if past_tense == 'null':
         past_tense = ''
     verb = Verb(infinitive, past_tense, '')
+
+    if particle_inf == '':
+        particle = None
+    else:
+        particle = SeparableParticle(particle_inf)
 
     if preposition_str == 'null':
         preposition = None
@@ -90,17 +100,27 @@ def get_verb_dict(str_lst):
     else:
         obj_num = int(obj_num_str)
 
-    if insert_preposition.lower() == 'true':
-        insert_bool = True
-    else:
-        insert_bool = False
-
-    return {'verb': verb, 'preposition': preposition, 'objects': obj_num, 'insert_preposition': insert_bool}
+    return {'verb': verb, 'preposition': preposition, 'objects': obj_num, 'particle': particle}
 
 
 def _make_list_correct_len_with_nulls(input_list):
-    expected_len = 5
+    expected_len = 4
     diff = expected_len - len(input_list)
     output_list = input_list[:expected_len] + diff * ['null']
 
     return [value if value else 'null' for value in output_list]
+
+
+def split_verb(raw_str):
+    parts = raw_str.split(' ')
+    verb = parts[0]
+    particle = ''
+    if len(parts) > 1:
+        particle = parts[1]
+    return verb, particle
+
+
+def _raise_error_for_bad_particles(particle_inf, particle_past, infinitive):
+    if particle_past and particle_inf != particle_past:
+        raise LoaderError('Phrasal verb, {}, has mismatched particles'.format(infinitive))
+

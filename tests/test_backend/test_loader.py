@@ -7,7 +7,7 @@ from sentences.backend.loader import (load_csv, strip_spaces,
                                       get_verb_dict, LoaderError)
 from sentences.words.noun import Noun, UncountableNoun, ProperNoun, PluralProperNoun
 from sentences.words.verb import Verb
-from sentences.words.word import Preposition
+from sentences.words.word import Preposition, SeparableParticle
 from sentences import DATA_PATH, VERBS_CSV, COUNTABLE_NOUNS_CSV
 from tests import TESTS_FILES
 
@@ -90,13 +90,13 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(proper_nouns(proper), expected)
 
     def test_get_verb_dict_empty_strings(self):
-        expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'particle': None}
         self.assertEqual(get_verb_dict(['play', '', '', '', '']), expected)
         self.assertEqual(get_verb_dict(['play', '', '', ]), expected)
         self.assertEqual(get_verb_dict(['play']), expected)
 
     def test_get_verb_dict_empty_and_null_strings(self):
-        expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
+        expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'particle': None}
         self.assertEqual(get_verb_dict(['play', '', 'null', '', '']), expected)
         self.assertEqual(get_verb_dict(['play', 'null', '', ]), expected)
 
@@ -104,31 +104,47 @@ class TestLoader(unittest.TestCase):
         answer = get_verb_dict(['fly', 'flew', 'null'])
         self.assertEqual(
             answer,
-            {'verb': Verb('fly', 'flew', ''), 'preposition': None, 'objects': 1, 'insert_preposition': False})
+            {'verb': Verb('fly', 'flew', ''), 'preposition': None, 'objects': 1, 'particle': None})
 
     def test_get_verb_dict_null_values(self):
         answer = get_verb_dict(['fly', 'null', 'null'])
         self.assertEqual(
             answer,
-            {'verb': Verb('fly'), 'preposition': None, 'objects': 1, 'insert_preposition': False})
+            {'verb': Verb('fly'), 'preposition': None, 'objects': 1, 'particle': None})
 
     def test_get_verb_dict_no_null_values(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertEqual(
             answer,
             {'verb': Verb('fly', 'flew', ''), 'preposition': Preposition('with'),
-             'objects': 2, 'insert_preposition': False})
+             'objects': 2, 'particle': None})
 
     def test_get_verb_dict_too_many_values(self):
-        answer = get_verb_dict(['fly', 'flew', 'with', '2', 'true', 'nsa', 'adfhgoerwi'])
+        answer = get_verb_dict(['fly', 'flew', 'with', '2', 'nsa', 'adfhgoerwi'])
         self.assertEqual(
             answer,
             {'verb': Verb('fly', 'flew', ''), 'preposition': Preposition('with'),
-             'objects': 2, 'insert_preposition': True})
+             'objects': 2, 'particle': None})
 
     def test_get_verb_dict_preposition_is_Preposition(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertIsInstance(answer['preposition'], Preposition)
+
+    def test_get_verb_dict_phrasal_verb(self):
+        answer = get_verb_dict(['take away', 'took away', 'from'])
+        self.assertEqual(
+            answer,
+            {'verb': Verb('take', 'took', ''), 'preposition': Preposition('from'),
+             'particle': SeparableParticle('away'), 'objects': 1})
+
+    def test_get_verb_dict_phrasal_verb_single_value(self):
+        answer = get_verb_dict(['pick up'])
+        self.assertEqual(
+            answer,
+            {'verb': Verb('pick'), 'preposition': None, 'particle': SeparableParticle('up'), 'objects': 1})
+
+    def test_get_verb_dict_phrasal_verb_different_particles_raises_loader_error(self):
+        self.assertRaises(LoaderError, get_verb_dict, ['throw up', 'threw out'])
 
     def test_verbs_empty_csv(self):
         self.assertEqual(verbs(os.path.join(TESTS_FILES, 'empty.csv')), [])
@@ -137,13 +153,13 @@ class TestLoader(unittest.TestCase):
         filename = os.path.join(TESTS_FILES, 'bring_to.csv')
         answer = verbs(filename)
         bring_to = {'verb': Verb('bring', 'brought', ''), 'preposition': Preposition('to'),
-                    'objects': 2, 'insert_preposition': True}
+                    'objects': 2, 'particle': None}
         self.assertEqual(answer, [bring_to])
 
     def test_verbs_bad_verb_file(self):
         bad_verbs = os.path.join(TESTS_FILES, 'bad_verbs.csv')
         with open(bad_verbs, 'w') as f:
-            f.write('some, of, these, should, be, ints, or, bools')
+            f.write('some, of, these, should, be, ints')
 
         self.assertRaises(LoaderError, verbs, bad_verbs)
         os.remove(bad_verbs)
