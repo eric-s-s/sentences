@@ -11,6 +11,9 @@ from sentences.words.punctuation import Punctuation
 # TODO verb, irregular past, preposition, obj num, is two-part
 
 
+
+
+
 class RandomSentences(object):
     def __init__(self, verb_list, noun_list):
         self._pronouns = list(Pronoun.__members__.values())
@@ -37,8 +40,16 @@ class RandomSentences(object):
     def predicate(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
 
-        action, object_count, insert_preposition = self._get_verb_list_and_object_count()
+        verb_group = random.choice(self._verbs)
 
+        objects = self._get_objects(verb_group['objects'], p_pronoun)
+
+        predicate = assign_objects(verb_group, objects)
+
+        predicate.append(random.choice(self._endings))
+        return predicate
+
+    def _get_objects(self, object_count, p_pronoun):
         objects = []
         object_position = 0
         loop_count = 0
@@ -54,21 +65,7 @@ class RandomSentences(object):
                 object_position += 1
 
             loop_count += 1
-                            
-        if insert_preposition:
-            action.insert(-1, objects.pop(0))
-        action = action + objects
-
-        action.append(random.choice(self._endings))
-        return action
-
-    def _get_verb_list_and_object_count(self):
-        verb_grp = random.choice(self._verbs)
-        action = [(verb_grp['verb'])]
-        prep = verb_grp['preposition']
-        if prep is not None:
-            action.append(prep)
-        return action, verb_grp['objects'], verb_grp['insert_preposition']
+        return objects
 
     def subject(self, p_pronoun):
         if random.random() < p_pronoun:
@@ -81,3 +78,39 @@ class RandomSentences(object):
             return random.choice(self._pronouns).object()
         else:
             return random.choice(self._nouns)
+
+
+def assign_objects(verb_group, objects):
+    preposition = verb_group['preposition']
+    separable_particle = verb_group['particle']
+    predicate = [verb_group['verb']]
+
+    use_particle = separable_particle is not None
+    use_preposition = preposition is not None
+
+    while objects:
+        obj = objects.pop(0)
+        append_obj = True
+        if use_particle and use_preposition and verb_group['objects'] == 1:
+            use_preposition = False
+            use_particle = False
+            predicate.append(separable_particle)
+            predicate.append(preposition)
+        elif use_particle:
+            use_particle = False
+            if isinstance(obj, Pronoun):
+                predicate.append(obj)
+                append_obj = False
+            predicate.append(separable_particle)
+        elif use_preposition and not objects:
+            use_preposition = False
+            predicate.append(preposition)
+
+        if append_obj:
+            predicate.append(obj)
+
+    if use_particle:
+        predicate.append(separable_particle)
+    if use_preposition:
+        predicate.append(preposition)
+    return predicate

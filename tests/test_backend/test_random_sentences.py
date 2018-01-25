@@ -1,12 +1,12 @@
 import random
 import unittest
 
-from sentences.backend.random_sentences import RandomSentences
+from sentences.backend.random_sentences import RandomSentences, assign_objects
 from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
-from sentences.words.word import Preposition
+from sentences.words.word import Preposition, SeparableParticle
 
 period = Punctuation.PERIOD
 exclamation = Punctuation.EXCLAMATION
@@ -19,10 +19,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
         self.countable = [Noun('dog'), Noun('cat'), Noun('pig'), Noun('frog')]
         self.uncountable = [Noun('water'), Noun('rice'), Noun('milk'), Noun('sand')]
         self.verbs = [
-            {'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False},
-            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
-            {'verb': Verb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
-            {'verb': Verb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
+            {'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'particle': None},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'particle': None},
+            {'verb': Verb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'particle': None},
+            {'verb': Verb('give'), 'preposition': Preposition('to'), 'objects': 2, 'particle': None},
         ]
         self.generator = RandomSentences(self.verbs, self.countable + self.uncountable)
 
@@ -153,7 +153,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_assign_preposition(self):
         random.seed(1234)
         verb_list = [{'verb': Verb('jump'), 'preposition': Preposition('on'),
-                      'objects': 1, 'insert_preposition': False}]
+                      'objects': 1, 'particle': None}]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('sand'), Verb('jump'), Preposition('on'), us, period])
@@ -164,7 +164,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_assign_preposition_insert_preposition_true(self):
         random.seed(7890)
         verb_list = [{'verb': Verb('bring'), 'preposition': Preposition('to'),
-                      'objects': 2, 'insert_preposition': True}]
+                      'objects': 2, 'particle': None}]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('milk'), Verb('bring'), Noun('water'), Preposition('to'),
@@ -177,8 +177,8 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_two_objects_second_obj_is_never_pronoun(self):
         random.seed(456)
         verb_list = [
-            {'verb': Verb('bring'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
-            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('bring'), 'preposition': Preposition('to'), 'objects': 2, 'particle': None},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'particle': None},
         ]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.predicate(1.0)
@@ -192,7 +192,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
 
     def test_two_objects_are_never_the_same(self):
         verb_list = [
-            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'particle': None},
         ]
         generator = RandomSentences(verb_list, [Noun('dog'), Noun('water')])
 
@@ -208,7 +208,91 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_two_objects_the_same_when_no_other_options(self):
         random.seed(101)
         verb_list = [
-            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
+            {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'particle': None},
         ]
         generator = RandomSentences(verb_list, [Noun('dog')])
         self.assertEqual(generator.predicate(), [Verb('give'), Noun('dog'), Noun('dog'), period])
+
+    def test_assign_objects_no_objects_no_particle_no_preposition(self):
+        verb_dict = {'verb': Verb('chill'), 'preposition': None, 'objects': 0, 'particle': None}
+        self.assertEqual(assign_objects(verb_dict, []), [Verb('chill')])
+
+    def test_assign_objects_no_objects_particle_or_preposition(self):
+        verb_dict = {'verb': Verb('chill'), 'preposition': Preposition('out'), 'objects': 0, 'particle': None}
+        self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), Preposition('out')])
+
+        verb_dict = {'verb': Verb('chill'), 'preposition': None, 'objects': 0, 'particle': SeparableParticle('out')}
+        self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), SeparableParticle('out')])
+
+    def test_assign_objects_no_objects_particle_and_preposition(self):
+        verb_dict = {'verb': Verb('chill'), 'preposition': Preposition('out'),
+                     'objects': 0, 'particle': SeparableParticle('out')}
+        self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), SeparableParticle('out'), Preposition('out')])
+
+    def test_assign_objects_one_object_no_particle_no_preposition(self):
+        verb_dict = {'verb': Verb('like'), 'preposition': None, 'objects': 1, 'particle': None}
+        self.assertEqual(assign_objects(verb_dict, [Noun('dog')]), [Verb('like'), Noun('dog')])
+
+    def test_assign_objects_one_object_particle(self):
+        verb_dict = {'verb': Verb('pick'), 'preposition': None, 'objects': 1, 'particle': SeparableParticle('up')}
+        self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
+                         [Verb('pick'), Pronoun.IT, SeparableParticle('up')])
+
+        self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
+                         [Verb('pick'), SeparableParticle('up'), Noun('dog')])
+
+    def test_assign_objects_one_object_preposition(self):
+        verb_dict = {'verb': Verb('play'), 'preposition': Preposition('with'), 'objects': 1, 'particle': None}
+        self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
+                         [Verb('play'), Preposition('with'), Pronoun.IT])
+
+        self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
+                         [Verb('play'), Preposition('with'), Noun('dog')])
+
+    def test_assign_objects_one_object_particle_and_preposition(self):
+        verb_dict = {'verb': Verb('put'), 'preposition': Preposition('with'),
+                     'objects': 1, 'particle': SeparableParticle('up')}
+        self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
+                         [Verb('put'), SeparableParticle('up'), Preposition('with'), Pronoun.IT])
+        self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
+                         [Verb('put'), SeparableParticle('up'), Preposition('with'), Noun('dog')])
+
+    def test_assign_objects_two_objects_no_particle_no_preposition(self):
+        verb_dict = {'verb': Verb('show'), 'preposition': None, 'objects': 2, 'particle': None}
+        self.assertEqual(assign_objects(verb_dict, [Noun('dog'), Noun('cat')]),
+                         [Verb('show'), Noun('dog'), Noun('cat')])
+
+    # def test_assign_objects_two_objects_particle(self):
+    #     verb_dict = {'verb': Verb('pick'), 'preposition': None, 'objects': 1, 'particle': SeparableParticle('up')}
+    #     self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
+    #                      [Verb('pick'), Pronoun.IT, SeparableParticle('up')])
+    #
+    #     self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
+    #                      [Verb('pick'), SeparableParticle('up'), Noun('dog')])
+    #
+    # def test_assign_objects_two_objects_preposition(self):
+    #     verb_dict = {'verb': Verb('play'), 'preposition': Preposition('with'), 'objects': 1, 'particle': None}
+    #     self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
+    #                      [Verb('play'), Preposition('with'), Pronoun.IT])
+    #
+    #     self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
+    #                      [Verb('play'), Preposition('with'), Noun('dog')])
+    #
+    # def test_assign_objects_two_objects_particle_and_preposition(self):
+    #     verb_dict = {'verb': Verb('put'), 'preposition': Preposition('with'),
+    #                  'objects': 1, 'particle': SeparableParticle('up')}
+    #     self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
+    #                      [Verb('put'), SeparableParticle('up'), Preposition('with'), Pronoun.IT])
+    #     self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
+    #                      [Verb('put'), SeparableParticle('up'), Preposition('with'), Noun('dog')])
+
+        # TODO
+
+        # sep and not prep and obj = 1  - eat him up/ eat up the stuff
+
+        # sep and prep and obj = 2 - eat him up with a spoon / eat up the stuff with a spoon
+
+        # sep and prep and obj = 1 - put up with him / put up with the stuff
+
+        # no sep and prep and obj = 1 - jump over him / jump over the stuff
+        # no sep and prep and obj = 2 - hit him with a spoon / hit the stuff with a spoon
