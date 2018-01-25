@@ -344,10 +344,10 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(wacky.de_capitalize(), DefinitePluralNoun('the Bobs', base='bob'))
 
         proper = ProperNoun('Bob').de_capitalize()
-        self.assertEqual(ProperNoun('bob', '', 'Bob'), proper)
+        self.assertEqual(ProperNoun('Bob', '', 'Bob'), proper)
 
         proper_plural = PluralProperNoun('The Bobs').de_capitalize()
-        self.assertEqual(PluralProperNoun('the Bobs', '', 'The Bobs'), proper_plural)
+        self.assertEqual(PluralProperNoun('The Bobs', '', 'The Bobs'), proper_plural)
 
     def test_repr(self):
         self.assertEqual(repr(Noun('bob')), "Noun('bob', '', 'bob')")
@@ -424,24 +424,24 @@ class TestNoun(unittest.TestCase):
 
     def test_proper_noun_definite(self):
         noun = ProperNoun('Bob').definite()
-        self.assertEqual(noun, ProperNoun('The Bob', '', 'Bob'))
+        self.assertEqual(noun, DefiniteNoun('the Bob', '', 'Bob'))
 
         noun = PluralProperNoun('Bobs').definite()
-        self.assertEqual(noun, PluralProperNoun('The Bobs', '', 'Bobs'))
+        self.assertEqual(noun, DefinitePluralNoun('the Bobs', '', 'Bobs'))
 
     def test_proper_noun_definite_and_plural(self):
         noun = ProperNoun('Bob').plural().definite()
-        self.assertEqual(noun, PluralProperNoun('The Bobs', '', 'Bob'))
+        self.assertEqual(noun, DefinitePluralNoun('the Bobs', '', 'Bob'))
 
         noun = ProperNoun('Bob').definite().plural()
-        self.assertEqual(noun, PluralProperNoun('The Bobs', '', 'Bob'))
+        self.assertEqual(noun, DefinitePluralNoun('the Bobs', '', 'Bob'))
 
     def test_proper_noun_indefinite_an(self):
         noun = ProperNoun('Ed')
         plural = noun.plural()
 
-        self.assertEqual(noun.indefinite(), IndefiniteNoun('An Ed', '', 'Ed'))
-        self.assertEqual(plural.indefinite(), IndefiniteNoun('An Eds', '', 'Ed'))
+        self.assertEqual(noun.indefinite(), IndefiniteNoun('an Ed', '', 'Ed'))
+        self.assertEqual(plural.indefinite(), IndefiniteNoun('an Eds', '', 'Ed'))
 
     def test_proper_noun_capitalize(self):
         noun = ProperNoun('Ed')
@@ -449,3 +449,24 @@ class TestNoun(unittest.TestCase):
 
         self.assertEqual(noun.capitalize(), noun)
         self.assertEqual(plural.capitalize(), plural)
+
+        sports_team = PluralProperNoun('the Guys')
+        self.assertEqual(sports_team.capitalize(), PluralProperNoun('The Guys', '', 'the Guys'))
+
+    def test_proper_noun_de_capitalize_starts_with_capital(self):
+        noun = ProperNoun('Joe')
+        plural = noun.plural()
+
+        self.assertEqual(noun.de_capitalize(), noun)
+        self.assertEqual(plural.de_capitalize(), plural)
+
+    def test_proper_noun_de_capitalize_starts_with_lower_case(self):
+        noun = ProperNoun('the Dude')
+        plural = noun.plural()
+        capital_noun = noun.capitalize()
+        capital_plural = plural.capitalize()
+
+        self.assertEqual(noun.de_capitalize(), noun)
+        self.assertEqual(capital_noun.de_capitalize(), noun)
+        self.assertEqual(plural.de_capitalize(), plural)
+        self.assertEqual(capital_plural.de_capitalize(), plural)

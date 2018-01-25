@@ -2,9 +2,10 @@ import unittest
 
 import os
 
-from sentences.backend.loader import (load_csv, split_and_strip,
-                                      countable_nouns, uncountable_nouns, verbs, get_verb_dict, LoaderError)
-from sentences.words.noun import Noun, UncountableNoun
+from sentences.backend.loader import (load_csv, strip_spaces,
+                                      countable_nouns, uncountable_nouns, verbs, proper_nouns,
+                                      get_verb_dict, LoaderError)
+from sentences.words.noun import Noun, UncountableNoun, ProperNoun, PluralProperNoun
 from sentences.words.verb import Verb
 from sentences.words.word import Preposition
 from sentences import DATA_PATH, VERBS_CSV, COUNTABLE_NOUNS_CSV
@@ -12,13 +13,23 @@ from tests import TESTS_FILES
 
 
 class TestLoader(unittest.TestCase):
-    def test_split_and_strip(self):
-        self.assertEqual(split_and_strip('  this , is , space words, and   commas'),
-                         ['this', 'is', 'space words', 'and   commas'])
+    def test_strip_spaces(self):
+        self.assertEqual(strip_spaces([['  this ', ' is ', ' space words'],
+                                       [' and   commas']]
+                                      ),
+                         [['this', 'is', 'space words'], ['and   commas']])
 
     def test_load_csv_ignores_blank_lines(self):
         filename = os.path.join(TESTS_FILES, 'blank_lines.csv')
         self.assertEqual(load_csv(filename), [['a', 'b'], ['c', 'd'], ['e', 'f']])
+
+    def test_load_csv_empty(self):
+        filename = os.path.join(TESTS_FILES, 'empty.csv')
+        self.assertEqual(load_csv(filename), [])
+
+    def test_load_csv_ignores_comments(self):
+        filename = os.path.join(TESTS_FILES, 'commented_proper.csv')
+        self.assertEqual(load_csv(filename), [])
 
     def test_load_csv_LoaderError(self):
         self.assertRaises(LoaderError, load_csv, os.path.join(DATA_PATH, 'go_time.ico'))
@@ -39,15 +50,9 @@ class TestLoader(unittest.TestCase):
         self.assertIn(['play', 'null', 'with'], answer)
         self.assertIn(['give', 'gave', 'null', '2'], answer)
 
-    def test_countable_nouns_empty(self):
-        answer = countable_nouns()
-        self.assertIn(Noun('person', 'people'), answer)
-        self.assertIn(Noun('sheep', 'sheep'), answer)
-        self.assertIn(Noun('apple'), answer)
-
-    def test_uncountable_nouns_empty(self):
-        answer = uncountable_nouns()
-        self.assertIn(UncountableNoun('water'), answer)
+    def test_load_csv_empty_values(self):
+        filename = os.path.join(TESTS_FILES, 'only_commas.csv')
+        self.assertEqual(load_csv(filename), [])
 
     def test_countable_nouns_and_uncountable_nouns_wrong_number_of_columns(self):
         too_many_cols = os.path.join(TESTS_FILES, 'too_many.csv')
@@ -66,6 +71,23 @@ class TestLoader(unittest.TestCase):
         empty = os.path.join(TESTS_FILES, 'empty.csv')
         self.assertEqual(countable_nouns(empty), [])
         self.assertEqual(uncountable_nouns(empty), [])
+
+    def test_proper_nouns_empty_csv(self):
+        empty = os.path.join(TESTS_FILES, 'empty.csv')
+        self.assertEqual(proper_nouns(empty), [])
+
+    def test_proper_nouns_non_empty_csv(self):
+        proper = os.path.join(TESTS_FILES, 'uncommented_proper.csv')
+        expected = [
+            ProperNoun('Tom'),
+            ProperNoun('Dick'),
+            ProperNoun('Harry'),
+            PluralProperNoun('the Joneses'),
+            PluralProperNoun('the Kaohsiung Elephants'),
+            PluralProperNoun('Jaces, Cunning Castaways'),
+            ProperNoun('Jesse, "The Body", Ventura')
+        ]
+        self.assertEqual(proper_nouns(proper), expected)
 
     def test_get_verb_dict_empty_strings(self):
         expected = {'verb': Verb('play'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
@@ -107,17 +129,6 @@ class TestLoader(unittest.TestCase):
     def test_get_verb_dict_preposition_is_Preposition(self):
         answer = get_verb_dict(['fly', 'flew', 'with', '2'])
         self.assertIsInstance(answer['preposition'], Preposition)
-
-    def test_verbs_empty(self):
-        answer = verbs()
-        give = {'verb': Verb('give', 'gave', ''), 'preposition': None, 'objects': 2, 'insert_preposition': False}
-        grab = {'verb': Verb('grab'), 'preposition': None, 'objects': 1, 'insert_preposition': False}
-        fall = {'verb': Verb('fall', 'fell', ''), 'preposition': Preposition('on'), 'objects': 1,
-                'insert_preposition': False}
-
-        self.assertIn(give, answer)
-        self.assertIn(grab, answer)
-        self.assertIn(fall, answer)
 
     def test_verbs_empty_csv(self):
         self.assertEqual(verbs(os.path.join(TESTS_FILES, 'empty.csv')), [])

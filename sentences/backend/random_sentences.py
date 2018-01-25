@@ -5,20 +5,19 @@ from sentences.words.punctuation import Punctuation
 
 
 class RandomSentences(object):
-    def __init__(self, verb_list, countable_list, uncountable_list):
+    def __init__(self, verb_list, noun_list):
         self._pronouns = list(Pronoun.__members__.values())
         self._endings = [Punctuation.PERIOD, Punctuation.PERIOD, Punctuation.EXCLAMATION]
 
-        self._countable = countable_list[:]
         self._verbs = verb_list[:]
-        self._uncountable = uncountable_list[:]
+        self._nouns = noun_list[:]
         self._check_empty_lists()
 
     def _check_empty_lists(self):
         if not self._verbs:
             raise ValueError('There are no verbs in the verb list.')
-        if not self._countable and not self._uncountable:
-            raise ValueError('There are no countable nouns AND no uncountable nouns.')
+        if not self._nouns:
+            raise ValueError('There are no nouns in any of the nouns lists.')
 
     def sentence(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
@@ -68,10 +67,10 @@ class RandomSentences(object):
         if random.random() < p_pronoun:
             return random.choice(self._pronouns).subject()
         else:
-            return random.choice(self._countable + self._uncountable)
+            return random.choice(self._nouns)
 
     def object(self, p_pronoun):
         if random.random() < p_pronoun:
             return random.choice(self._pronouns).object()
         else:
-            return random.choice(self._countable + self._uncountable)
+            return random.choice(self._nouns)

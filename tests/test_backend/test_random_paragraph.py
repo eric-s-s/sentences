@@ -23,7 +23,7 @@ class TestRandomParagraph(unittest.TestCase):
             {'verb': Verb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
             {'verb': Verb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
         ]
-        self.rp = RandomParagraph(0.2, self.verbs, self.countable, self.uncountable)
+        self.rp = RandomParagraph(0.2, self.verbs, self.countable + self.uncountable)
 
     def test_get_subj_does_not_pick_subj_in_predicate(self):
         predicate = [Word('hi')]
@@ -68,7 +68,7 @@ class TestRandomParagraph(unittest.TestCase):
 
     def test_create_pool_paragraph_is_correct_length(self):
         verb_list = [{'verb': Verb('play'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
-        rp = RandomParagraph(0.2, verb_list, self.countable, self.uncountable)
+        rp = RandomParagraph(0.2, verb_list, self.countable + self.uncountable)
 
         for length in range(3, 11):
             pool = length - 2
@@ -90,7 +90,7 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(20)
         verb_list = [{'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
 
-        repeats = RandomParagraph(0.0, verb_list, [Noun('cat')], [Noun('water')])
+        repeats = RandomParagraph(0.0, verb_list, [Noun('cat'), Noun('water')])
 
         answer = repeats.create_pool_paragraph(2, 2)
         expected = [
@@ -100,7 +100,7 @@ class TestRandomParagraph(unittest.TestCase):
         self.assertEqual(answer, expected)
 
         no_prepositions = [verb_dict for verb_dict in self.verbs if verb_dict['preposition'] is None]
-        no_repeats = RandomParagraph(0.0, no_prepositions, [Noun('cat')], [Noun('water')])
+        no_repeats = RandomParagraph(0.0, no_prepositions, [Noun('cat'), Noun('water')])
         answer = no_repeats.create_pool_paragraph(2, 100)
         for sentence in answer:
             self.assertEqual(len(sentence), 4)
@@ -127,7 +127,7 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(20)
         verb_list = [{'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False}]
 
-        repeats = RandomParagraph(0.0, verb_list, [Noun('joe')], [Noun('bob')])
+        repeats = RandomParagraph(0.0, verb_list, [Noun('joe'), Noun('bob')])
         paragraph = repeats.create_chain_paragraph(3)
         expected = [
             [Noun('joe'), Verb('give'), Noun('joe'), Noun('bob'), period],
@@ -139,7 +139,7 @@ class TestRandomParagraph(unittest.TestCase):
     def test_create_chain_paragraph_pronouns(self):
         verb_list = [{'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'insert_preposition': False}]
 
-        rp = RandomParagraph(1.0, verb_list, self.countable, self.uncountable)
+        rp = RandomParagraph(1.0, verb_list, self.countable + self.uncountable)
         answer = rp.create_chain_paragraph(10)
         for back_index, sentence in enumerate(answer[1:]):
             previous_obj = answer[back_index][-2]
@@ -147,7 +147,7 @@ class TestRandomParagraph(unittest.TestCase):
             self.assertEqual(previous_obj.subject(), current_subj)
 
     def test_create_chain_paragraph_nouns(self):
-        rp = RandomParagraph(0.0, self.verbs, self.countable, self.uncountable)
+        rp = RandomParagraph(0.0, self.verbs, self.countable + self.uncountable)
         answer = rp.create_chain_paragraph(10)
         for back_index, sentence in enumerate(answer[1:]):
             previous_obj = answer[back_index][-2]
@@ -157,7 +157,7 @@ class TestRandomParagraph(unittest.TestCase):
     def test_create_chain_paragraph_assigns_random_subj_if_no_obj(self):
         random.seed(11)
         verb_list = [{'verb': Verb('jump'), 'preposition': None, 'objects': 0, 'insert_preposition': False}]
-        rp = RandomParagraph(0.2, verb_list, self.countable, self.uncountable)
+        rp = RandomParagraph(0.2, verb_list, self.countable + self.uncountable)
         answer = rp.create_chain_paragraph(3)
         expected = [
             [Noun('sand'), Verb('jump'), exclamation],

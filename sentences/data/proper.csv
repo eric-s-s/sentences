@@ -1,0 +1,10 @@
+# lines starting with '#' are ignored.
+# name, 's' or 'p' for singular or plural
+
+# Tom, s
+# Dick, s
+# Harry, s
+# "Jace, Cunning Castaway", s
+# "Jesse, ""The Body"", Ventura", s
+# the Joneses, p
+# Ferraris, p

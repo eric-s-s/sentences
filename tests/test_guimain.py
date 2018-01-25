@@ -194,7 +194,7 @@ class TestGuiMain(unittest.TestCase):
                 f.write('')
         main.reload_files()
         main.create_texts()
-        mock_error.assert_called_with('Uh-oh!', 'ValueError: There are no countable nouns AND no uncountable nouns.')
+        mock_error.assert_called_with('Uh-oh!', 'ValueError: There are no nouns in any of the nouns lists.')
 
     @patch("sentences.guimain.showerror")
     def test_create_text_error_pool_not_large_enough(self, mock_error):

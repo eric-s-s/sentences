@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import List, Union
 
 from sentences.backend.investigation_tools import requires_third_person, find_subject
-from sentences.words.noun import Noun, PluralNoun, UncountableNoun
+from sentences.words.noun import Noun, PluralNoun, UncountableNoun, ProperNoun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
@@ -49,7 +49,7 @@ class Grammarizer(object):
             value['definite'] = False
 
     def set_nouns(self):
-        nouns = get_nouns(self._raw)
+        nouns = get_non_proper_nouns(self._raw)
         pool = {}
         for noun in nouns:
             use_plural = False
@@ -67,7 +67,7 @@ class Grammarizer(object):
             for original_wd in sentence:
                 new_wd = original_wd
 
-                if isinstance(new_wd, Noun):
+                if is_non_proper_noun(new_wd):
                     new_wd = self._modify_noun(new_wd)
 
                 if isinstance(new_wd, Verb):
@@ -113,10 +113,14 @@ def normalize_probability(probability: float):
     return min(1.0, max(probability, 0))
 
 
-def get_nouns(paragraph: Paragraph) -> list:
+def get_non_proper_nouns(paragraph: Paragraph) -> list:
     answer = []
     for sentence in paragraph:
         for word in sentence:
-            if isinstance(word, Noun) and word not in answer:
+            if is_non_proper_noun(word) and word not in answer:  # Sets and random choice are untestable
                 answer.append(word)
     return answer
+
+
+def is_non_proper_noun(word):
+    return isinstance(word, Noun) and not isinstance(word, ProperNoun)

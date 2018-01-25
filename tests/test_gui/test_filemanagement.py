@@ -15,6 +15,7 @@ class TestFileManagement(unittest.TestCase):
             'save_directory': 'none',
             'countable_nouns': 'none',
             'uncountable_nouns': 'none',
+            'proper_nouns': 'none',
             'verbs': 'none'
         })
 
@@ -22,6 +23,7 @@ class TestFileManagement(unittest.TestCase):
         self.assertIsInstance(self.frame.save_directory, DirectoryVar)
         self.assertIsInstance(self.frame.countable_nouns, FilenameVar)
         self.assertIsInstance(self.frame.uncountable_nouns, FilenameVar)
+        self.assertIsInstance(self.frame.proper_nouns, FilenameVar)
         self.assertIsInstance(self.frame.verbs, FilenameVar)
 
     def test_set_get_values(self):
@@ -29,12 +31,14 @@ class TestFileManagement(unittest.TestCase):
         self.frame.set_variable('save_directory', 'save')
         self.frame.set_variable('countable_nouns', 'countable')
         self.frame.set_variable('uncountable_nouns', 'uncountable')
+        self.frame.set_variable('proper_nouns', 'proper')
         self.frame.set_variable('verbs', 'verbs')
         self.assertEqual(self.frame.get_values(), {
             'home_directory': 'home',
             'save_directory': 'save',
             'countable_nouns': 'countable',
             'uncountable_nouns': 'uncountable',
+            'proper_nouns': 'proper',
             'verbs': 'verbs'
         })
 
@@ -61,6 +65,7 @@ class TestFileManagement(unittest.TestCase):
             'save_directory': 'save folder:',
             'countable_nouns': 'file: countable nouns:',
             'uncountable_nouns': 'file: uncountable nouns:',
+            'proper_nouns': 'file: proper nouns:',
             'verbs': 'file: verbs:'
         })
 
@@ -92,9 +97,14 @@ class TestFileManagement(unittest.TestCase):
         self.frame.set_variable('countable_nouns', 'countable')
 
         self.assertEqual(len(to_test.call_args), 3)
-        self.assertNotEqual(to_test.call_args[2], to_test.call_args[0])
+        self.assertNotIn(to_test.call_args[2], to_test.call_args[:2])
 
         self.frame.set_variable('uncountable_nouns', 'uncountable')
 
         self.assertEqual(len(to_test.call_args), 4)
-        self.assertNotEqual(to_test.call_args[3], to_test.call_args[0])
+        self.assertNotIn(to_test.call_args[3], to_test.call_args[:3])
+
+        self.frame.set_variable('proper_nouns', 'proper')
+
+        self.assertEqual(len(to_test.call_args), 5)
+        self.assertNotIn(to_test.call_args[4], to_test.call_args[:4])

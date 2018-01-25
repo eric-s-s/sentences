@@ -2,13 +2,13 @@ import os
 import unittest
 from shutil import rmtree, copytree
 
-from sentences import DATA_PATH, APP_NAME
+from sentences import (DATA_PATH, APP_NAME, VERBS_CSV,
+                       UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, COUNTABLE_NOUNS_CSV, DEFAULT_CONFIG)
 from tests import TESTS_FILES
-from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
-                                    VERBS_CSV, DEFAULT_SAVE_DIR,
+from sentences.configloader import (CONFIG_FILE, DEFAULT_SAVE_DIR,
                                     create_default_config, save_config, load_config, ConfigLoader,
-                                    get_documents_folder, _get_key_value, _get_key_value_list,
-                                    _create_line)
+                                    get_documents_folder, get_single_key_value_pair, get_key_value_pairs,
+                                    create_config_text_line)
 from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.filemanagement import FileManagement
 from sentences.gui.grammardetails import GrammarDetails
@@ -105,39 +105,39 @@ class TestConfigLoader(unittest.TestCase):
         self.assertNotEqual(current, before)
         self.assertEqual(current, default)
 
-    def test_get_key_value_positive_int(self):
-        self.assertEqual(_get_key_value('my_int = 123'), ('my_int', 123))
-        self.assertEqual(_get_key_value(' my_int =  0 '), ('my_int', 0))
+    def test_get_single_key_value_pair_positive_int(self):
+        self.assertEqual(get_single_key_value_pair('my_int = 123'), ('my_int', 123))
+        self.assertEqual(get_single_key_value_pair(' my_int =  0 '), ('my_int', 0))
 
-    def test_get_key_value_float(self):
-        self.assertEqual(_get_key_value('my_float = 123.44'), ('my_float', 123.44))
-        self.assertEqual(_get_key_value('my_float = -0.01'), ('my_float', -0.01))
+    def test_get_single_key_value_pair_float(self):
+        self.assertEqual(get_single_key_value_pair('my_float = 123.44'), ('my_float', 123.44))
+        self.assertEqual(get_single_key_value_pair('my_float = -0.01'), ('my_float', -0.01))
 
-    def test_get_key_value_special(self):
-        self.assertEqual(_get_key_value('special = true'), ('special', True))
-        self.assertEqual(_get_key_value('special = false'), ('special', False))
-        self.assertEqual(_get_key_value('special = none'), ('special', None))
+    def test_get_single_key_value_pair_special(self):
+        self.assertEqual(get_single_key_value_pair('special = true'), ('special', True))
+        self.assertEqual(get_single_key_value_pair('special = false'), ('special', False))
+        self.assertEqual(get_single_key_value_pair('special = none'), ('special', None))
 
-        self.assertEqual(_get_key_value('special = TRUE'), ('special', True))
-        self.assertEqual(_get_key_value('special = FALSE'), ('special', False))
-        self.assertEqual(_get_key_value('special = NONE'), ('special', None))
+        self.assertEqual(get_single_key_value_pair('special = TRUE'), ('special', True))
+        self.assertEqual(get_single_key_value_pair('special = FALSE'), ('special', False))
+        self.assertEqual(get_single_key_value_pair('special = NONE'), ('special', None))
 
-    def test_get_key_value_others(self):
-        self.assertEqual(_get_key_value('thing = this is my thing. '), ('thing', 'this is my thing.'))
+    def test_get_single_key_value_pair_others(self):
+        self.assertEqual(get_single_key_value_pair('thing = this is my thing. '), ('thing', 'this is my thing.'))
 
-    def test_get_key_value_empty(self):
-        self.assertEqual(_get_key_value(' '), ('', None))
+    def test_get_single_key_value_pair_empty(self):
+        self.assertEqual(get_single_key_value_pair(' '), ('', None))
 
-    def test_get_key_value_list_bad_file(self):
+    def test_get_key_value_pairs_bad_file(self):
         bad_text = 'no comment and no equal'
         to_delete = os.path.join(DATA_PATH, 'to_delete.cfg')
         with open(to_delete, 'w') as f:
             f.write(bad_text)
 
-        self.assertRaises(ValueError, _get_key_value_list, to_delete)
+        self.assertRaises(ValueError, get_key_value_pairs, to_delete)
         os.remove(to_delete)
 
-    def test_get_key_value_list_default_config(self):
+    def test_get_key_value_pairs_default_config(self):
         answer = [
             ('# all values are case-insensitive and convert to lower case', None),
             ('', None),
@@ -152,6 +152,7 @@ class TestConfigLoader(unittest.TestCase):
             ('# If none, defaults to home_directory/<filename>/[nouns.csv|uncountable.csv|verbs.csv]', None),
             ('countable_nouns', None),
             ('uncountable_nouns', None),
+            ('proper_nouns', None),
             ('verbs', None),
             ('', None),
             ('# ERROR DETAILS', None),
@@ -184,17 +185,17 @@ class TestConfigLoader(unittest.TestCase):
             ('file_prefix', None),
             ('', None)
         ]
-        self.assertEqual(_get_key_value_list(DEFAULT_CONFIG), answer)
+        self.assertEqual(get_key_value_pairs(DEFAULT_CONFIG), answer)
 
-    def test_create_line(self):
-        self.assertEqual(_create_line('thing', 'string'), 'thing = string')
-        self.assertEqual(_create_line('file', 'E:/data/thing.csv'), 'file = E:/data/thing.csv')
-        self.assertEqual(_create_line('file', 'E:\\data\\thing.csv'), 'file = E:\\data\\thing.csv')
-        self.assertEqual(_create_line('int', 10), 'int = 10')
-        self.assertEqual(_create_line('float', 3.5), 'float = 3.5')
-        self.assertEqual(_create_line('TRUE', True), 'TRUE = true')
-        self.assertEqual(_create_line('FALSE', False), 'FALSE = false')
-        self.assertEqual(_create_line('NONE', None), 'NONE = none')
+    def test_create_config_text_line(self):
+        self.assertEqual(create_config_text_line('thing', 'string'), 'thing = string')
+        self.assertEqual(create_config_text_line('file', 'E:/data/thing.csv'), 'file = E:/data/thing.csv')
+        self.assertEqual(create_config_text_line('file', 'E:\\data\\thing.csv'), 'file = E:\\data\\thing.csv')
+        self.assertEqual(create_config_text_line('int', 10), 'int = 10')
+        self.assertEqual(create_config_text_line('float', 3.5), 'float = 3.5')
+        self.assertEqual(create_config_text_line('TRUE', True), 'TRUE = true')
+        self.assertEqual(create_config_text_line('FALSE', False), 'FALSE = false')
+        self.assertEqual(create_config_text_line('NONE', None), 'NONE = none')
 
     def test_save_config(self):
         with open(DEFAULT_CONFIG, 'r') as f:
@@ -214,6 +215,7 @@ class TestConfigLoader(unittest.TestCase):
             'save_directory': None,
             'countable_nouns': None,
             'uncountable_nouns': None,
+            'proper_nouns': None,
             'verbs': None,
 
             'error_probability': 0.2,
@@ -287,6 +289,7 @@ class TestConfigLoader(unittest.TestCase):
             'save_directory': os.path.join(home, DEFAULT_SAVE_DIR),
             'countable_nouns': os.path.join(home, COUNTABLE_NOUNS_CSV),
             'uncountable_nouns': os.path.join(home, UNCOUNTABLE_NOUNS_CSV),
+            'proper_nouns': os.path.join(home, PROPER_NOUNS_CSV),
             'verbs': os.path.join(home, VERBS_CSV),
 
             'error_probability': 0.2,
@@ -525,6 +528,7 @@ class TestConfigLoader(unittest.TestCase):
                   'save_directory': os.path.join(home, DEFAULT_SAVE_DIR),
                   'countable_nouns': os.path.join(home, COUNTABLE_NOUNS_CSV),
                   'uncountable_nouns': os.path.join(home, UNCOUNTABLE_NOUNS_CSV),
+                  'proper_nouns': os.path.join(home, PROPER_NOUNS_CSV),
                   'verbs': os.path.join(home, VERBS_CSV)}
 
         self.assertEqual(fm.get_values(), answer)

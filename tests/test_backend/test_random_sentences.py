@@ -24,15 +24,15 @@ class TestRawWordsRandomisation(unittest.TestCase):
             {'verb': Verb('jump'), 'preposition': Preposition('over'), 'objects': 1, 'insert_preposition': False},
             {'verb': Verb('give'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
         ]
-        self.generator = RandomSentences(self.verbs, self.countable, self.uncountable)
+        self.generator = RandomSentences(self.verbs, self.countable + self.uncountable)
 
     def test_raises_error_if_no_verbs(self):
-        self.assertRaises(ValueError, RandomSentences, [], [Noun('dog')], [Noun('cat')])
+        self.assertRaises(ValueError, RandomSentences, [], [Noun('dog'), Noun('cat')])
 
-    def test_raises_error_if_no_nouns_in_both_countable_and_uncountable(self):
-        self.assertRaises(ValueError, RandomSentences, [Verb('go')], [], [])
-        self.assertIsInstance(RandomSentences([Verb('go')], [Noun('dog')], []), RandomSentences)
-        self.assertIsInstance(RandomSentences([Verb('go')], [], [Noun('dog')]), RandomSentences)
+    def test_raises_error_if_no_nouns(self):
+        self.assertRaises(ValueError, RandomSentences, [Verb('go')], [])
+        self.assertIsInstance(RandomSentences([Verb('go')], [Noun('dog')]), RandomSentences)
+        self.assertIsInstance(RandomSentences([Verb('go')], [Noun('dog')]), RandomSentences)
 
     def test_makes_copy_of_input_list(self):
         random.seed(148)
@@ -154,7 +154,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
         random.seed(1234)
         verb_list = [{'verb': Verb('jump'), 'preposition': Preposition('on'),
                       'objects': 1, 'insert_preposition': False}]
-        generator = RandomSentences(verb_list, self.countable, self.uncountable)
+        generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('sand'), Verb('jump'), Preposition('on'), us, period])
 
@@ -165,7 +165,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
         random.seed(7890)
         verb_list = [{'verb': Verb('bring'), 'preposition': Preposition('to'),
                       'objects': 2, 'insert_preposition': True}]
-        generator = RandomSentences(verb_list, self.countable, self.uncountable)
+        generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
         self.assertEqual(answer, [Noun('milk'), Verb('bring'), Noun('water'), Preposition('to'),
                                   Noun('rice'), exclamation])
@@ -180,7 +180,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
             {'verb': Verb('bring'), 'preposition': Preposition('to'), 'objects': 2, 'insert_preposition': True},
             {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
         ]
-        generator = RandomSentences(verb_list, self.countable, self.uncountable)
+        generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.predicate(1.0)
         self.assertEqual(answer, [Verb('give'), her, Noun('dog'), exclamation])
 
@@ -194,7 +194,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
         verb_list = [
             {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
         ]
-        generator = RandomSentences(verb_list, [Noun('dog')], [Noun('water')])
+        generator = RandomSentences(verb_list, [Noun('dog'), Noun('water')])
 
         test_membership = (Noun('dog'), Noun('water'))
         for _ in range(100):
@@ -210,5 +210,5 @@ class TestRawWordsRandomisation(unittest.TestCase):
         verb_list = [
             {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'insert_preposition': False},
         ]
-        generator = RandomSentences(verb_list, [Noun('dog')], [])
+        generator = RandomSentences(verb_list, [Noun('dog')])
         self.assertEqual(generator.predicate(), [Verb('give'), Noun('dog'), Noun('dog'), period])

@@ -5,7 +5,7 @@ from typing import List, Any
 from sentences.backend.errormaker import (de_capitalize, copy_paragraph, make_verb_error, make_noun_error,
                                           make_is_do_error, find_subject_special_case, ErrorMaker)
 from sentences.words.noun import (Noun, PluralNoun, UncountableNoun, IndefiniteNoun, DefinitePluralNoun,
-                                  DefiniteNoun)
+                                  DefiniteNoun, ProperNoun, PluralProperNoun)
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import (Verb, ThirdPersonVerb, PastVerb,
                                   NegativeVerb, NegativeThirdPersonVerb, NegativePastVerb)
@@ -25,6 +25,11 @@ class TestErrorMaker(unittest.TestCase):
             to_test = de_capitalize(noun.capitalize())
             self.assertEqual(noun, to_test)
             self.assertEqual(type(noun), type(to_test))
+
+    def test_de_capitalize_with_proper_noun(self):
+        self.assertEqual(de_capitalize(ProperNoun('Joe')), ProperNoun('Joe'))
+        self.assertEqual(de_capitalize(ProperNoun('the Dude').capitalize()), ProperNoun('the Dude'))
+        self.assertEqual(de_capitalize(PluralProperNoun('Joes')), PluralProperNoun('Joes'))
 
     def test_de_capitalize_with_pronoun(self):
         expected = Pronoun.I
@@ -111,6 +116,50 @@ class TestErrorMaker(unittest.TestCase):
                 self.assertEqual(NegativeThirdPersonVerb("doesn't play", '', 'play'), to_test)
             else:
                 self.assertEqual(NegativeVerb("don't play", '', 'play'), to_test)
+
+    def test_make_noun_error_proper_no_article(self):
+        random.seed(191)
+        noun = ProperNoun('Joe')
+        definite = [1, 2, 6, 7, 8, 9]
+        for index in range(10):
+            to_test = make_noun_error(noun)
+            if index in definite:
+                self.assertEqual(DefiniteNoun('the Joe', '', 'Joe'), to_test)
+            else:
+                self.assertEqual(IndefiniteNoun('a Joe', '', 'Joe'), to_test)
+
+    def test_make_noun_error_proper_with_article(self):
+        random.seed(6541)
+        noun = ProperNoun('the Dude').capitalize()
+        definite = [0, 1, 2, 7, 8, 9]
+        for index in range(10):
+            to_test = make_noun_error(noun)
+            if index in definite:
+                self.assertEqual(DefiniteNoun('the the Dude', '', 'the Dude'), to_test)
+            else:
+                self.assertEqual(IndefiniteNoun('a the Dude', '', 'the Dude'), to_test)
+
+    def test_make_noun_error_plural_proper(self):
+        random.seed(69167)
+        noun = PluralProperNoun('Eds').capitalize()
+        definite = [1, 5, 8, 9]
+        for index in range(10):
+            to_test = make_noun_error(noun)
+            if index in definite:
+                self.assertEqual(DefinitePluralNoun('the Eds', '', 'Eds'), to_test)
+            else:
+                self.assertEqual(IndefiniteNoun('an Eds', '', 'Eds'), to_test)
+
+    def test_make_noun_error_plural_proper_with_article(self):
+        random.seed(2559)
+        noun = PluralProperNoun('the Joneses').capitalize()
+        definite = [0, 1, 2, 8]
+        for index in range(10):
+            to_test = make_noun_error(noun)
+            if index in definite:
+                self.assertEqual(DefinitePluralNoun('the the Joneses', '', 'the Joneses'), to_test)
+            else:
+                self.assertEqual(IndefiniteNoun('a the Joneses', '', 'the Joneses'), to_test)
 
     def test_make_noun_error_uncountable_not_definite(self):
         random.seed(10)
@@ -314,22 +363,22 @@ class TestErrorMaker(unittest.TestCase):
 
     def test_error_maker_create_noun_errors_some_errors(self):
         dog = Noun('dog')
-        cat = Noun('cat')
+        joe = ProperNoun('Joe')
         grab = Verb('grab')
         paragraph = [
-            [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
-            [cat.plural().definite(), grab, dog.definite(), Punctuation.EXCLAMATION]
+            [dog.indefinite().capitalize(), grab.third_person(), joe, Punctuation.EXCLAMATION],
+            [joe, grab, dog.definite(), Punctuation.EXCLAMATION]
         ]
         random.seed(2)
         error_maker = ErrorMaker(paragraph, p_error=0.5)
         error_maker.create_noun_errors()
         error_paragraph = [
-            [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
-            [cat.capitalize(), grab, dog, Punctuation.EXCLAMATION]
+            [dog.indefinite().capitalize(), grab.third_person(), joe, Punctuation.EXCLAMATION],
+            [joe.indefinite().capitalize(), grab, dog, Punctuation.EXCLAMATION]
         ]
         answer_paragraph = [
-            [dog.indefinite(), grab.third_person(), cat.plural(), Punctuation.EXCLAMATION],
-            [cat.plural().definite().bold(), grab, dog.definite().bold(), Punctuation.EXCLAMATION]
+            [dog.indefinite().capitalize(), grab.third_person(), joe, Punctuation.EXCLAMATION],
+            [joe.bold(), grab, dog.definite().bold(), Punctuation.EXCLAMATION]
         ]
         self.assertEqual(error_maker.error_paragraph, error_paragraph)
         self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
@@ -608,6 +657,31 @@ class TestErrorMaker(unittest.TestCase):
         self.assertEqual(error_maker.error_paragraph, error_paragraph)
         self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
         self.assertEqual(error_maker.error_count, 2)
+
+    def test_error_maker_create_period_errors_does_not_bold_when_proper_noun_is_unchanged(self):
+        sox = PluralProperNoun('the Sox')
+        joe = ProperNoun('Joe')
+        grab = Verb('grab')
+        paragraph = [
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION],
+            [sox.capitalize(), grab, joe, Punctuation.EXCLAMATION],
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION]
+        ]
+        error_maker = ErrorMaker(paragraph, p_error=1.0)
+        error_maker.create_period_errors()
+        error_paragraph = [
+            [joe, grab.third_person(), sox, Punctuation.COMMA],
+            [sox, grab, joe, Punctuation.COMMA],
+            [joe, grab.third_person(), sox, Punctuation.COMMA]
+        ]
+        answer_paragraph = [
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION.bold()],
+            [sox.capitalize().bold(), grab, joe, Punctuation.EXCLAMATION.bold()],
+            [joe, grab.third_person(), sox, Punctuation.EXCLAMATION.bold()]
+        ]
+        self.assertEqual(error_maker.error_paragraph, error_paragraph)
+        self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
+        self.assertEqual(error_maker.error_count, 3)
 
     def test_error_maker_create_period_errors_some_errors(self):
         dog = Noun('dog')

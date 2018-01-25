@@ -2,7 +2,7 @@ import random
 
 from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person, get_present_be_verb, find_subject
-from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun
+from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun, ProperNoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, NegativeVerb, PastVerb
 from sentences.words.word import Word, Preposition
@@ -135,14 +135,15 @@ class ErrorMaker(object):
 
     def _decapitalize_at_commas(self):
         last_index = len(self._error_paragraph) - 1
-        for index, sentence in enumerate(self._error_paragraph):
-            if sentence[-1] == Punctuation.COMMA and index < last_index:
-                to_alter_index = index + 1
-                to_alter = self._error_paragraph[to_alter_index]
-                to_decapitalize = to_alter[0]
+        for s_index, sentence in enumerate(self._error_paragraph):
+            if sentence[-1] == Punctuation.COMMA and s_index < last_index:
+                target_sentence_index = s_index + 1
+                target_sentence = self._error_paragraph[target_sentence_index]
+                to_decapitalize = target_sentence[0]
                 new_word = de_capitalize(to_decapitalize)
-                to_alter[0] = new_word
-                self._answer[to_alter_index][0] = self._answer[to_alter_index][0].bold()
+                target_sentence[0] = new_word
+                if to_decapitalize != new_word:
+                    self._answer[target_sentence_index][0] = self._answer[target_sentence_index][0].bold()
 
     def create_all_errors(self):
         for method in self.method_order:
@@ -151,7 +152,9 @@ class ErrorMaker(object):
 
 def make_noun_error(noun):
     basic = noun.to_base_noun()
-    if isinstance(noun, UncountableNoun):
+    if isinstance(noun, ProperNoun):
+        choices = [basic.indefinite(), basic.definite()]
+    elif isinstance(noun, UncountableNoun):
         choices = [basic.indefinite(), basic.plural()]
     elif isinstance(noun, IndefiniteNoun):
         choices = [basic] * 3 + [basic.plural().indefinite(), basic.plural()]

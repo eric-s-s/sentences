@@ -7,6 +7,5 @@ DEFAULT_CONFIG = os.path.join(DATA_PATH, 'default.cfg')
 
 COUNTABLE_NOUNS_CSV = 'nouns.csv'
 UNCOUNTABLE_NOUNS_CSV = 'uncountable.csv'
+PROPER_NOUNS_CSV = 'proper.csv'
 VERBS_CSV = 'verbs.csv'
-
-

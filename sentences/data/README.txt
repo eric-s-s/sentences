@@ -1,4 +1,4 @@
-sentences v2.4
+sentences v3.0
 ==============
 
 This app creates randomly generated paragraphs and then assigns specific
@@ -10,8 +10,6 @@ GUI options details:
 - MAIN OPTIONS
     - "Save current settings": Saves the current setting to the config file. They will be set at startup.
     - "Reset to saved settings": Reloads the config file.
-    - "Update from word files": If you altered the CSV files containing your pool of countable nouns, uncountable nouns and
-      verbs, this will reload those files into the app.
     - "New default word files": Moves "nouns.csv", "verbs.csv" and "uncountable.csv" to new locations (such as
       "nouns_old_01.csv") and then copies the default word files.
     - "Factory Reset": Overwrites the config file and default word files without saving them.
