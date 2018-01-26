@@ -221,13 +221,13 @@ class TestRawWordsRandomisation(unittest.TestCase):
         verb_dict = {'verb': Verb('chill'), 'preposition': Preposition('out'), 'objects': 0, 'particle': None}
         self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), Preposition('out')])
 
-        verb_dict = {'verb': Verb('chill'), 'preposition': None, 'objects': 0, 'particle': SeparableParticle('out')}
-        self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), SeparableParticle('out')])
+        verb_dict = {'verb': Verb('run'), 'preposition': None, 'objects': 0, 'particle': SeparableParticle('away')}
+        self.assertEqual(assign_objects(verb_dict, []), [Verb('run'), SeparableParticle('away')])
 
-    def test_assign_objects_no_objects_particle_and_preposition(self):
-        verb_dict = {'verb': Verb('chill'), 'preposition': Preposition('out'),
-                     'objects': 0, 'particle': SeparableParticle('out')}
-        self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), SeparableParticle('out'), Preposition('out')])
+    # def test_assign_objects_no_objects_particle_and_preposition(self):
+    #     verb_dict = {'verb': Verb('chill'), 'preposition': Preposition('out'),
+    #                  'objects': 0, 'particle': SeparableParticle('out')}
+    #     self.assertEqual(assign_objects(verb_dict, []), [Verb('chill'), SeparableParticle('out'), Preposition('out')])
 
     def test_assign_objects_one_object_no_particle_no_preposition(self):
         verb_dict = {'verb': Verb('like'), 'preposition': None, 'objects': 1, 'particle': None}
@@ -263,28 +263,28 @@ class TestRawWordsRandomisation(unittest.TestCase):
                          [Verb('show'), Noun('dog'), Noun('cat')])
 
     # def test_assign_objects_two_objects_particle(self):
-    #     verb_dict = {'verb': Verb('pick'), 'preposition': None, 'objects': 1, 'particle': SeparableParticle('up')}
+    #     verb_dict = {'verb': Verb('pick'), 'preposition': None, 'objects': 2, 'particle': SeparableParticle('up')}
     #     self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
     #                      [Verb('pick'), Pronoun.IT, SeparableParticle('up')])
     #
     #     self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
     #                      [Verb('pick'), SeparableParticle('up'), Noun('dog')])
-    #
-    # def test_assign_objects_two_objects_preposition(self):
-    #     verb_dict = {'verb': Verb('play'), 'preposition': Preposition('with'), 'objects': 1, 'particle': None}
-    #     self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
-    #                      [Verb('play'), Preposition('with'), Pronoun.IT])
-    #
-    #     self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
-    #                      [Verb('play'), Preposition('with'), Noun('dog')])
-    #
-    # def test_assign_objects_two_objects_particle_and_preposition(self):
-    #     verb_dict = {'verb': Verb('put'), 'preposition': Preposition('with'),
-    #                  'objects': 1, 'particle': SeparableParticle('up')}
-    #     self.assertEqual(assign_objects(verb_dict, [Pronoun.IT]),
-    #                      [Verb('put'), SeparableParticle('up'), Preposition('with'), Pronoun.IT])
-    #     self.assertEqual(assign_objects(verb_dict, [Noun('dog')]),
-    #                      [Verb('put'), SeparableParticle('up'), Preposition('with'), Noun('dog')])
+
+    def test_assign_objects_two_objects_preposition(self):
+        verb_dict = {'verb': Verb('bring'), 'preposition': Preposition('to'), 'objects': 2, 'particle': None}
+        self.assertEqual(assign_objects(verb_dict, [Pronoun.HIM, Pronoun.IT]),
+                         [Verb('bring'), Pronoun.HIM,Preposition('to'), Pronoun.IT])
+
+        self.assertEqual(assign_objects(verb_dict, [Noun('cat'), Noun('dog')]),
+                         [Verb('bring'), Noun('cat'), Preposition('to'), Noun('dog')])
+
+    def test_assign_objects_two_objects_particle_and_preposition(self):
+        verb_dict = {'verb': Verb('throw'), 'preposition': Preposition('for'),
+                     'objects': 2, 'particle': SeparableParticle('away')}
+        self.assertEqual(assign_objects(verb_dict, [Pronoun.HIM, Pronoun.IT]),
+                         [Verb('throw'), Pronoun.HIM, SeparableParticle('away'), Preposition('for'), Pronoun.IT])
+        self.assertEqual(assign_objects(verb_dict, [Noun('cat'), Noun('dog')]),
+                         [Verb('throw'), SeparableParticle('away'), Noun('cat'), Preposition('for'), Noun('dog')])
 
         # TODO
 

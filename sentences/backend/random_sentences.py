@@ -2,6 +2,7 @@ import random
 
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
+from sentences.words.word import SeparableParticle
 
 
 # TODO two-part verbs
@@ -80,7 +81,7 @@ class RandomSentences(object):
             return random.choice(self._nouns)
 
 
-def assign_objects(verb_group, objects):
+def assign_objects2(verb_group, objects):
     preposition = verb_group['preposition']
     separable_particle = verb_group['particle']
     predicate = [verb_group['verb']]
@@ -114,3 +115,32 @@ def assign_objects(verb_group, objects):
     if use_preposition:
         predicate.append(preposition)
     return predicate
+
+
+def assign_objects(verb_group, objects):
+    preposition = [verb_group['preposition']]
+    separable_particle = [verb_group['particle']]
+    predicate = [verb_group['verb']]
+
+    while objects:
+        obj = objects.pop()
+        if len(preposition) < 2:
+            preposition.append(obj)
+        elif isinstance(obj, Pronoun):
+            separable_particle.insert(0, obj)
+        else:
+            separable_particle.append(obj)
+    if does_preposition_precede_separable_particle(preposition, separable_particle):
+        answer = predicate + preposition + separable_particle
+    else:
+        answer = predicate + separable_particle + preposition
+
+    return [word for word in answer if word is not None]
+
+
+def does_preposition_precede_separable_particle(preposition, separable_particle):
+    return (
+        None in preposition and
+        all(isinstance(word, SeparableParticle) for word in separable_particle) and
+        any(isinstance(word, Pronoun) for word in preposition)
+    )
