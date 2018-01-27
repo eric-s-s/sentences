@@ -123,4 +123,3 @@ def split_verb(raw_str):
 def _raise_error_for_bad_particles(particle_inf, particle_past, infinitive):
     if particle_past and particle_inf != particle_past:
         raise LoaderError('Phrasal verb, {}, has mismatched particles'.format(infinitive))
-

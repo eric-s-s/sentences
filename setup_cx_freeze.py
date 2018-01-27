@@ -3,25 +3,8 @@ import sys
 import os
 
 
-PYTHON_INSTALL_DIR = os.path.dirname(os.path.dirname(os.__file__))
-os.environ['TCL_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tcl8.6')
-os.environ['TK_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tk8.6')
-
-DLLS = ''
-for directory in sys.path:
-    if directory.endswith('DLLs'):
-        DLLS = directory
-# original_python = os.path.dirname(DLLS)
-# os.environ['TCL_LIBRARY'] = os.path.join(original_python, 'tcl', 'tcl8.6')
-# os.environ['TK_LIBRARY'] = os.path.join(original_python, 'tcl', 'tk8.6')
-
-
 options = {
     'build_exe': {
-        'include_files': [
-            os.path.join(DLLS, 'tk86t.dll'),
-            os.path.join(DLLS, 'tcl86t.dll'),
-         ],
         'excludes': ['PyQt5']
     },
 }
@@ -31,6 +14,29 @@ base = None
 
 if sys.platform == 'win32':
     base = 'Win32GUI'
+
+    PYTHON_INSTALL_DIR = os.path.dirname(os.path.dirname(os.__file__))
+    os.environ['TCL_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tcl8.6')
+    os.environ['TK_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tk8.6')
+
+    DLLS = ''
+    for directory in sys.path:
+        if directory.endswith('DLLs'):
+            DLLS = directory
+    # original_python = os.path.dirname(DLLS)
+    # os.environ['TCL_LIBRARY'] = os.path.join(original_python, 'tcl', 'tcl8.6')
+    # os.environ['TK_LIBRARY'] = os.path.join(original_python, 'tcl', 'tk8.6')
+
+    options = {
+        'build_exe': {
+            'include_files': [
+                os.path.join(DLLS, 'tk86t.dll'),
+                os.path.join(DLLS, 'tcl86t.dll'),
+            ],
+            'excludes': ['PyQt5']
+        },
+    }
+
 
 executables = [
     Executable('sentences/guimain.py',
@@ -42,7 +48,7 @@ executables = [
 ]
 
 setup(name='sentence_mangler',
-      version='3.0',
+      version='3.1',
       description='a gui to create random sentences with errors',
       options=options,
       executables=executables,
