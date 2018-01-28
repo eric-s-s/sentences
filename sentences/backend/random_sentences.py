@@ -71,42 +71,6 @@ class RandomSentences(object):
             return random.choice(self._nouns)
 
 
-def assign_objects2(verb_group, objects):
-    preposition = verb_group['preposition']
-    separable_particle = verb_group['particle']
-    predicate = [verb_group['verb']]
-
-    use_particle = separable_particle is not None
-    use_preposition = preposition is not None
-
-    while objects:
-        obj = objects.pop(0)
-        append_obj = True
-        if use_particle and use_preposition and verb_group['objects'] == 1:
-            use_preposition = False
-            use_particle = False
-            predicate.append(separable_particle)
-            predicate.append(preposition)
-        elif use_particle:
-            use_particle = False
-            if isinstance(obj, Pronoun):
-                predicate.append(obj)
-                append_obj = False
-            predicate.append(separable_particle)
-        elif use_preposition and not objects:
-            use_preposition = False
-            predicate.append(preposition)
-
-        if append_obj:
-            predicate.append(obj)
-
-    if use_particle:
-        predicate.append(separable_particle)
-    if use_preposition:
-        predicate.append(preposition)
-    return predicate
-
-
 def assign_objects(verb_group, objects):
     preposition = [verb_group['preposition']]
     separable_particle = [verb_group['particle']]
