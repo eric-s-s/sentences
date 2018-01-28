@@ -99,11 +99,11 @@ class ProperNoun(Noun):
 
     def de_capitalize(self):
         new_val = self.value
-        if self._base_is_lower():
+        if self._is_base_lower():
             new_val = new_val[0].lower() + new_val[1:]
         return self.__class__(new_val, self.irregular_plural, self.base_noun)
 
-    def _base_is_lower(self):
+    def _is_base_lower(self):
         return self.base_noun[0].islower()
 
 

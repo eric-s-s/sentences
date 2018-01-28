@@ -19,14 +19,20 @@ class FileManagement(SetVariablesFrame):
 
     def _setup_file_area(self):
         file_area = tk.Frame(master=self)
-        values = [self.home_directory, self.save_directory,
-                  self.countable_nouns, self.uncountable_nouns, self.proper_nouns,
-                  self.verbs]
-        for row, popup_var in enumerate(values):
-            tk.Label(master=file_area, text=popup_var.popup_title).grid(row=row, column=1, sticky=tk.W)
-            tk.Label(master=file_area, textvar=popup_var).grid(row=row, column=2, sticky=tk.W)
-            tk.Button(master=file_area, text='SET', command=popup_var.set_with_popup).grid(row=row, column=0,
-                                                                                           padx=10, pady=5)
+        values = [(self.home_directory, tk.RIDGE), (self.save_directory, tk.RIDGE),
+                  (self.countable_nouns, tk.FLAT), (self.uncountable_nouns, tk.FLAT), (self.proper_nouns, tk.FLAT),
+                  (self.verbs, tk.GROOVE)]
+        for row, pair in enumerate(values):
+            popup_var, relief = pair
+
+            set_btn = tk.Button(master=file_area, text='SET', command=popup_var.set_with_popup)
+            file_type = tk.Label(master=file_area, text=popup_var.popup_title, relief=relief, anchor=tk.W)
+            location = tk.Label(master=file_area, textvar=popup_var)
+
+            set_btn.grid(row=row, column=0,  padx=10, pady=5)
+            file_type.grid(row=row, column=1, sticky=tk.W+tk.E)
+            location.grid(row=row, column=2, sticky=tk.W)
+
         file_area.pack()
 
     def _set_to_none(self):

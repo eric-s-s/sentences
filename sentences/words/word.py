@@ -51,7 +51,6 @@ class Word(object):
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
 
-    # TODO does equality rely on type? I think so. That's a big change.
     def __eq__(self, other):
         return type(self) == type(other) and self.value == other.value
 
@@ -69,6 +68,10 @@ class Word(object):
 
 
 class Preposition(Word):
+    pass
+
+
+class SeparableParticle(Word):
     pass
 
 

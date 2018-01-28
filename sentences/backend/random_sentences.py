@@ -2,6 +2,7 @@ import random
 
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
+from sentences.words.word import SeparableParticle
 
 
 class RandomSentences(object):
@@ -30,8 +31,16 @@ class RandomSentences(object):
     def predicate(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
 
-        action, object_count, insert_preposition = self._get_verb_list_and_object_count()
+        verb_group = random.choice(self._verbs)
 
+        objects = self._get_objects(verb_group['objects'], p_pronoun)
+
+        predicate = assign_objects(verb_group, objects)
+
+        predicate.append(random.choice(self._endings))
+        return predicate
+
+    def _get_objects(self, object_count, p_pronoun):
         objects = []
         object_position = 0
         loop_count = 0
@@ -47,21 +56,7 @@ class RandomSentences(object):
                 object_position += 1
 
             loop_count += 1
-                            
-        if insert_preposition:
-            action.insert(-1, objects.pop(0))
-        action = action + objects
-
-        action.append(random.choice(self._endings))
-        return action
-
-    def _get_verb_list_and_object_count(self):
-        verb_grp = random.choice(self._verbs)
-        action = [(verb_grp['verb'])]
-        prep = verb_grp['preposition']
-        if prep is not None:
-            action.append(prep)
-        return action, verb_grp['objects'], verb_grp['insert_preposition']
+        return objects
 
     def subject(self, p_pronoun):
         if random.random() < p_pronoun:
@@ -74,3 +69,32 @@ class RandomSentences(object):
             return random.choice(self._pronouns).object()
         else:
             return random.choice(self._nouns)
+
+
+def assign_objects(verb_group, objects):
+    preposition = [verb_group['preposition']]
+    separable_particle = [verb_group['particle']]
+    predicate = [verb_group['verb']]
+
+    while objects:
+        obj = objects.pop()
+        if len(preposition) < 2:
+            preposition.append(obj)
+        elif isinstance(obj, Pronoun):
+            separable_particle.insert(0, obj)
+        else:
+            separable_particle.append(obj)
+    if does_preposition_precede_separable_particle(preposition, separable_particle):
+        answer = predicate + preposition + separable_particle
+    else:
+        answer = predicate + separable_particle + preposition
+
+    return [word for word in answer if word is not None]
+
+
+def does_preposition_precede_separable_particle(preposition, separable_particle):
+    return (
+        None in preposition and
+        all(isinstance(word, SeparableParticle) for word in separable_particle) and
+        any(isinstance(word, Pronoun) for word in preposition)
+    )
