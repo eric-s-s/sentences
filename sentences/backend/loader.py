@@ -66,6 +66,8 @@ def verbs(filename):
     raw_lines = load_csv(filename)
     try:
         answer = [get_verb_dict(verb_line) for verb_line in raw_lines]
+    except LoaderError as e:
+        raise e
     except ValueError:
         raise LoaderError('Bad values in columns for CSV for verbs. See default for example.')
     return answer
@@ -122,4 +124,5 @@ def split_verb(raw_str):
 
 def _raise_error_for_bad_particles(particle_inf, particle_past, infinitive):
     if particle_past and particle_inf != particle_past:
-        raise LoaderError('Phrasal verb, {}, has mismatched particles'.format(infinitive))
+        msg = 'Phrasal verb, "{}", has mismatched particles: "{}" and "{}".'
+        raise LoaderError(msg.format(infinitive, particle_inf, particle_past))

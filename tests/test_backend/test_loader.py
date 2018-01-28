@@ -163,3 +163,12 @@ class TestLoader(unittest.TestCase):
 
         self.assertRaises(LoaderError, verbs, bad_verbs)
         os.remove(bad_verbs)
+
+    def test_verbs_bad_verb_mismatched_particles(self):
+        bad_verbs = os.path.join(TESTS_FILES, 'bad_verbs.csv')
+        with open(bad_verbs, 'w') as f:
+            f.write('take out, took away')
+        with self.assertRaises(LoaderError) as cm:
+            verbs(bad_verbs)
+        self.assertEqual(cm.exception.args[0], 'Phrasal verb, "take", has mismatched particles: "out" and "away".')
+        os.remove(bad_verbs)
