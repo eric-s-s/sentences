@@ -132,46 +132,6 @@ class TestWord(unittest.TestCase):
         self.assertTrue(word.__ne__(ne))
         self.assertTrue(word.__ne__('hi'))
 
-    def test_word_lt(self):
-        word = Word('ab')
-        lt = Word('a')
-        gt = Word('aba')
-        eq = Word('ab')
-
-        self.assertTrue(word.__lt__(gt))
-        self.assertFalse(word.__lt__(eq))
-        self.assertFalse(word.__lt__(lt))
-
-    def test_word_le(self):
-        word = Word('ab')
-        lt = Word('a')
-        gt = Word('aba')
-        eq = Word('ab')
-
-        self.assertTrue(word.__le__(gt))
-        self.assertTrue(word.__le__(eq))
-        self.assertFalse(word.__le__(lt))
-
-    def test_word_gt(self):
-        word = Word('ab')
-        lt = Word('a')
-        gt = Word('aba')
-        eq = Word('ab')
-
-        self.assertFalse(word.__gt__(gt))
-        self.assertFalse(word.__gt__(eq))
-        self.assertTrue(word.__gt__(lt))
-
-    def test_word_ge(self):
-        word = Word('ab')
-        lt = Word('a')
-        gt = Word('aba')
-        eq = Word('ab')
-
-        self.assertFalse(word.__ge__(gt))
-        self.assertTrue(word.__ge__(eq))
-        self.assertTrue(word.__ge__(lt))
-
     def test_hash(self):
         word = Word('asjdkfj')
         self.assertEqual(hash(word), hash('hash of ' + repr(word)))

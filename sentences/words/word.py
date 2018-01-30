@@ -54,18 +54,6 @@ class Word(object):
     def __eq__(self, other):
         return type(self) == type(other) and self.value == other.value
 
-    def __lt__(self, other):
-        return self.value.__lt__(other.value)
-
-    def __le__(self, other):
-        return self < other or self == other
-
-    def __gt__(self, other):
-        return not self <= other
-
-    def __ge__(self, other):
-        return not self < other
-
 
 class Preposition(Word):
     pass
