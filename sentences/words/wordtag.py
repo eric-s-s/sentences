@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class WordType(Enum):
+class WordTag(Enum):
     UNCOUNTABLE = 1
     PLURAL = 2
     DEFINITE = 3

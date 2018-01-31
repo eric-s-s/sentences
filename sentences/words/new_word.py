@@ -1,7 +1,7 @@
-from sentences.words.word_types import WordType as wt
+from sentences.words.wordtag import WordTag as wt
 
 
-class WordTypes(object):
+class Tags(object):
     def __init__(self, types_list=None):
         self._types = set()
         if types_list:
@@ -11,21 +11,31 @@ class WordTypes(object):
         return sorted(self._types)
 
     def add(self, new_type):
-        self._types.add(new_type)
+        new_val = self.to_list()
+        new_val.append(new_type)
+        return Tags(new_val)
+
+        # self._types.add(new_type)
 
     def remove(self, type_):
-        self._types.discard(type_)
+        new_val = self._types.copy()
+        new_val.discard(type_)
+        return Tags(list(new_val))
+        # self._types.discard(type_)
 
     def has(self, type_):
         return type_ in self._types
 
     def copy(self):
-        return WordTypes(self.to_list())
+        return Tags(self.to_list())
 
     def __eq__(self, other):
-        if not isinstance(other, WordTypes):
+        if not isinstance(other, Tags):
             return False
         return self.to_list() == other.to_list()
+
+    def __repr__(self):
+        return 'Tags({})'.format([tag.name for tag in self.to_list()])
 
 
 class WordValues(object):
@@ -56,18 +66,18 @@ class NewNoun(object):
     def __init__(self, value, irregular_plural='', base='', word_types=None):
         self._values = WordValues(value, irregular_plural, base)
         if not word_types:
-            word_types = WordTypes()
+            word_types = Tags()
         self._types = word_types.copy()
 
     @classmethod
     def uncountable_noun(cls, value):
-        return cls(value, '', '', WordTypes(wt.UNCOUNTABLE))
+        return cls(value, '', '', Tags([wt.UNCOUNTABLE]))
 
     @classmethod
     def proper_noun(cls, value, plural=False):
-        types = WordTypes(wt.PROPER)
+        types = Tags([wt.PROPER])
         if plural:
-            types.add(wt.PLURAL)
+            types = types.add(wt.PLURAL)
         return cls(value, '', '', types)
 
     @property
@@ -83,37 +93,43 @@ class NewNoun(object):
         return self._values.base
 
     @property
-    def types(self):
+    def tags(self):
         return self._types.copy()
 
     def __eq__(self, other):
         if not isinstance(other, NewNoun):
             return False
-        return ((self.value, self.irregular_plural, self.base_noun, self.types) ==
-                (other.value, other.irregular_plural, other.base_noun, other.types))
+        return ((self.value, self.irregular_plural, self.base_noun, self.tags) ==
+                (other.value, other.irregular_plural, other.base_noun, other.tags))
+
+    def __repr__(self):
+        return 'NewNoun({!r}, {!r}, {!r}, {!r})'.format(self.value, self.irregular_plural, self.base_noun, self.tags)
 
     def is_types(self, *types):
         return all(self._types.has(type_) for type_ in types)
 
     def definite(self):
         new_value = 'the ' + self.value
-        types = self.types
-        types.add(wt.DEFINITE)
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, types)
+        new_tags = self.tags.add(wt.DEFINITE)
+        return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def capitalize(self):
         new_value = self.value[0].upper() + self.value[1:]
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, self.types)
+        return NewNoun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
     def indefinite(self):
         article = 'a '
         vowels = 'aeiouAEIOU'
         if any(self.value.startswith(vowel) for vowel in vowels):
             article = 'an '
-        return NewNoun(article + self.value, self.irregular_plural, self.base_noun, WordTypes([wt.INDEFINITE]))
+        return NewNoun(article + self.value, self.irregular_plural, self.base_noun, Tags([wt.INDEFINITE]))
 
     def plural(self):
-        pass
+        new_value = self.irregular_plural
+        new_tags = self.tags.add(wt.PLURAL)
+        if not new_value:
+            new_value = get_plural_value(self.value)
+        return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
 
 def get_plural_value(value):
