@@ -13,6 +13,7 @@ class TestNoun(unittest.TestCase):
         self.definite = Tags([wt.DEFINITE])
         self.plural = Tags([wt.PLURAL])
         self.definite_plural = Tags([wt.DEFINITE, wt.PLURAL])
+        self.definite_uncountable = Tags([wt.DEFINITE, wt.UNCOUNTABLE])
         self.proper = Tags([wt.PROPER])
         self.plural_proper = Tags([wt.PLURAL, wt.PROPER])
 
@@ -120,8 +121,8 @@ class TestNoun(unittest.TestCase):
         answer = NewNoun('bob').indefinite()
         self.assertEqual(answer, NewNoun('a bob', '', 'bob', self.indefinite))
 
-        answer = NewNoun('a bob', '', 'bob', self.indefinite).indefinite()
-        self.assertEqual(answer, NewNoun('an a bob', '', 'bob', self.indefinite))
+        answer = NewNoun('a bob', '', 'bob', self.indefinite).indefinite()  # TODO yes or no?
+        self.assertEqual(answer, NewNoun('a bob', '', 'bob', self.indefinite))
 
         answer = NewNoun('the bob', '', 'bob', self.definite).indefinite()
         self.assertEqual(answer, NewNoun('a the bob', '', 'bob', self.indefinite))
@@ -138,238 +139,251 @@ class TestNoun(unittest.TestCase):
         answer = NewNoun.uncountable_noun('bob').definite().indefinite()
         self.assertEqual(answer, NewNoun('a the bob', '', 'bob', self.indefinite))
 
-    # def test_definite_returns_definite_noun(self):
-    #     answer = NewNoun('bob').definite()
-    #     self.assertEqual(answer, NewNoun('the bob', '', 'bob', self.definite))
-    #
-    #     answer = NewNoun('a bob', '', 'bob', self.indefinite).definite()
-    #     self.assertEqual(answer, NewNoun('the a bob', '', 'bob', self.definite))
-    #
-    #     answer = NewNoun('the bob', '', 'bob', self.definite).definite()
-    #     self.assertEqual(answer, NewNoun('the the bob', '', 'bob', self.definite))
-    #
-    #     answer = NewNoun('bobs', '', 'bob', self.plural).definite()
-    #     self.assertEqual(answer, NewNoun('the bobs', '', 'bob', self.definite_plural))
-    #
-    #     answer = NewNoun('the bobs', '', 'bob', self.definite_plural).definite()
-    #     self.assertEqual(answer, NewNoun('the the bobs', '', 'bob', self.definite_plural))
-    #
-    #     answer = UncountableNewNoun('bob', '', 'bob').definite()
-    #     self.assertEqual(answer, DefiniteUncountableNewNoun('the bob', '', 'bob'))
-    #
-    #     answer = DefiniteUncountableNewNoun('the bob', '', 'bob').definite()
-    #     self.assertEqual(answer, DefiniteUncountableNewNoun('the the bob', '', 'bob'))
-    #
-    # def test_plural_returns_plural_noun(self):
-    #     answer = NewNoun('bob').plural()
-    #     self.assertEqual(answer, NewNoun('bobs', '', 'bob', self.plural))
-    #
-    #     answer = IndefiniteNewNoun('a bob', '', 'bob').plural()
-    #     self.assertEqual(answer, NewNoun('a bobs', '', 'bob', self.plural))
-    #
-    #     answer = NewNoun('the bob', '', 'bob', self.definite).plural()
-    #     self.assertEqual(answer, NewNoun('the bobs', '', 'bob', self.definite_plural))
-    #
-    #     answer = NewNoun('bobs', '', 'bob', self.plural).plural()
-    #     self.assertEqual(answer, NewNoun('bobses', '', 'bob', self.plural))
-    #
-    #     answer = NewNoun('the bobs', '', 'bob', self.definite_plural).plural()
-    #     self.assertEqual(answer, NewNoun('the bobses', '', 'bob', self.definite_plural))
-    #
-    # def test_plural_with_f_and_fe_ending_nouns(self):
-    #     self.assertEqual(NewNoun('life').plural(), NewNoun('lives', '', 'life', self.plural))
-    #     self.assertEqual(NewNoun('waif').plural(), NewNoun('waifs', '', 'waif', self.plural))
-    #     self.assertEqual(NewNoun('calf').plural(), NewNoun('calves', '', 'calf', self.plural))
-    #     self.assertEqual(NewNoun('leaf').plural(), NewNoun('leaves', '', 'leaf', self.plural))
-    #
-    # def test_capitalize_all(self):
-    #     original = NewNoun('bob')
-    #     basic = original.capitalize()
-    #     self.assertEqual(basic, NewNoun('Bob', '', 'bob'))
-    #
-    #     uncountable = UncountableNewNoun('bob').capitalize()
-    #     self.assertEqual(uncountable, UncountableNewNoun('Bob', '', 'bob'))
-    #
-    #     definite_uncountable = UncountableNewNoun('bob').definite().capitalize()
-    #     self.assertEqual(definite_uncountable, DefiniteUncountableNewNoun('The bob', '', 'bob'))
-    #
-    #     indefinite = original.indefinite().capitalize()
-    #     self.assertEqual(indefinite, IndefiniteNewNoun('A bob', '', 'bob'))
-    #
-    #     definite = original.definite().capitalize()
-    #     self.assertEqual(definite, NewNoun('The bob', '', 'bob', self.definite))
-    #
-    #     plural = original.plural().capitalize()
-    #     self.assertEqual(plural, NewNoun('Bobs', '', 'bob', self.plural))
-    #
-    #     definite_plural = original.definite().plural().capitalize()
-    #     self.assertEqual(definite_plural, NewNoun('The bobs', '', 'bob', self.definite_plural))
-    #
-    #     plural_definite = original.plural().definite().capitalize()
-    #     self.assertEqual(plural_definite, NewNoun('The bobs', '', 'bob', self.definite_plural))
-    #
-    #     wacky = original.plural().capitalize().definite()
-    #     self.assertEqual(wacky, NewNoun('the Bobs', '', 'bob', self.definite_plural))
-    #
-    #     proper = NewNoun('Bob', self.proper)
-    #     self.assertEqual(proper.capitalize(), proper)
-    #
-    #     proper_plural = NewNoun('The Bobs', self.plural_proper)
-    #     self.assertEqual(proper_plural.capitalize(), proper_plural)
-    #
-    # def test_de_capitalize_all(self):
-    #     original = NewNoun('bob')
-    #     basic = original.capitalize()
-    #     self.assertEqual(basic.de_capitalize(), NewNoun('bob', '', 'bob'))
-    #
-    #     uncountable = UncountableNewNoun('bob').capitalize()
-    #     self.assertEqual(uncountable.de_capitalize(), UncountableNewNoun('bob', '', 'bob'))
-    #
-    #     definite_uncountable = UncountableNewNoun('bob').definite().capitalize()
-    #     self.assertEqual(definite_uncountable.de_capitalize(), DefiniteUncountableNewNoun('the bob', '', 'bob'))
-    #
-    #     indefinite = original.indefinite().capitalize()
-    #     self.assertEqual(indefinite.de_capitalize(), IndefiniteNewNoun('a bob', '', 'bob'))
-    #
-    #     definite = original.definite().capitalize()
-    #     self.assertEqual(definite.de_capitalize(), NewNoun('the bob', '', 'bob', self.definite))
-    #
-    #     plural = original.plural().capitalize()
-    #     self.assertEqual(plural.de_capitalize(), NewNoun('bobs', '', 'bob', self.plural))
-    #
-    #     definite_plural = original.definite().plural().capitalize()
-    #     self.assertEqual(definite_plural.de_capitalize(), NewNoun('the bobs', '', 'bob', self.definite_plural))
-    #
-    #     plural_definite = original.plural().definite().capitalize()
-    #     self.assertEqual(plural_definite.de_capitalize(), NewNoun('the bobs', '', 'bob', self.definite_plural))
-    #
-    #     wacky = original.plural().capitalize().definite()
-    #     self.assertEqual(wacky.de_capitalize(), NewNoun('the Bobs', '', 'bob', self.definite_plural))
-    #
-    #     proper = NewNoun('Bob', self.proper).de_capitalize()
-    #     self.assertEqual(NewNoun('Bob', '', 'Bob', self.proper), proper)
-    #
-    #     proper_plural = NewNoun('The Bobs', self.plural_proper).de_capitalize()
-    #     self.assertEqual(NewNoun('The Bobs', '', 'The Bobs', self.plural_proper), proper_plural)
-    #
-    # def test_repr(self):
-    #     self.assertEqual(repr(NewNoun('bob')), "NewNoun('bob', '', 'bob')")
-    #     self.assertEqual(repr(IndefiniteNewNoun('bob')), "IndefiniteNewNoun('bob', '', 'bob')")
-    #     self.assertEqual(repr(NewNoun('bob', self.plural)), "NewNoun('bob', '', 'bob', self.plural)")
-    #     self.assertEqual(repr(NewNoun('bob', self.definite)), "NewNoun('bob', '', 'bob', self.definite)")
-    #     self.assertEqual(repr(NewNoun('bob', self.definite_plural)), "NewNoun('bob', '', 'bob', self.definite_plural)")
-    #     self.assertEqual(repr(UncountableNewNoun('bob')), "UncountableNewNoun('bob', '', 'bob')")
-    #     self.assertEqual(repr(DefiniteUncountableNewNoun('bob')), "DefiniteUncountableNewNoun('bob', '', 'bob')")
-    #     self.assertEqual(repr(NewNoun('Bob', self.proper)), "NewNoun('Bob', '', 'Bob', self.proper)")
-    #     self.assertEqual(repr(NewNoun('Bobs', self.plural_proper)), "NewNoun('Bobs', '', 'Bobs', self.plural_proper)")
-    #
-    # def test_to_base_noun_keeps_plural_info(self):
-    #     self.assertEqual(NewNoun('bob', 'boba').to_base_noun(), NewNoun('bob', 'boba'))
-    #
-    # def test_to_base_noun_no_special_plural(self):
-    #     original = NewNoun('bob')
-    #     self.assertEqual(original.plural().to_base_noun(), original)
-    #     self.assertEqual(original.indefinite().to_base_noun(), original)
-    #     self.assertEqual(original.definite().to_base_noun(), original)
-    #     self.assertEqual(original.definite().plural().to_base_noun(), original)
-    #     self.assertEqual(original.capitalize().plural().definite().to_base_noun(), original)
-    #
-    # def test_to_base_noun_special_plural(self):
-    #     original = NewNoun('bob', 'boberino')
-    #     expected = NewNoun('bob', 'boberino')
-    #     self.assertEqual(original.plural().to_base_noun(), expected)
-    #     self.assertEqual(original.indefinite().to_base_noun(), expected)
-    #     self.assertEqual(original.definite().to_base_noun(), expected)
-    #     self.assertEqual(original.definite().plural().to_base_noun(), expected)
-    #     self.assertEqual(original.capitalize().plural().definite().to_base_noun(), expected)
-    #
-    # def test_hash(self):
-    #     self.assertEqual(hash(NewNoun('bob')), hash("hash of NewNoun('bob', '', 'bob')"))
-    #     self.assertEqual(hash(NewNoun('bob', self.definite)), hash("hash of NewNoun('bob', '', 'bob', self.definite)"))
-    #
-    # def test_indefinite_plural(self):
-    #     noun = NewNoun('dog')
-    #     new = noun.indefinite().plural()
-    #     self.assertEqual(new, NewNoun('a dogs', '', 'dog', self.plural))
-    #
-    #     irregular = NewNoun('child', 'children')
-    #     new = irregular.indefinite().plural()
-    #     self.assertEqual(new, NewNoun('a children', 'children', 'child', self.plural))
-    #
-    # def test_plural_indefinite(self):
-    #     noun = NewNoun('dog')
-    #     new = noun.plural().indefinite()
-    #     self.assertEqual(new, IndefiniteNewNoun('a dogs', '', 'dog'))
-    #
-    #     irregular = NewNoun('child', 'children')
-    #     new = irregular.plural().indefinite()
-    #     self.assertEqual(new, IndefiniteNewNoun('a children', 'children', 'child'))
-    #
-    # def test_uncountable_plural(self):
-    #     noun = UncountableNewNoun('water')
-    #     self.assertEqual(noun.plural(), NewNoun('waters', '', 'water', self.plural))
-    #
-    # def test_definite_uncountable_plural(self):
-    #     noun = UncountableNewNoun('water')
-    #     self.assertEqual(noun.definite().plural(), NewNoun('the waters', '', 'water', self.definite_plural))
-    #
-    # def test_proper_noun_plural(self):
-    #     noun = NewNoun('Bob', self.proper)
-    #     self.assertEqual(noun.plural(), NewNoun('Bobs', '', 'Bob', self.plural_proper))
-    #
-    # def test_plural_proper_noun_plural(self):
-    #     noun = NewNoun('Bobs', '', 'Bob', self.plural_proper)
-    #     self.assertEqual(noun.plural(), noun)
-    #
-    # def test_proper_noun_ignores_irregular(self):
-    #     noun = NewNoun('The Magus', 'The Magi', self.proper)
-    #     self.assertEqual(noun.plural(), NewNoun('The Maguses', 'The Magi', 'The Magus', self.plural_proper))
-    #
-    # def test_proper_noun_definite(self):
-    #     noun = NewNoun('Bob', self.proper).definite()
-    #     self.assertEqual(noun, NewNoun('the Bob', '', 'Bob', self.definite))
-    #
-    #     noun = NewNoun('Bobs', self.plural_proper).definite()
-    #     self.assertEqual(noun, NewNoun('the Bobs', '', 'Bobs', self.definite_plural))
-    #
-    # def test_proper_noun_definite_and_plural(self):
-    #     noun = NewNoun('Bob', self.proper).plural().definite()
-    #     self.assertEqual(noun, NewNoun('the Bobs', '', 'Bob', self.definite_plural))
-    #
-    #     noun = NewNoun('Bob', self.proper).definite().plural()
-    #     self.assertEqual(noun, NewNoun('the Bobs', '', 'Bob', self.definite_plural))
-    #
-    # def test_proper_noun_indefinite_an(self):
-    #     noun = NewNoun('Ed', self.proper)
-    #     plural = noun.plural()
-    #
-    #     self.assertEqual(noun.indefinite(), IndefiniteNewNoun('an Ed', '', 'Ed'))
-    #     self.assertEqual(plural.indefinite(), IndefiniteNewNoun('an Eds', '', 'Ed'))
-    #
-    # def test_proper_noun_capitalize(self):
-    #     noun = NewNoun('Ed', self.proper)
-    #     plural = noun.plural()
-    #
-    #     self.assertEqual(noun.capitalize(), noun)
-    #     self.assertEqual(plural.capitalize(), plural)
-    #
-    #     sports_team = NewNoun('the Guys', self.plural_proper)
-    #     self.assertEqual(sports_team.capitalize(), NewNoun('The Guys', '', 'the Guys', self.plural_proper))
-    #
-    # def test_proper_noun_de_capitalize_starts_with_capital(self):
-    #     noun = NewNoun('Joe', self.proper)
-    #     plural = noun.plural()
-    #
-    #     self.assertEqual(noun.de_capitalize(), noun)
-    #     self.assertEqual(plural.de_capitalize(), plural)
-    #
-    # def test_proper_noun_de_capitalize_starts_with_lower_case(self):
-    #     noun = NewNoun('the Dude', self.proper)
-    #     plural = noun.plural()
-    #     capital_noun = noun.capitalize()
-    #     capital_plural = plural.capitalize()
-    #
-    #     self.assertEqual(noun.de_capitalize(), noun)
-    #     self.assertEqual(capital_noun.de_capitalize(), noun)
-    #     self.assertEqual(plural.de_capitalize(), plural)
-    #     self.assertEqual(capital_plural.de_capitalize(), plural)
+    def test_definite_returns_definite_noun(self):
+        answer = NewNoun('bob').definite()
+        self.assertEqual(answer, NewNoun('the bob', '', 'bob', self.definite))
+
+        answer = NewNoun('a bob', '', 'bob', self.indefinite).definite()
+        self.assertEqual(answer, NewNoun('the a bob', '', 'bob', self.definite))
+
+        answer = NewNoun('the bob', '', 'bob', self.definite).definite()  # TODO yes or no?
+        self.assertEqual(answer, NewNoun('the bob', '', 'bob', self.definite))
+
+        answer = NewNoun('bobs', '', 'bob', self.plural).definite()
+        self.assertEqual(answer, NewNoun('the bobs', '', 'bob', self.definite_plural))
+
+        # answer = NewNoun('the bobs', '', 'bob', self.definite_plural).definite()
+        # self.assertEqual(answer, NewNoun('the the bobs', '', 'bob', self.definite_plural))
+
+        answer = NewNoun.uncountable_noun('bob').definite()
+        self.assertEqual(answer, NewNoun('the bob', '', 'bob', self.definite_uncountable))
+
+        # answer = NewNoun('the bob', '', 'bob', self.definite_uncountable).definite()
+        # self.assertEqual(answer, NewNoun('the the bob', '', 'bob', self.definite_uncountable))
+
+    def test_plural_returns_plural_noun(self):
+        answer = NewNoun('bob').plural()
+        self.assertEqual(answer, NewNoun('bobs', '', 'bob', self.plural))
+
+        answer = NewNoun('a bob', '', 'bob', self.indefinite).plural()
+        self.assertEqual(answer, NewNoun('a bobs', '', 'bob', self.plural))
+
+        answer = NewNoun('the bob', '', 'bob', self.definite).plural()
+        self.assertEqual(answer, NewNoun('the bobs', '', 'bob', self.definite_plural))
+
+        # answer = NewNoun('bobs', '', 'bob', self.plural).plural()
+        # self.assertEqual(answer, NewNoun('bobses', '', 'bob', self.plural))
+
+        answer = NewNoun('the bobs', '', 'bob', self.definite_plural).plural()  # TODO yes or no?
+        self.assertEqual(answer, NewNoun('the bobs', '', 'bob', self.definite_plural))
+
+    def test_plural_with_f_and_fe_ending_nouns(self):
+        self.assertEqual(NewNoun('life').plural(), NewNoun('lives', '', 'life', self.plural))
+        self.assertEqual(NewNoun('waif').plural(), NewNoun('waifs', '', 'waif', self.plural))
+        self.assertEqual(NewNoun('calf').plural(), NewNoun('calves', '', 'calf', self.plural))
+        self.assertEqual(NewNoun('leaf').plural(), NewNoun('leaves', '', 'leaf', self.plural))
+
+    def test_capitalize_all(self):
+        original = NewNoun('bob')
+        basic = original.capitalize()
+        self.assertEqual(basic, NewNoun('Bob', '', 'bob'))
+
+        uncountable = NewNoun.uncountable_noun('bob').capitalize()
+        self.assertEqual(uncountable, NewNoun('Bob', '', 'bob', Tags([wt.UNCOUNTABLE])))
+
+        definite_uncountable = NewNoun.uncountable_noun('bob').definite().capitalize()
+        self.assertEqual(definite_uncountable, NewNoun('The bob', '', 'bob', self.definite_uncountable))
+
+        indefinite = original.indefinite().capitalize()
+        self.assertEqual(indefinite, NewNoun('A bob', '', 'bob', self.indefinite))
+
+        definite = original.definite().capitalize()
+        self.assertEqual(definite, NewNoun('The bob', '', 'bob', self.definite))
+
+        plural = original.plural().capitalize()
+        self.assertEqual(plural, NewNoun('Bobs', '', 'bob', self.plural))
+
+        definite_plural = original.definite().plural().capitalize()
+        self.assertEqual(definite_plural, NewNoun('The bobs', '', 'bob', self.definite_plural))
+
+        plural_definite = original.plural().definite().capitalize()
+        self.assertEqual(plural_definite, NewNoun('The bobs', '', 'bob', self.definite_plural))
+
+        wacky = original.plural().capitalize().definite()
+        self.assertEqual(wacky, NewNoun('the Bobs', '', 'bob', self.definite_plural))
+
+        proper = NewNoun.proper_noun('Bob')
+        self.assertEqual(proper.capitalize(), proper)
+
+        proper_plural = NewNoun.proper_noun('The Bobs', plural=True)
+        self.assertEqual(proper_plural.capitalize(), proper_plural)
+
+    def test_de_capitalize_all(self):
+        original = NewNoun('bob')
+        basic = original.capitalize()
+        self.assertEqual(basic.de_capitalize(), NewNoun('bob', '', 'bob'))
+
+        uncountable = NewNoun.uncountable_noun('bob').capitalize()
+        self.assertEqual(uncountable.de_capitalize(), NewNoun.uncountable_noun('bob'))
+
+        definite_uncountable = NewNoun.uncountable_noun('bob').definite().capitalize()
+        self.assertEqual(definite_uncountable.de_capitalize(), NewNoun('the bob', '', 'bob', self.definite_uncountable))
+
+        indefinite = original.indefinite().capitalize()
+        self.assertEqual(indefinite.de_capitalize(), NewNoun('a bob', '', 'bob', self.indefinite))
+
+        definite = original.definite().capitalize()
+        self.assertEqual(definite.de_capitalize(), NewNoun('the bob', '', 'bob', self.definite))
+
+        plural = original.plural().capitalize()
+        self.assertEqual(plural.de_capitalize(), NewNoun('bobs', '', 'bob', self.plural))
+
+        definite_plural = original.definite().plural().capitalize()
+        self.assertEqual(definite_plural.de_capitalize(), NewNoun('the bobs', '', 'bob', self.definite_plural))
+
+        plural_definite = original.plural().definite().capitalize()
+        self.assertEqual(plural_definite.de_capitalize(), NewNoun('the bobs', '', 'bob', self.definite_plural))
+
+        wacky = original.plural().capitalize().definite()
+        self.assertEqual(wacky.de_capitalize(), NewNoun('the Bobs', '', 'bob', self.definite_plural))
+
+        proper = NewNoun.proper_noun('Bob').de_capitalize()
+        self.assertEqual(NewNoun('Bob', '', 'Bob', self.proper), proper)
+
+        proper_plural = NewNoun.proper_noun('The Bobs', plural=True).de_capitalize()
+        self.assertEqual(NewNoun('The Bobs', '', 'The Bobs', self.plural_proper), proper_plural)
+
+    def test_repr(self):
+        self.assertEqual(repr(NewNoun('bob')), "NewNoun('bob', '', 'bob', Tags([]))")
+        self.assertEqual(repr(NewNoun.uncountable_noun('bob')),
+                         "NewNoun('bob', '', 'bob', Tags([WordTag.UNCOUNTABLE]))")
+        self.assertEqual(repr(NewNoun.proper_noun('Bob', plural=True)),
+                         "NewNoun('Bob', '', 'Bob', Tags([WordTag.PLURAL, WordTag.PROPER]))")
+
+    def test_to_base_noun_keeps_plural_info(self):
+        self.assertEqual(NewNoun('bob', 'boba').to_base_noun(), NewNoun('bob', 'boba'))
+
+    def test_to_base_noun_no_special_plural(self):
+        original = NewNoun('bob')
+        self.assertEqual(original.plural().to_base_noun(), original)
+        self.assertEqual(original.indefinite().to_base_noun(), original)
+        self.assertEqual(original.definite().to_base_noun(), original)
+        self.assertEqual(original.definite().plural().to_base_noun(), original)
+        self.assertEqual(original.capitalize().plural().definite().to_base_noun(), original)
+
+    def test_to_base_noun_special_plural(self):
+        original = NewNoun('bob', 'boberino')
+        expected = NewNoun('bob', 'boberino')
+        self.assertEqual(original.plural().to_base_noun(), expected)
+        self.assertEqual(original.indefinite().to_base_noun(), expected)
+        self.assertEqual(original.definite().to_base_noun(), expected)
+        self.assertEqual(original.definite().plural().to_base_noun(), expected)
+        self.assertEqual(original.capitalize().plural().definite().to_base_noun(), expected)
+
+    def test_hash(self):
+        self.assertEqual(hash(NewNoun('bob')),
+                         hash("hash of NewNoun('bob', '', 'bob', Tags([]))"))
+        self.assertEqual(hash(NewNoun('bob').definite()),
+                         hash("hash of NewNoun('the bob', '', 'bob', Tags([WordTag.DEFINITE]))"))
+
+    def test_definite_plural(self):
+        noun = NewNoun('dog')
+        new = noun.definite().plural()
+        self.assertEqual(new, NewNoun('the dogs', '', 'dog', self.definite_plural))
+
+        irregular = NewNoun('child', 'children')
+        new = irregular.definite().plural()
+        self.assertEqual(new, NewNoun('the children', 'children', 'child', self.definite_plural))
+
+    def test_plural_definite(self):
+        noun = NewNoun('dog')
+        new = noun.plural().definite()
+        self.assertEqual(new, NewNoun('the dogs', '', 'dog', self.definite_plural))
+
+        irregular = NewNoun('child', 'children')
+        new = irregular.plural().definite()
+        self.assertEqual(new, NewNoun('the children', 'children', 'child', self.definite_plural))
+
+    def test_indefinite_plural(self):
+        noun = NewNoun('dog')
+        new = noun.indefinite().plural()
+        self.assertEqual(new, NewNoun('a dogs', '', 'dog', self.plural))
+
+        irregular = NewNoun('child', 'children')
+        new = irregular.indefinite().plural()
+        self.assertEqual(new, NewNoun('a children', 'children', 'child', self.plural))
+
+    def test_plural_indefinite(self):
+        noun = NewNoun('dog')
+        new = noun.plural().indefinite()
+        self.assertEqual(new, NewNoun('a dogs', '', 'dog', self.indefinite))
+
+        irregular = NewNoun('child', 'children')
+        new = irregular.plural().indefinite()
+        self.assertEqual(new, NewNoun('a children', 'children', 'child', self.indefinite))
+
+    def test_uncountable_plural(self):
+        noun = NewNoun.uncountable_noun('water')
+        self.assertEqual(noun.plural(), NewNoun('waters', '', 'water', Tags([wt.UNCOUNTABLE, wt.PLURAL])))
+
+    def test_definite_uncountable_plural(self):
+        noun = NewNoun.uncountable_noun('water')
+        self.assertEqual(noun.definite().plural(), NewNoun('the waters', '', 'water',
+                                                           self.definite_plural.add(wt.UNCOUNTABLE)))
+
+    def test_proper_noun_plural(self):
+        noun = NewNoun.proper_noun('Bob')
+        self.assertEqual(noun.plural(), NewNoun('Bobs', '', 'Bob', self.plural_proper))
+
+    def test_plural_proper_noun_plural(self):
+        noun = NewNoun('Bobs', '', 'Bob', self.plural_proper)
+        self.assertEqual(noun.plural(), noun)
+
+    def test_proper_noun_definite(self):
+        noun = NewNoun.proper_noun('Bob').definite()
+        self.assertEqual(noun, NewNoun('the Bob', '', 'Bob', self.definite))
+
+        noun = NewNoun.proper_noun('Bobs', True).definite()
+        self.assertEqual(noun, NewNoun('the Bobs', '', 'Bobs', self.definite_plural))
+
+    def test_proper_noun_definite_and_plural(self):
+        noun = NewNoun.proper_noun('Bob').plural().definite()
+        self.assertEqual(noun, NewNoun('the Bobs', '', 'Bob', self.definite_plural))
+
+        noun = NewNoun.proper_noun('Bob').definite().plural()
+        self.assertEqual(noun, NewNoun('the Bobs', '', 'Bob', self.definite_plural))
+
+    def test_proper_noun_indefinite_an(self):
+        noun = NewNoun.proper_noun('Ed')
+        plural = noun.plural()
+
+        self.assertEqual(noun.indefinite(), NewNoun('an Ed', '', 'Ed', self.indefinite))
+        self.assertEqual(plural.indefinite(), NewNoun('an Eds', '', 'Ed', self.indefinite))
+
+    def test_proper_noun_capitalize(self):
+        noun = NewNoun.proper_noun('Ed')
+        plural = noun.plural()
+
+        self.assertEqual(noun.capitalize(), noun)
+        self.assertEqual(plural.capitalize(), plural)
+
+        sports_team = NewNoun.proper_noun('the Guys', plural=True)
+        self.assertEqual(sports_team.capitalize(), NewNoun('The Guys', '', 'the Guys', self.plural_proper))
+
+    def test_proper_noun_de_capitalize_starts_with_capital(self):
+        noun = NewNoun.proper_noun('Joe')
+        plural = noun.plural()
+
+        self.assertEqual(noun.de_capitalize(), noun)
+        self.assertEqual(plural.de_capitalize(), plural)
+
+    def test_proper_noun_de_capitalize_starts_with_lower_case(self):
+        noun = NewNoun.proper_noun('the Dude')
+        plural = noun.plural()
+        capital_noun = noun.capitalize()
+        capital_plural = plural.capitalize()
+
+        self.assertEqual(noun.de_capitalize(), noun)
+        self.assertEqual(capital_noun.de_capitalize(), noun)
+        self.assertEqual(plural.de_capitalize(), plural)
+        self.assertEqual(capital_plural.de_capitalize(), plural)

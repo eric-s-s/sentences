@@ -18,3 +18,5 @@ class WordTag(Enum):
     def __lt__(self, other):
         return self.value < other.value
 
+    def __repr__(self):
+        return 'WordTag.{}'.format(self.name)
