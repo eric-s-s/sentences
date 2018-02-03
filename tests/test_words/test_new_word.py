@@ -1,9 +1,9 @@
-import unittest
 import string
+import unittest
 
-from sentences.words.new_word import (NewNoun, get_plural_value, Tags, WordValues)
-from sentences.words.wordtag import WordTag as wt
+from sentences.words.new_word import (NewNoun, get_plural_value, Tags)
 from sentences.words.word import Word
+from sentences.words.wordtools.wordtag import WordTag as wt
 
 
 class TestNoun(unittest.TestCase):
@@ -387,3 +387,14 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(capital_noun.de_capitalize(), noun)
         self.assertEqual(plural.de_capitalize(), plural)
         self.assertEqual(capital_plural.de_capitalize(), plural)
+
+    def test_de_capitalize_special_cases(self):
+        for value in ('BMW', 'dog', 'Practice Book'):
+            noun = NewNoun(value)
+            plural = noun.plural()
+            definite = noun.definite()
+            indefinite = noun.indefinite()
+
+            for test_noun in [noun, plural, definite, indefinite]:
+                self.assertEqual(test_noun, test_noun.capitalize().de_capitalize())
+

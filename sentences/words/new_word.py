@@ -1,67 +1,17 @@
-from sentences.words.wordtag import WordTag as wt
+from sentences.words.wordtools.abstractword import AbstractWord
+from sentences.words.wordtools.common_functions import add_s, bold
+from sentences.words.wordtools.wordtag import WordTag as wt
+from sentences.words.wordtools.tags import Tags
 
 
-class Tags(object):
-    def __init__(self, types_list=None):
-        self._types = set()
-        if types_list:
-            self._types = {word_type for word_type in types_list}
-
-    def to_list(self):
-        return sorted(self._types)
-
-    def add(self, new_type):
-        new_val = self.to_list()
-        new_val.append(new_type)
-        return Tags(new_val)
-
-    def remove(self, type_):
-        new_val = self._types.copy()
-        new_val.discard(type_)
-        return Tags(list(new_val))
-
-    def has(self, type_):
-        return type_ in self._types
-
-    def copy(self):
-        return Tags(self.to_list())
-
-    def __eq__(self, other):
-        if not isinstance(other, Tags):
-            return False
-        return self.to_list() == other.to_list()
-
-    def __repr__(self):
-        return 'Tags({})'.format(self.to_list())
-
-
-class WordValues(object):
-    def __init__(self, value, irregular='', base=''):
+class NewNoun(AbstractWord):
+    def __init__(self, value, irregular_plural='', base='', tags=None):
+        self._value = value
+        self._irregular = irregular_plural
         if not base:
             base = value
-        self._value = value
         self._base = base
-        self._irregular = irregular
 
-    @property
-    def value(self):
-        return self._value
-
-    @property
-    def irregular(self):
-        return self._irregular
-
-    @property
-    def base(self):
-        return self._base
-
-    def bold(self):
-        return WordValues('<bold>{}</bold>'.format(self.value), self.irregular, self.base)
-
-
-class NewNoun(object):
-    def __init__(self, value, irregular_plural='', base='', tags=None):
-        self._values = WordValues(value, irregular_plural, base)
         if not tags:
             tags = Tags()
         self._tags = tags.copy()
@@ -79,15 +29,15 @@ class NewNoun(object):
 
     @property
     def value(self):
-        return self._values.value
+        return self._value
 
     @property
     def irregular_plural(self):
-        return self._values.irregular
+        return self._irregular
 
     @property
     def base_noun(self):
-        return self._values.base
+        return self._base
 
     @property
     def tags(self):
@@ -105,29 +55,34 @@ class NewNoun(object):
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
 
-    def is_types(self, *types):
-        return all(self._tags.has(type_) for type_ in types)
-
-    def definite(self):
-        if self.is_types(wt.DEFINITE):
-            return self
-        new_value = 'the ' + self.value
-        new_tags = self.tags.add(wt.DEFINITE).remove(wt.INDEFINITE).remove(wt.PROPER)
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
+    def has_tags(self, *tags):
+        return all(self._tags.has(tag) for tag in tags)
 
     def capitalize(self):
         new_value = self.value[0].upper() + self.value[1:]
         return NewNoun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
     def de_capitalize(self):
-        if self.is_types(wt.PROPER) and self.value.startswith(self.base_noun):
+        if self.value.startswith(self.base_noun):
             return self
 
         new_value = self.value[0].lower() + self.value[1:]
         return NewNoun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
+    def bold(self):
+        return NewNoun(bold(self.value), self.irregular_plural, self.base_noun, self.tags)
+
+    def definite(self):
+        if self.has_tags(wt.DEFINITE):
+            return self
+        new_value = 'the ' + self.value
+        new_tags = self.tags.add(wt.DEFINITE).remove(wt.INDEFINITE).remove(wt.PROPER)
+        return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
+
+
+
     def indefinite(self):
-        if self.is_types(wt.INDEFINITE):
+        if self.has_tags(wt.INDEFINITE):
             return self
         article = 'a '
         vowels = 'aeiouAEIOU'
@@ -136,14 +91,14 @@ class NewNoun(object):
         return NewNoun(article + self.value, self.irregular_plural, self.base_noun, Tags([wt.INDEFINITE]))
 
     def plural(self):
-        if self.is_types(wt.PLURAL):
+        if self.has_tags(wt.PLURAL):
             return self
         new_value = self.irregular_plural
         new_tags = self.tags.add(wt.PLURAL).remove(wt.INDEFINITE)
         if not new_value:
             return NewNoun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
 
-        if self.is_types(wt.INDEFINITE) or self.is_types(wt.DEFINITE):
+        if self.has_tags(wt.INDEFINITE) or self.has_tags(wt.DEFINITE):
             new_value = get_article(self.value) + new_value
         return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
@@ -158,27 +113,6 @@ def get_plural_value(value):
         return value[:-1] + 'ves'
     else:
         return add_s(value)
-
-
-def add_s(word_value):
-    if needs_es(word_value):
-        ending = 'es'
-    elif is_y_as_long_vowel_sound(word_value):
-        word_value = word_value[:-1]
-        ending = 'ies'
-    else:
-        ending = 's'
-    return word_value + ending
-
-
-def needs_es(value: str):
-    add_es = ['s', 'z', 'ch', 'sh', 'x', 'o']
-    return any(value.endswith(ending) for ending in add_es)
-
-
-def is_y_as_long_vowel_sound(value: str) -> bool:
-    vowels = 'aeiou '
-    return value.endswith('y') and len(value) > 1 and value[-2] not in vowels
 
 
 def get_article(value):

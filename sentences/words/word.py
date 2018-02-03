@@ -1,3 +1,5 @@
+from sentences.words.wordtools.abstractword import AbstractWord
+
 
 class Word(object):
 
@@ -10,6 +12,9 @@ class Word(object):
 
     def capitalize(self) -> 'Word':
         return self.__class__(self.value.capitalize())
+
+    def de_capitalize(self):
+        return self
 
     def add_s(self) -> 'Word':
         current_value = self.value
