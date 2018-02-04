@@ -50,7 +50,9 @@ class NewNoun(AbstractWord):
                 (other.value, other.irregular_plural, other.base_noun, other.tags))
 
     def __repr__(self):
-        return 'NewNoun({!r}, {!r}, {!r}, {!r})'.format(self.value, self.irregular_plural, self.base_noun, self.tags)
+        return '{}({!r}, {!r}, {!r}, {!r})'.format(
+            self.__class__.__name__, self.value, self.irregular_plural, self.base_noun, self.tags
+        )
 
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
@@ -93,20 +95,11 @@ class NewNoun(AbstractWord):
         if not new_value:
             return NewNoun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
 
-        # if self.has_tags(wt.INDEFINITE) or self.has_tags(wt.DEFINITE):
         new_value = get_article(self.value) + new_value
         return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
-    def to_base_noun(self):
-        proper = Tags([wt.PROPER])
-        plural_proper = Tags([wt.PROPER, wt.PLURAL])
-        uncountable = Tags([wt.UNCOUNTABLE])
-        tags = Tags()
-        for tag_to_preserve in (plural_proper, proper, uncountable):
-            if self.has_tags(*tag_to_preserve.to_list()):
-                tags = tag_to_preserve
-                break
-        return NewNoun(self.base_noun, self.irregular_plural, tags=tags)
+    def to_basic_noun(self):
+        return NewNoun(self.base_noun, self.irregular_plural)
 
 
 def get_plural_value(value):

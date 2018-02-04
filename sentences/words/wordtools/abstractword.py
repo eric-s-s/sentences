@@ -28,6 +28,6 @@ class AbstractWord(ABC):
     def bold(self) -> 'AbstractWord':
         pass
 
-    def has_tags(self, *tags):
+    def has_tags(self, *tags: WordTag) -> bool:
         owned_tags = self.tags
         return all(owned_tags.has(tag) for tag in tags)
