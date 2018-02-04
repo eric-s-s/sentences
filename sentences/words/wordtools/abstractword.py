@@ -1,5 +1,7 @@
 
 from abc import ABC, abstractmethod
+from sentences.words.wordtools.tags import Tags
+from sentences.words.wordtools.wordtag import WordTag
 
 
 class AbstractWord(ABC):
@@ -7,6 +9,11 @@ class AbstractWord(ABC):
     @property
     @abstractmethod
     def value(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def tags(self) -> Tags:
         pass
 
     @abstractmethod
@@ -21,6 +28,6 @@ class AbstractWord(ABC):
     def bold(self) -> 'AbstractWord':
         pass
 
-    @abstractmethod
-    def has_tags(self, *tags) -> bool:
-        pass
+    def has_tags(self, *tags):
+        owned_tags = self.tags
+        return all(owned_tags.has(tag) for tag in tags)

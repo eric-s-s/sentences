@@ -2,16 +2,23 @@ import unittest
 
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.wordtag import WordTag
+from sentences.words.wordtools.tags import Tags
 
 
 class DummyWord(AbstractWord):
-    def __init__(self, value):
+    def __init__(self, value, tags=None):
         self._value = value
-        self._tags = [WordTag.INDEFINITE, WordTag.PAST]
+        if not tags:
+            tags = Tags()
+        self._tags = tags.copy()
 
     @property
     def value(self):
         return self._value
+
+    @property
+    def tags(self):
+        return self._tags.copy()
 
     def capitalize(self):
         return DummyWord(self.value[0].upper() + self.value[1:])
@@ -22,14 +29,15 @@ class DummyWord(AbstractWord):
     def bold(self):
         return DummyWord('<bold>{}</bold>'.format(self.value))
 
-    def has_tags(self, *tags):
-        return all(tag in self._tags for tag in tags)
-
 
 class TestAbstractWord(unittest.TestCase):
     def test_value(self):
         test = DummyWord('x')
         self.assertEqual(test.value, 'x')
+
+    def test_tags(self):
+        test = DummyWord('a', Tags([WordTag.PAST, WordTag.PROPER]))
+        self.assertEqual(test.tags, Tags([WordTag.PAST, WordTag.PROPER]))
 
     def test_capitalize(self):
         test = DummyWord('abc')
@@ -54,18 +62,32 @@ class TestAbstractWord(unittest.TestCase):
         self.assertIsInstance(answer, AbstractWord)
         self.assertEqual(answer.value, '<bold>a</bold>')
 
-    def test_has_tags_all_true(self):
+    def test_has_tags_no_tags(self):
         test = DummyWord('')
-        self.assertTrue(test.has_tags(WordTag.INDEFINITE))
+        self.assertTrue(test.has_tags())
+
+        self.assertFalse(test.has_tags(WordTag.PLURAL))
+        self.assertFalse(test.has_tags(WordTag.PLURAL, WordTag.UNCOUNTABLE))
+
+    def test_has_tags_one_tag(self):
+        test = DummyWord('', tags=Tags([WordTag.UNCOUNTABLE]))
+
+        self.assertTrue(test.has_tags())
+        self.assertTrue(test.has_tags(WordTag.UNCOUNTABLE))
+
+        self.assertFalse(test.has_tags(WordTag.PLURAL))
+        self.assertFalse(test.has_tags(WordTag.PLURAL, WordTag.UNCOUNTABLE))
+        self.assertFalse(test.has_tags(WordTag.PLURAL, WordTag.PROPER))
+
+    def test_has_tags_two_tags(self):
+        test = DummyWord('', tags=Tags([WordTag.UNCOUNTABLE, WordTag.PAST]))
+
+        self.assertTrue(test.has_tags())
+        self.assertTrue(test.has_tags(WordTag.UNCOUNTABLE))
         self.assertTrue(test.has_tags(WordTag.PAST))
-        self.assertTrue(test.has_tags(WordTag.INDEFINITE, WordTag.PAST))
-        self.assertTrue(test.has_tags(WordTag.PAST, WordTag.INDEFINITE))
+        self.assertTrue(test.has_tags(WordTag.PAST, WordTag.UNCOUNTABLE))
 
-    def test_has_tags_all_false(self):
-        test = DummyWord('')
-        self.assertFalse(test.has_tags(WordTag.DEFINITE))
-        self.assertFalse(test.has_tags(WordTag.PROPER, WordTag.PLURAL))
-
-    def test_has_tags_some_true(self):
-        test = DummyWord('')
-        self.assertFalse(test.has_tags(WordTag.DEFINITE, WordTag.INDEFINITE, WordTag.PAST))
+        self.assertFalse(test.has_tags(WordTag.PLURAL))
+        self.assertFalse(test.has_tags(WordTag.PLURAL, WordTag.UNCOUNTABLE))
+        self.assertFalse(test.has_tags(WordTag.PAST, WordTag.PLURAL, WordTag.UNCOUNTABLE))
+        self.assertFalse(test.has_tags(WordTag.PLURAL, WordTag.PROPER))

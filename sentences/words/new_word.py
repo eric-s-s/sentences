@@ -55,9 +55,6 @@ class NewNoun(AbstractWord):
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
 
-    def has_tags(self, *tags):
-        return all(self._tags.has(tag) for tag in tags)
-
     def capitalize(self):
         new_value = self.value[0].upper() + self.value[1:]
         return NewNoun(new_value, self.irregular_plural, self.base_noun, self.tags)
@@ -79,8 +76,6 @@ class NewNoun(AbstractWord):
         new_tags = self.tags.add(wt.DEFINITE).remove(wt.INDEFINITE).remove(wt.PROPER)
         return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
-
-
     def indefinite(self):
         if self.has_tags(wt.INDEFINITE):
             return self
@@ -94,16 +89,24 @@ class NewNoun(AbstractWord):
         if self.has_tags(wt.PLURAL):
             return self
         new_value = self.irregular_plural
-        new_tags = self.tags.add(wt.PLURAL).remove(wt.INDEFINITE)
+        new_tags = self.tags.add(wt.PLURAL).remove(wt.INDEFINITE).remove(wt.UNCOUNTABLE)
         if not new_value:
             return NewNoun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
 
-        if self.has_tags(wt.INDEFINITE) or self.has_tags(wt.DEFINITE):
-            new_value = get_article(self.value) + new_value
+        # if self.has_tags(wt.INDEFINITE) or self.has_tags(wt.DEFINITE):
+        new_value = get_article(self.value) + new_value
         return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def to_base_noun(self):
-        return NewNoun(self.base_noun, self.irregular_plural)
+        proper = Tags([wt.PROPER])
+        plural_proper = Tags([wt.PROPER, wt.PLURAL])
+        uncountable = Tags([wt.UNCOUNTABLE])
+        tags = Tags()
+        for tag_to_preserve in (plural_proper, proper, uncountable):
+            if self.has_tags(*tag_to_preserve.to_list()):
+                tags = tag_to_preserve
+                break
+        return NewNoun(self.base_noun, self.irregular_plural, tags=tags)
 
 
 def get_plural_value(value):
