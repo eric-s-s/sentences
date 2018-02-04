@@ -1,5 +1,6 @@
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.tags import Tags
+from sentences.words.wordtools.wordtag import WordTag
 from sentences.words.wordtools.common_functions import bold
 
 
@@ -9,6 +10,14 @@ class BasicWord(AbstractWord):
         if tags is None:
             tags = Tags()
         self._tags = tags
+
+    @classmethod
+    def preposition(cls, value):
+        return cls(value, Tags([WordTag.PREPOSITION]))
+
+    @classmethod
+    def particle(cls, value):
+        return cls(value, Tags([WordTag.SEPARABLE_PARTICLE]))
 
     @property
     def value(self):

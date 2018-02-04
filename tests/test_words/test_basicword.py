@@ -11,7 +11,6 @@ class TestBasicWord(unittest.TestCase):
         self.preposition = Tags([WordTag.PREPOSITION])
         self.particle = Tags([WordTag.SEPARABLE_PARTICLE])
 
-
     def test_init_empty_tags(self):
         word = BasicWord('hi')
         self.assertEqual(word.value, 'hi')
@@ -35,6 +34,14 @@ class TestBasicWord(unittest.TestCase):
         not_equal = BasicWord('a', tags=self.preposition)
         self.assertEqual(word, equal)
         self.assertNotEqual(word, not_equal)
+
+    def test_class_method_preposition(self):
+        preposition = BasicWord.preposition('to')
+        self.assertEqual(preposition, BasicWord('to', tags=self.preposition))
+
+    def test_class_method_particle(self):
+        particle = BasicWord.particle('up')
+        self.assertEqual(particle, BasicWord('up', tags=self.particle))
 
     def test_capitalize(self):
         word = BasicWord('abc', tags=self.preposition)

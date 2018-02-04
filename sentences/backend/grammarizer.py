@@ -3,13 +3,14 @@ from copy import deepcopy
 from typing import List, Union
 
 from sentences.backend.investigation_tools import requires_third_person, find_subject
-from sentences.words.noun import Noun, PluralNoun, UncountableNoun, ProperNoun
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import Verb
-from sentences.words.word import Word
+from sentences.words.new_word import NewNoun
+from sentences.words.new_verb import NewVerb
+from sentences.words.wordtools.abstractword import AbstractWord
+from sentences.words.wordtools.wordtag import WordTag
 
-Paragraph = List[List[Union[Word, Pronoun, Punctuation]]]
+Paragraph = List[List[Union[AbstractWord, Pronoun, Punctuation]]]
 
 
 class Grammarizer(object):
@@ -53,7 +54,7 @@ class Grammarizer(object):
         pool = {}
         for noun in nouns:
             use_plural = False
-            countable = not isinstance(noun, UncountableNoun)
+            countable = not noun.has_tags(WordTag.UNCOUNTABLE)
             if countable and random.random() < self._plural:
                 use_plural = True
             pool[noun] = {'plural': use_plural, 'definite': False, 'countable': countable}
@@ -70,7 +71,7 @@ class Grammarizer(object):
                 if is_non_proper_noun(new_wd):
                     new_wd = self._modify_noun(new_wd)
 
-                if isinstance(new_wd, Verb):
+                if isinstance(new_wd, NewVerb):
                     new_wd = self._assign_negatives(new_wd)
 
                 new_sentence.append(new_wd)
@@ -91,7 +92,7 @@ class Grammarizer(object):
             new_wd = new_wd.definite()
         else:
             info['definite'] = True
-            if info['countable'] and not isinstance(new_wd, PluralNoun):
+            if info['countable'] and not new_wd.has_tags(WordTag.PLURAL):
                 new_wd = new_wd.indefinite()
         return new_wd
 
@@ -123,4 +124,4 @@ def get_non_proper_nouns(paragraph: Paragraph) -> list:
 
 
 def is_non_proper_noun(word):
-    return isinstance(word, Noun) and not isinstance(word, ProperNoun)
+    return isinstance(word, NewNoun) and not word.has_tags(WordTag.PROPER)

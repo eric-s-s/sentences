@@ -2,7 +2,8 @@ import random
 
 from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person, get_present_be_verb, find_subject
-from sentences.words.noun import Noun, IndefiniteNoun, PluralNoun, UncountableNoun, ProperNoun
+from sentences.words.new_word import NewNoun
+from sentences.words.wordtools.wordtag import WordTag
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb, NegativeVerb, PastVerb
 from sentences.words.word import Word, Preposition
@@ -54,7 +55,7 @@ class ErrorMaker(object):
     def create_noun_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
-                if isinstance(word, Noun):
+                if isinstance(word, NewNoun):
                     if random.random() < self.p_error:
                         self._error_count += 1
 
@@ -151,14 +152,14 @@ class ErrorMaker(object):
 
 
 def make_noun_error(noun):
-    basic = noun.to_base_noun()
-    if isinstance(noun, ProperNoun):
+    basic = noun.to_basic_noun()
+    if noun.has_tags(WordTag.PROPER):
         choices = [basic.indefinite(), basic.definite()]
-    elif isinstance(noun, UncountableNoun):
+    elif noun.has_tags(WordTag.UNCOUNTABLE):
         choices = [basic.indefinite(), basic.plural()]
-    elif isinstance(noun, IndefiniteNoun):
+    elif noun.has_tags(WordTag.INDEFINITE):
         choices = [basic] * 3 + [basic.plural().indefinite(), basic.plural()]
-    elif isinstance(noun, PluralNoun):
+    elif noun.has_tags(WordTag.PLURAL):
         choices = [basic] * 3 + [basic.indefinite(), basic.definite(), basic.plural().indefinite()]
     else:
         choices = [basic] * 3 + [basic.indefinite(), basic.plural(), basic.plural().indefinite()]

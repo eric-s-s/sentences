@@ -38,6 +38,9 @@ class AbstractPronoun(Enum):
             return False
         return self.subject() == other.subject()
 
+    def has_tags(self, *tags):
+        return False
+
 
 class Pronoun(AbstractPronoun):
     I = 'I'

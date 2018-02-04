@@ -11,3 +11,15 @@ class Punctuation(Enum):
 
     def bold(self):
         return Word(self.value).bold()
+
+    @staticmethod
+    def has_tags(*tags):
+        return False
+
+    def capitalize(self):
+        return self
+
+    def de_capitalize(self):
+        return self
+
+
