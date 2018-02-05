@@ -1,7 +1,7 @@
 import csv
 
-from sentences.words.new_word import NewNoun
-from sentences.words.new_verb import NewVerb
+from sentences.words.noun import Noun
+from sentences.words.verb import Verb
 from sentences.words.basicword import BasicWord
 
 
@@ -34,17 +34,17 @@ def remove_empty_values(rows):
 def countable_nouns(filename=''):
     raw_lines = load_csv(filename)
     columns = 2
-    return [NewNoun(*line[:columns]) for line in raw_lines]
+    return [Noun(*line[:columns]) for line in raw_lines]
 
 
 def uncountable_nouns(filename=''):
     raw_lines = load_csv(filename)
-    return [NewNoun.uncountable_noun(line[0]) for line in raw_lines]
+    return [Noun.uncountable_noun(line[0]) for line in raw_lines]
 
 
 def proper_nouns(filename):
     raw_lines = load_csv(filename)
-    return [NewNoun.proper_noun(row[0], _get_plural_bool(row)) for row in raw_lines]
+    return [Noun.proper_noun(row[0], _get_plural_bool(row)) for row in raw_lines]
 
 
 def _get_plural_bool(row):
@@ -76,7 +76,7 @@ def get_verb_dict(str_lst):
 
     if past_tense == 'null':
         past_tense = ''
-    verb = NewVerb(infinitive, past_tense, '')
+    verb = Verb(infinitive, past_tense, '')
 
     if particle_inf == '':
         particle = None

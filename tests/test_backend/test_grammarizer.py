@@ -6,8 +6,8 @@ from sentences.backend.grammarizer import normalize_probability, get_non_proper_
 
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.new_word import NewNoun
-from sentences.words.new_verb import NewVerb
+from sentences.words.noun import Noun
+from sentences.words.verb import Verb
 from sentences.words.wordtools.wordtag import WordTag
 from sentences.words.wordtools.tags import Tags
 
@@ -43,39 +43,39 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_get_non_proper_nouns_no_nouns(self):
         raw_paragraph = [
-            [Pronoun.I, NewVerb('grab'), Pronoun.YOU, EXCLAMATION],
-            [Pronoun.WE, NewVerb('cut', 'cut'), Pronoun.IT, PERIOD],
-            [Pronoun.IT, NewVerb('have', 'had'), Pronoun.THEM, PERIOD]
+            [Pronoun.I, Verb('grab'), Pronoun.YOU, EXCLAMATION],
+            [Pronoun.WE, Verb('cut', 'cut'), Pronoun.IT, PERIOD],
+            [Pronoun.IT, Verb('have', 'had'), Pronoun.THEM, PERIOD]
         ]
         self.assertEqual(get_non_proper_nouns(raw_paragraph), [])
 
     def test_get_non_proper_nouns_proper_nouns(self):
         raw_paragraph = [
-            [NewNoun.proper_noun('NASA'), NewVerb('grab'), NewNoun.proper_noun('Joe'), EXCLAMATION],
-            [NewNoun.proper_noun('the Things', plural=True), NewVerb('cut', 'cut'), NewNoun.proper_noun('Bob'), PERIOD],
-            [Pronoun.IT, NewVerb('have', 'had'), Pronoun.THEM, PERIOD]
+            [Noun.proper_noun('NASA'), Verb('grab'), Noun.proper_noun('Joe'), EXCLAMATION],
+            [Noun.proper_noun('the Things', plural=True), Verb('cut', 'cut'), Noun.proper_noun('Bob'), PERIOD],
+            [Pronoun.IT, Verb('have', 'had'), Pronoun.THEM, PERIOD]
         ]
         self.assertEqual(get_non_proper_nouns(raw_paragraph), [])
 
     def test_get_non_proper_nouns_with_nouns(self):
         paragraph = [
-            [NewNoun('money'), NewVerb('grab'), NewNoun('tea'), EXCLAMATION],
-            [NewNoun('tea'), NewVerb('ride', 'rode'), NewNoun('apple'), PERIOD],
-            [NewNoun('apple'), NewVerb('surprise'), NewNoun('gold'), PERIOD],
-            [NewNoun('gold'), NewVerb('cut', 'cut'), NewNoun.proper_noun('Joe'), PERIOD],
-            [Pronoun.IT, NewVerb('have', 'had'), NewNoun('watch'), PERIOD]
+            [Noun('money'), Verb('grab'), Noun('tea'), EXCLAMATION],
+            [Noun('tea'), Verb('ride', 'rode'), Noun('apple'), PERIOD],
+            [Noun('apple'), Verb('surprise'), Noun('gold'), PERIOD],
+            [Noun('gold'), Verb('cut', 'cut'), Noun.proper_noun('Joe'), PERIOD],
+            [Pronoun.IT, Verb('have', 'had'), Noun('watch'), PERIOD]
         ]
 
         self.assertEqual(get_non_proper_nouns(paragraph),
-                         [NewNoun('money'), NewNoun('tea'), NewNoun('apple'), NewNoun('gold'), NewNoun('watch')])
+                         [Noun('money'), Noun('tea'), Noun('apple'), Noun('gold'), Noun('watch')])
 
     def test_grammarizer_init_defaults_and_paragraph_is_copy(self):
         random.seed(5)
 
         paragraph = [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun.uncountable_noun('tea'), EXCLAMATION],
-            [Pronoun.IT, NewVerb('have', 'had', ''), NewNoun('watch'), PERIOD],
-            [NewNoun.proper_noun('Bob'), NewVerb('drive'), NewNoun.proper_noun('Benzes', plural=True)]
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun.uncountable_noun('tea'), EXCLAMATION],
+            [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), PERIOD],
+            [Noun.proper_noun('Bob'), Verb('drive'), Noun.proper_noun('Benzes', plural=True)]
         ]
         grammarizer = Grammarizer(paragraph)
         self.assertEqual(grammarizer._raw, paragraph)
@@ -86,9 +86,9 @@ class TestGrammarizer(unittest.TestCase):
         self.assertEqual(grammarizer.negative, 0.3)
         self.assertEqual(grammarizer.present_tense, True)
         noun_info = {
-            NewNoun.uncountable_noun('tea'): {'plural': False, 'definite': False, 'countable': False},
-            NewNoun('watch'): {'plural': False, 'definite': False, 'countable': True},
-            NewNoun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            Noun.uncountable_noun('tea'): {'plural': False, 'definite': False, 'countable': False},
+            Noun('watch'): {'plural': False, 'definite': False, 'countable': True},
+            Noun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(noun_info, grammarizer.noun_info)
 
@@ -124,20 +124,20 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_grammarizer_noun_info_property_is_copy(self):
         paragraph = [
-            [NewNoun('money'), NewVerb('grab'), NewNoun('tea'), EXCLAMATION],
-            [Pronoun.IT, NewVerb('have', 'had'), NewNoun('watch'), PERIOD]
+            [Noun('money'), Verb('grab'), Noun('tea'), EXCLAMATION],
+            [Pronoun.IT, Verb('have', 'had'), Noun('watch'), PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
         info_1 = grammarizer.noun_info
         info_2 = grammarizer.noun_info
         self.assertEqual(info_1, info_2)
         self.assertIsNot(info_1, info_2)
-        self.assertIsNot(info_1[NewNoun('money')], info_2[NewNoun('money')])
+        self.assertIsNot(info_1[Noun('money')], info_2[Noun('money')])
 
     def test_grammarizer_reset_definite_nouns(self):
         paragraph = [
-            [NewNoun('money'), NewVerb('grab'), NewNoun('tea'), EXCLAMATION],
-            [Pronoun.IT, NewVerb('have', 'had'), NewNoun('watch'), PERIOD]
+            [Noun('money'), Verb('grab'), Noun('tea'), EXCLAMATION],
+            [Pronoun.IT, Verb('have', 'had'), Noun('watch'), PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
         grammarizer.generate_paragraph()
@@ -149,8 +149,8 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_grammarizer_set_nouns(self):
         paragraph = [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun('witch'), EXCLAMATION],
-            [NewNoun('witch'), NewVerb('play'), NewNoun('watch'), PERIOD]
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun('witch'), EXCLAMATION],
+            [Noun('witch'), Verb('play'), Noun('watch'), PERIOD]
         ]
         grammarizer = Grammarizer(paragraph, probability_plural_noun=0.5)
 
@@ -158,51 +158,51 @@ class TestGrammarizer(unittest.TestCase):
 
         grammarizer.set_nouns()
         noun_info = {
-            NewNoun('watch'): {'plural': True, 'definite': False, 'countable': True},
-            NewNoun('witch'): {'plural': False, 'definite': False, 'countable': True},
-            NewNoun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            Noun('watch'): {'plural': True, 'definite': False, 'countable': True},
+            Noun('witch'): {'plural': False, 'definite': False, 'countable': True},
+            Noun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(grammarizer.noun_info, noun_info)
 
         grammarizer.set_nouns()
         noun_info = {
-            NewNoun('watch'): {'plural': True, 'definite': False, 'countable': True},
-            NewNoun('witch'): {'plural': False, 'definite': False, 'countable': True},
-            NewNoun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            Noun('watch'): {'plural': True, 'definite': False, 'countable': True},
+            Noun('witch'): {'plural': False, 'definite': False, 'countable': True},
+            Noun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(grammarizer.noun_info, noun_info)
 
         grammarizer.set_nouns()
         noun_info = {
-            NewNoun('watch'): {'plural': False, 'definite': False, 'countable': True},
-            NewNoun('witch'): {'plural': False, 'definite': False, 'countable': True},
-            NewNoun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            Noun('watch'): {'plural': False, 'definite': False, 'countable': True},
+            Noun('witch'): {'plural': False, 'definite': False, 'countable': True},
+            Noun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
         self.assertEqual(grammarizer.noun_info, noun_info)
 
     def test_grammarizer_set_nouns_never_sets_uncountable_nouns_to_plural(self):
         paragraph = [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun.uncountable_noun('tea'), EXCLAMATION],
-            [NewNoun('witch'), NewVerb('have', 'had'), NewNoun('watch'), PERIOD]
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun.uncountable_noun('tea'), EXCLAMATION],
+            [Noun('witch'), Verb('have', 'had'), Noun('watch'), PERIOD]
         ]
         grammarizer = Grammarizer(paragraph, probability_plural_noun=1.0)
         grammarizer.set_nouns()
         noun_info = {
-            NewNoun.uncountable_noun('tea'): {'plural': False, 'definite': False, 'countable': False},
-            NewNoun('watch'): {'plural': True, 'definite': False, 'countable': True},
-            NewNoun('witch'): {'plural': True, 'definite': False, 'countable': True},
-            NewNoun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
+            Noun.uncountable_noun('tea'): {'plural': False, 'definite': False, 'countable': False},
+            Noun('watch'): {'plural': True, 'definite': False, 'countable': True},
+            Noun('witch'): {'plural': True, 'definite': False, 'countable': True},
+            Noun.uncountable_noun('money'): {'plural': False, 'definite': False, 'countable': False},
         }
 
         self.assertEqual(grammarizer.noun_info, noun_info)
 
     def test_generate_paragraph_returns_sentences_with_capitals(self):
         paragraph = [
-            [NewNoun('money'), NewVerb('grab'), NewNoun('tea'), EXCLAMATION],
-            [NewNoun('tea'), NewVerb('ride', 'rode', ''), NewNoun('apple'), PERIOD],
-            [NewNoun('apple'), NewVerb('surprise'), NewNoun('gold'), PERIOD],
-            [NewNoun.proper_noun('the Dude'), NewVerb('cut', 'cut', ''), Pronoun.IT, PERIOD],
-            [Pronoun.IT, NewVerb('have', 'had', ''), NewNoun('watch'), PERIOD]
+            [Noun('money'), Verb('grab'), Noun('tea'), EXCLAMATION],
+            [Noun('tea'), Verb('ride', 'rode', ''), Noun('apple'), PERIOD],
+            [Noun('apple'), Verb('surprise'), Noun('gold'), PERIOD],
+            [Noun.proper_noun('the Dude'), Verb('cut', 'cut', ''), Pronoun.IT, PERIOD],
+            [Pronoun.IT, Verb('have', 'had', ''), Noun('watch'), PERIOD]
         ]
         grammarizer = Grammarizer(paragraph)
         paragraph = grammarizer.generate_paragraph()
@@ -211,8 +211,8 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_generate_paragraph_makes_nouns_indefinite_in_first_instance_and_definite_later(self):
         raw_paragraph = 5 * [
-            [NewNoun('money'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-            [NewNoun('witch'), NewVerb('play'), NewNoun('dog'), PERIOD],
+            [Noun('money'), Verb('grab'), Noun('cat'), EXCLAMATION],
+            [Noun('witch'), Verb('play'), Noun('dog'), PERIOD],
         ]
         grammarizer = Grammarizer(raw_paragraph)
         paragraph = grammarizer.generate_paragraph()
@@ -225,150 +225,150 @@ class TestGrammarizer(unittest.TestCase):
 
         for sentence in definite_part:
             for word in sentence:
-                if isinstance(word, NewNoun):
+                if isinstance(word, Noun):
                     self.assertTrue(word.has_tags(WordTag.DEFINITE))
 
     def test_generate_paragraph_singular_countable_noun(self):
-        raw_paragraph = [[NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION]]
+        raw_paragraph = [[Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[
-            NewNoun('A cat', '', 'cat', tags=self.indefinite), NewVerb('grabs', '', 'grab', tags=self.third_person),
-            NewNoun('the cat', '', 'cat', tags=self.definite), EXCLAMATION
+            Noun('A cat', '', 'cat', tags=self.indefinite), Verb('grabs', '', 'grab', tags=self.third_person),
+            Noun('the cat', '', 'cat', tags=self.definite), EXCLAMATION
         ]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_plural_countable_noun(self):
-        raw_paragraph = [[NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION]]
+        raw_paragraph = [[Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION]]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        expected = [[NewNoun('Cats', '', 'cat', tags=self.plural), NewVerb('grab'),
-                     NewNoun('the cats', '', 'cat', tags=self.definite_plural), EXCLAMATION]]
+        expected = [[Noun('Cats', '', 'cat', tags=self.plural), Verb('grab'),
+                     Noun('the cats', '', 'cat', tags=self.definite_plural), EXCLAMATION]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_uncountable_noun(self):
         raw_paragraph = [
-            [NewNoun.uncountable_noun('water'), NewVerb('grab'), NewNoun.uncountable_noun('water'), PERIOD]
+            [Noun.uncountable_noun('water'), Verb('grab'), Noun.uncountable_noun('water'), PERIOD]
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
         expected = [[
-            NewNoun('Water', '', 'water', tags=self.uncountable), NewVerb('grabs', '', 'grab', tags=self.third_person),
-            NewNoun('the water', '', 'water', tags=self.definite_uncountable), PERIOD
+            Noun('Water', '', 'water', tags=self.uncountable), Verb('grabs', '', 'grab', tags=self.third_person),
+            Noun('the water', '', 'water', tags=self.definite_uncountable), PERIOD
         ]]
         self.assertEqual(paragraph, expected)
 
     def test_generate_paragraph_present_tense_third_person_positive(self):
         raw_paragraph = [
-            [NewNoun.uncountable_noun('water'), NewVerb('grab'), NewNoun.uncountable_noun('water'), EXCLAMATION],
-            [NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-            [NewNoun.proper_noun('Joe'), NewVerb('grab'), NewNoun.proper_noun('Bob')]
+            [Noun.uncountable_noun('water'), Verb('grab'), Noun.uncountable_noun('water'), EXCLAMATION],
+            [Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION],
+            [Noun.proper_noun('Joe'), Verb('grab'), Noun.proper_noun('Bob')]
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = NewVerb('grabs', '', 'grab', tags=self.third_person)
+        target_verb = Verb('grabs', '', 'grab', tags=self.third_person)
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_present_tense_third_person_negative(self):
         raw_paragraph = [
-            [NewNoun.uncountable_noun('water'), NewVerb('grab'), NewNoun.uncountable_noun('water'), EXCLAMATION],
-            [NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-            [NewNoun.proper_noun('Joe'), NewVerb('grab'), NewNoun('cat')]
+            [Noun.uncountable_noun('water'), Verb('grab'), Noun.uncountable_noun('water'), EXCLAMATION],
+            [Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION],
+            [Noun.proper_noun('Joe'), Verb('grab'), Noun('cat')]
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=0.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = NewVerb("doesn't grab", '', 'grab', tags=self.negative_third_person)
+        target_verb = Verb("doesn't grab", '', 'grab', tags=self.negative_third_person)
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_present_tense_not_third_person_positive(self):
-        raw_paragraph = [[NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.I, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.YOU, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.WE, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.THEY, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [NewNoun.proper_noun('Taiwanese', plural=True), NewVerb('grab'), NewNoun('cat'), EXCLAMATION]
+        raw_paragraph = [[Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.I, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.YOU, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.WE, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.THEY, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Noun.proper_noun('Taiwanese', plural=True), Verb('grab'), Noun('cat'), EXCLAMATION]
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = NewVerb('grab')
+        target_verb = Verb('grab')
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_present_tense_not_third_person_negative(self):
-        raw_paragraph = [[NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.I, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.YOU, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.WE, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.THEY, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [NewNoun.proper_noun('Taiwanese', plural=True), NewVerb('grab'), NewNoun('cat'), EXCLAMATION]
+        raw_paragraph = [[Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.I, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.YOU, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.WE, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.THEY, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Noun.proper_noun('Taiwanese', plural=True), Verb('grab'), Noun('cat'), EXCLAMATION]
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0, probability_plural_noun=1.0)
         paragraph = grammarizer.generate_paragraph()
-        target_verb = NewVerb("don't grab", '', 'grab', tags=self.negative)
+        target_verb = Verb("don't grab", '', 'grab', tags=self.negative)
         for sentence in paragraph:
             self.assertEqual(sentence[1], target_verb)
 
     def test_generate_paragraph_past_tense_positive(self):
-        raw_paragraph = [[NewNoun.uncountable_noun('water'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [NewNoun('cat'), NewVerb('eat', 'ate', ''), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.I, NewVerb('sing', 'sang', ''), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.YOU, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.WE, NewVerb('sing', 'sang', ''), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.THEY, NewVerb('eat', 'ate', ''), NewNoun('cat'), EXCLAMATION],
+        raw_paragraph = [[Noun.uncountable_noun('water'), Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Noun('cat'), Verb('eat', 'ate', ''), Noun('cat'), EXCLAMATION],
+                         [Pronoun.I, Verb('sing', 'sang', ''), Noun('cat'), EXCLAMATION],
+                         [Pronoun.YOU, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.WE, Verb('sing', 'sang', ''), Noun('cat'), EXCLAMATION],
+                         [Pronoun.THEY, Verb('eat', 'ate', ''), Noun('cat'), EXCLAMATION],
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0,
                                   probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
-        target_verbs = [NewVerb('grabbed', '', 'grab', tags=self.past), NewVerb('ate', 'ate', 'eat', tags=self.past),
-                        NewVerb('sang', 'sang', 'sing', tags=self.past)]
+        target_verbs = [Verb('grabbed', '', 'grab', tags=self.past), Verb('ate', 'ate', 'eat', tags=self.past),
+                        Verb('sang', 'sang', 'sing', tags=self.past)]
         for sentence in paragraph:
             self.assertIn(sentence[1], target_verbs)
 
     def test_generate_paragraph_past_tense_negative(self):
-        raw_paragraph = [[NewNoun.uncountable_noun('water'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [NewNoun('cat'), NewVerb('eat', 'ate'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.I, NewVerb('sing', 'sang'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.YOU, NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.WE, NewVerb('sing', 'sang'), NewNoun('cat'), EXCLAMATION],
-                         [Pronoun.THEY, NewVerb('eat', 'ate'), NewNoun('cat'), EXCLAMATION],
+        raw_paragraph = [[Noun.uncountable_noun('water'), Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Noun('cat'), Verb('eat', 'ate'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.I, Verb('sing', 'sang'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.YOU, Verb('grab'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.WE, Verb('sing', 'sang'), Noun('cat'), EXCLAMATION],
+                         [Pronoun.THEY, Verb('eat', 'ate'), Noun('cat'), EXCLAMATION],
                          ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0,
                                   probability_plural_noun=1.0, present_tense=False)
         paragraph = grammarizer.generate_paragraph()
-        target_verbs = [NewVerb("didn't grab", '', 'grab', tags=self.negative_past),
-                        NewVerb("didn't eat", 'ate', 'eat', tags=self.negative_past),
-                        NewVerb("didn't sing", 'sang', 'sing', tags=self.negative_past)]
+        target_verbs = [Verb("didn't grab", '', 'grab', tags=self.negative_past),
+                        Verb("didn't eat", 'ate', 'eat', tags=self.negative_past),
+                        Verb("didn't sing", 'sang', 'sing', tags=self.negative_past)]
         for sentence in paragraph:
             self.assertIn(sentence[1], target_verbs)
 
     def test_assign_negatives_all_negative(self):
         raw_paragraph = 5 * [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-            [NewNoun('witch'), NewVerb('play'), NewNoun('dog'), PERIOD],
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun('cat'), EXCLAMATION],
+            [Noun('witch'), Verb('play'), Noun('dog'), PERIOD],
 
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=1.0)
         paragraph = grammarizer.generate_paragraph()
         for sentence in paragraph:
             for word in sentence:
-                if isinstance(word, NewVerb):
+                if isinstance(word, Verb):
                     value = word.value
                     tests_true = value.startswith("don't ") or value.startswith("doesn't ")
                     self.assertTrue(tests_true)
 
     def test_assign_negatives_no_negative(self):
         raw_paragraph = 5 * [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
-            [NewNoun('witch'), NewVerb('play'), NewNoun('dog'), PERIOD],
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun('cat'), EXCLAMATION],
+            [Noun('witch'), Verb('play'), Noun('dog'), PERIOD],
 
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0)
         paragraph = grammarizer.generate_paragraph()
         for sentence in paragraph:
             for word in sentence:
-                if isinstance(word, NewVerb):
+                if isinstance(word, Verb):
                     value = word.value
                     tests_false = value.startswith("don't ") or value.startswith("doesn't ")
                     self.assertFalse(tests_false)
@@ -376,14 +376,14 @@ class TestGrammarizer(unittest.TestCase):
     def test_assign_negatives_some_negative(self):
         random.seed(3)
         raw_paragraph = 10 * [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun('cat'), EXCLAMATION],
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.5)
         paragraph = grammarizer.generate_paragraph()
         negatives = [1, 4, 5, 7, 8]
         for index, sentence in enumerate(paragraph):
             for word in sentence:
-                if isinstance(word, NewVerb):
+                if isinstance(word, Verb):
                     value = word.value
                     is_negative = value.startswith("don't ") or value.startswith("doesn't ")
                     if index in negatives:
@@ -393,33 +393,33 @@ class TestGrammarizer(unittest.TestCase):
 
     def test_generate_paragraph_multiple_times_resets_indefinte(self):
         raw_paragraph = [
-            [NewNoun.uncountable_noun('money'), NewVerb('grab'), NewNoun.uncountable_noun('money'), EXCLAMATION],
-            [NewNoun('cat'), NewVerb('grab'), NewNoun('cat'), EXCLAMATION],
+            [Noun.uncountable_noun('money'), Verb('grab'), Noun.uncountable_noun('money'), EXCLAMATION],
+            [Noun('cat'), Verb('grab'), Noun('cat'), EXCLAMATION],
         ]
         grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0, probability_plural_noun=0.0)
         paragraph_1 = grammarizer.generate_paragraph()
         paragraph_2 = grammarizer.generate_paragraph()
         answer = [
-            [NewNoun.uncountable_noun('money').capitalize(), NewVerb('grabs', '', 'grab', tags=self.third_person),
-             NewNoun('the money', base='money', tags=self.definite_uncountable), EXCLAMATION],
-            [NewNoun('A cat', base='cat', tags=self.indefinite), NewVerb('grabs', '', 'grab', tags=self.third_person),
-             NewNoun('the cat', base='cat', tags=self.definite), EXCLAMATION]
+            [Noun.uncountable_noun('money').capitalize(), Verb('grabs', '', 'grab', tags=self.third_person),
+             Noun('the money', base='money', tags=self.definite_uncountable), EXCLAMATION],
+            [Noun('A cat', base='cat', tags=self.indefinite), Verb('grabs', '', 'grab', tags=self.third_person),
+             Noun('the cat', base='cat', tags=self.definite), EXCLAMATION]
         ]
         self.assertEqual(answer, paragraph_1)
         self.assertEqual(answer, paragraph_2)
 
     def test_proper_noun_and_plural_proper_noun_do_not_change_except_capitalize(self):
         raw_paragraph = [
-            [NewNoun.proper_noun('Joe'), NewVerb('grab'), NewNoun.proper_noun('the Guys', plural=True), PERIOD],
-            [NewNoun.proper_noun('the Guys', plural=True), NewVerb('grab'), NewNoun.proper_noun('Joe'), PERIOD],
+            [Noun.proper_noun('Joe'), Verb('grab'), Noun.proper_noun('the Guys', plural=True), PERIOD],
+            [Noun.proper_noun('the Guys', plural=True), Verb('grab'), Noun.proper_noun('Joe'), PERIOD],
         ]
 
         expected = [
-            [NewNoun.proper_noun('Joe'), NewVerb('grabs', '', 'grab', tags=self.third_person),
-             NewNoun.proper_noun('the Guys', plural=True), PERIOD],
+            [Noun.proper_noun('Joe'), Verb('grabs', '', 'grab', tags=self.third_person),
+             Noun.proper_noun('the Guys', plural=True), PERIOD],
 
-            [NewNoun('The Guys', '', 'the Guys', tags=self.plural_proper),
-             NewVerb('grab'), NewNoun.proper_noun('Joe'), PERIOD],
+            [Noun('The Guys', '', 'the Guys', tags=self.plural_proper),
+             Verb('grab'), Noun.proper_noun('Joe'), PERIOD],
         ]
         for probility_plural in (0.0, 0.2, 0.5, 1.0):
             grammarizer = Grammarizer(raw_paragraph, probability_negative_verb=0.0,

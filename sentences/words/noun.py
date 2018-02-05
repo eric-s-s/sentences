@@ -4,7 +4,7 @@ from sentences.words.wordtools.wordtag import WordTag
 from sentences.words.wordtools.tags import Tags
 
 
-class NewNoun(AbstractWord):
+class Noun(AbstractWord):
     def __init__(self, value, irregular_plural='', base='', tags=None):
         self._value = value
         self._irregular = irregular_plural
@@ -44,7 +44,7 @@ class NewNoun(AbstractWord):
         return self._tags.copy()
 
     def __eq__(self, other):
-        if not isinstance(other, NewNoun):
+        if not isinstance(other, Noun):
             return False
         return ((self.value, self.irregular_plural, self.base_noun, self.tags) ==
                 (other.value, other.irregular_plural, other.base_noun, other.tags))
@@ -59,24 +59,24 @@ class NewNoun(AbstractWord):
 
     def capitalize(self):
         new_value = self.value[0].upper() + self.value[1:]
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, self.tags)
+        return Noun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
     def de_capitalize(self):
         if self.value.startswith(self.base_noun):
             return self
 
         new_value = self.value[0].lower() + self.value[1:]
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, self.tags)
+        return Noun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
     def bold(self):
-        return NewNoun(bold(self.value), self.irregular_plural, self.base_noun, self.tags)
+        return Noun(bold(self.value), self.irregular_plural, self.base_noun, self.tags)
 
     def definite(self):
         if self.has_tags(WordTag.DEFINITE):
             return self
         new_value = 'the ' + self.value
         new_tags = self.tags.add(WordTag.DEFINITE).remove(WordTag.INDEFINITE).remove(WordTag.PROPER)
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
+        return Noun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def indefinite(self):
         if self.has_tags(WordTag.INDEFINITE):
@@ -85,7 +85,7 @@ class NewNoun(AbstractWord):
         vowels = 'aeiouAEIOU'
         if any(self.value.startswith(vowel) for vowel in vowels):
             article = 'an '
-        return NewNoun(article + self.value, self.irregular_plural, self.base_noun, Tags([WordTag.INDEFINITE]))
+        return Noun(article + self.value, self.irregular_plural, self.base_noun, Tags([WordTag.INDEFINITE]))
 
     def plural(self):
         if self.has_tags(WordTag.PLURAL):
@@ -93,13 +93,13 @@ class NewNoun(AbstractWord):
         new_value = self.irregular_plural
         new_tags = self.tags.add(WordTag.PLURAL).remove(WordTag.INDEFINITE).remove(WordTag.UNCOUNTABLE)
         if not new_value:
-            return NewNoun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
+            return Noun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
 
         new_value = get_article(self.value) + new_value
-        return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
+        return Noun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def to_basic_noun(self):
-        return NewNoun(self.base_noun, self.irregular_plural)
+        return Noun(self.base_noun, self.irregular_plural)
 
 
 def get_plural_value(value):

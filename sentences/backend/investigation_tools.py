@@ -1,6 +1,6 @@
 from sentences.words.pronoun import Pronoun, CapitalPronoun
-from sentences.words.new_verb import NewVerb
-from sentences.words.new_word import NewNoun
+from sentences.words.verb import Verb
+from sentences.words.noun import Noun
 from sentences.words.basicword import BasicWord
 from sentences.words.wordtools.wordtag import WordTag
 
@@ -28,14 +28,14 @@ def requires_third_person(raw_sentence) -> bool:
 def find_subject(raw_sentence) -> int:
     index = -1
     for i, val in enumerate(raw_sentence):
-        if isinstance(val, NewVerb):
+        if isinstance(val, Verb):
             index = i - 1
             break
     return index
 
 
 def is_third_person(word) -> bool:
-    if isinstance(word, NewNoun):
+    if isinstance(word, Noun):
         return not word.has_tags(WordTag.PLURAL)
     pronouns = [Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT]
     capitals = [CapitalPronoun.HE, CapitalPronoun.HIM, CapitalPronoun.SHE, CapitalPronoun.HER, CapitalPronoun.IT]

@@ -2,7 +2,7 @@ import random
 
 from sentences.backend.investigation_tools import is_word_in_sentence
 from sentences.backend.random_sentences import RandomSentences
-from sentences.words.new_word import NewNoun
+from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun
 
 
@@ -63,7 +63,7 @@ class RandomParagraph(object):
             subj_candidate = predicate[-2]
             if isinstance(subj_candidate, Pronoun):
                 subj = subj_candidate.subject()
-            elif isinstance(subj_candidate, NewNoun):
+            elif isinstance(subj_candidate, Noun):
                 subj = subj_candidate
             else:
                 subj = self._word_maker.subject(self._p_pronoun)

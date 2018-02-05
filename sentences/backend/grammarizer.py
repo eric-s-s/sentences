@@ -5,8 +5,8 @@ from typing import List, Union
 from sentences.backend.investigation_tools import requires_third_person, find_subject
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.new_word import NewNoun
-from sentences.words.new_verb import NewVerb
+from sentences.words.noun import Noun
+from sentences.words.verb import Verb
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.wordtag import WordTag
 
@@ -71,7 +71,7 @@ class Grammarizer(object):
                 if is_non_proper_noun(new_wd):
                     new_wd = self._modify_noun(new_wd)
 
-                if isinstance(new_wd, NewVerb):
+                if isinstance(new_wd, Verb):
                     new_wd = self._assign_negatives(new_wd)
 
                 new_sentence.append(new_wd)
@@ -124,4 +124,4 @@ def get_non_proper_nouns(paragraph: Paragraph) -> list:
 
 
 def is_non_proper_noun(word):
-    return isinstance(word, NewNoun) and not word.has_tags(WordTag.PROPER)
+    return isinstance(word, Noun) and not word.has_tags(WordTag.PROPER)
