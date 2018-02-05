@@ -1,7 +1,7 @@
 import unittest
 
 from sentences.words.punctuation import Punctuation
-from sentences.words.word import Word
+from sentences.words.basicword import BasicWord
 
 comma, period, exclamation, question = Punctuation
 
@@ -14,8 +14,8 @@ class TestPunctuation(unittest.TestCase):
         self.assertEqual(question.value, '?')
 
     def test_bold(self):
-        self.assertEqual(comma.bold(), Word('<bold>,</bold>'))
-        self.assertEqual(period.bold(), Word('<bold>.</bold>'))
-        self.assertEqual(exclamation.bold(), Word('<bold>!</bold>'))
-        self.assertEqual(question.bold(), Word('<bold>?</bold>'))
+        self.assertEqual(comma.bold(), BasicWord('<bold>,</bold>'))
+        self.assertEqual(period.bold(), BasicWord('<bold>.</bold>'))
+        self.assertEqual(exclamation.bold(), BasicWord('<bold>!</bold>'))
+        self.assertEqual(question.bold(), BasicWord('<bold>?</bold>'))
 

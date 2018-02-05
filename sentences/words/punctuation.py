@@ -1,6 +1,6 @@
 from enum import Enum
 
-from sentences.words.word import Word
+from sentences.words.basicword import BasicWord
 
 
 class Punctuation(Enum):
@@ -10,10 +10,10 @@ class Punctuation(Enum):
     QUESTION = '?'
 
     def bold(self):
-        return Word(self.value).bold()
+        return BasicWord(self.value).bold()
 
     @staticmethod
-    def has_tags(*tags):
+    def has_tags(*tags):  # TODO test this
         return False
 
     def capitalize(self):
@@ -21,5 +21,3 @@ class Punctuation(Enum):
 
     def de_capitalize(self):
         return self
-
-

@@ -1,6 +1,6 @@
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.common_functions import add_s, bold
-from sentences.words.wordtools.wordtag import WordTag as wt
+from sentences.words.wordtools.wordtag import WordTag
 from sentences.words.wordtools.tags import Tags
 
 
@@ -18,13 +18,13 @@ class NewNoun(AbstractWord):
 
     @classmethod
     def uncountable_noun(cls, value):
-        return cls(value, '', '', Tags([wt.UNCOUNTABLE]))
+        return cls(value, '', '', Tags([WordTag.UNCOUNTABLE]))
 
     @classmethod
     def proper_noun(cls, value, plural=False):
-        tags = Tags([wt.PROPER])
+        tags = Tags([WordTag.PROPER])
         if plural:
-            tags = tags.add(wt.PLURAL)
+            tags = tags.add(WordTag.PLURAL)
         return cls(value, '', '', tags)
 
     @property
@@ -72,26 +72,26 @@ class NewNoun(AbstractWord):
         return NewNoun(bold(self.value), self.irregular_plural, self.base_noun, self.tags)
 
     def definite(self):
-        if self.has_tags(wt.DEFINITE):
+        if self.has_tags(WordTag.DEFINITE):
             return self
         new_value = 'the ' + self.value
-        new_tags = self.tags.add(wt.DEFINITE).remove(wt.INDEFINITE).remove(wt.PROPER)
+        new_tags = self.tags.add(WordTag.DEFINITE).remove(WordTag.INDEFINITE).remove(WordTag.PROPER)
         return NewNoun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def indefinite(self):
-        if self.has_tags(wt.INDEFINITE):
+        if self.has_tags(WordTag.INDEFINITE):
             return self
         article = 'a '
         vowels = 'aeiouAEIOU'
         if any(self.value.startswith(vowel) for vowel in vowels):
             article = 'an '
-        return NewNoun(article + self.value, self.irregular_plural, self.base_noun, Tags([wt.INDEFINITE]))
+        return NewNoun(article + self.value, self.irregular_plural, self.base_noun, Tags([WordTag.INDEFINITE]))
 
     def plural(self):
-        if self.has_tags(wt.PLURAL):
+        if self.has_tags(WordTag.PLURAL):
             return self
         new_value = self.irregular_plural
-        new_tags = self.tags.add(wt.PLURAL).remove(wt.INDEFINITE).remove(wt.UNCOUNTABLE)
+        new_tags = self.tags.add(WordTag.PLURAL).remove(WordTag.INDEFINITE).remove(WordTag.UNCOUNTABLE)
         if not new_value:
             return NewNoun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
 

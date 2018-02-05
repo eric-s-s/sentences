@@ -3,7 +3,7 @@ import unittest
 from sentences.words.new_verb import NewVerb
 from sentences.words.wordtools.tags import Tags
 from sentences.words.wordtools.wordtag import WordTag
-from sentences.words.word import Word
+from sentences.words.basicword import BasicWord
 
 
 class TestNewVerb(unittest.TestCase):
@@ -63,7 +63,7 @@ class TestNewVerb(unittest.TestCase):
         self.assertNotEqual(test, not_equal)
 
     def test_eq_must_be_noun(self):
-        self.assertNotEqual(NewVerb('go'), Word('go'))
+        self.assertNotEqual(NewVerb('go'), BasicWord('go'))
 
     def test_repr(self):
         self.assertEqual(repr(NewVerb('bob')), "NewVerb('bob', '', 'bob', Tags([]))")

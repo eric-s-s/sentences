@@ -2,7 +2,7 @@ import string
 import unittest
 
 from sentences.words.new_word import NewNoun, get_plural_value, get_article
-from sentences.words.word import Word
+from sentences.words.basicword import BasicWord
 from sentences.words.wordtools.wordtag import WordTag
 from sentences.words.wordtools.tags import Tags
 
@@ -105,7 +105,7 @@ class TestNoun(unittest.TestCase):
         self.assertNotEqual(test, not_equal)
 
     def test_eq_must_be_noun(self):
-        self.assertNotEqual(NewNoun('bob'), Word('bob'))
+        self.assertNotEqual(NewNoun('bob'), BasicWord('bob'))
 
     def test_uncountable_noun_class_method(self):
         test = NewNoun.uncountable_noun('water')

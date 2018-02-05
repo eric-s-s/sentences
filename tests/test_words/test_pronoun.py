@@ -1,6 +1,7 @@
 import unittest
 
-from sentences.words.pronoun import Pronoun, Word, CapitalPronoun, AbstractPronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
+from sentences.words.basicword import BasicWord
 
 
 class DummyPronoun(AbstractPronoun):
@@ -77,7 +78,7 @@ class TestAbstractPronoun(unittest.TestCase):
 
     def test_bold(self):
         for pronoun in self.pronoun.__members__.values():
-            self.assertEqual(pronoun.bold(), Word('<bold>{}</bold>'.format(pronoun.value)))
+            self.assertEqual(pronoun.bold(), BasicWord('<bold>{}</bold>'.format(pronoun.value)))
 
     def test_is_pair_non_pronoun(self):
         self.assertFalse(self.pronoun.ME.is_pair('me'))

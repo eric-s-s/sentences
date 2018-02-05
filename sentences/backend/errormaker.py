@@ -2,11 +2,14 @@ import random
 
 from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person, get_present_be_verb, find_subject
-from sentences.words.new_word import NewNoun
+
 from sentences.words.wordtools.wordtag import WordTag
+from sentences.words.wordtools.common_functions import add_s
+
+from sentences.words.new_word import NewNoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.verb import Verb, NegativeVerb, PastVerb
-from sentences.words.word import Word, Preposition
+from sentences.words.new_verb import NewVerb
+from sentences.words.basicword import BasicWord
 
 from sentences.words.pronoun import AbstractPronoun, Pronoun, CapitalPronoun
 
@@ -81,7 +84,7 @@ class ErrorMaker(object):
     def create_verb_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
-                if isinstance(word, Verb):
+                if isinstance(word, NewVerb):
                     if random.random() < self.p_error:
                         self._error_count += 1
 
@@ -93,7 +96,7 @@ class ErrorMaker(object):
     def create_is_do_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
-                if isinstance(word, Verb):
+                if isinstance(word, NewVerb):
                     if random.random() < self.p_error:
                         if not self.already_has_error(s_index, index):
                             self._error_count += 1
@@ -109,7 +112,7 @@ class ErrorMaker(object):
     def create_preposition_transpose_errors(self):
         for s_index, sentence in enumerate(self._error_paragraph):
             for index, word in enumerate(sentence):
-                if isinstance(word, Preposition):
+                if word.has_tags(WordTag.PREPOSITION):
                     if random.random() < self.p_error:
                         self._error_count += 1
 
@@ -140,10 +143,10 @@ class ErrorMaker(object):
             if sentence[-1] == Punctuation.COMMA and s_index < last_index:
                 target_sentence_index = s_index + 1
                 target_sentence = self._error_paragraph[target_sentence_index]
-                to_decapitalize = target_sentence[0]
-                new_word = de_capitalize(to_decapitalize)
+                to_de_capitalize = target_sentence[0]
+                new_word = to_de_capitalize.de_capitalize()
                 target_sentence[0] = new_word
-                if to_decapitalize != new_word:
+                if to_de_capitalize != new_word:
                     self._answer[target_sentence_index][0] = self._answer[target_sentence_index][0].bold()
 
     def create_all_errors(self):
@@ -168,14 +171,14 @@ def make_noun_error(noun):
 
 
 def make_verb_error(verb, is_third_person_noun):
-    basic = verb.to_base_verb()
-    if isinstance(verb, NegativeVerb):
+    basic = verb.to_basic_verb()
+    if verb.has_tags(WordTag.NEGATIVE):
         basic = basic.negative()
 
-    if isinstance(verb, PastVerb):
+    if verb.has_tags(WordTag.PAST):
         choices = [basic, basic.third_person()]
     elif is_third_person_noun:
-        choices = [basic] * 3 + [basic.past_tense(), basic.past_tense().add_s()]
+        choices = [basic] * 3 + [basic.past_tense(), make_verb_with_add_s(basic.past_tense())]
 
     else:
         choices = [basic.third_person()] * 3 + [basic.past_tense()]
@@ -183,25 +186,29 @@ def make_verb_error(verb, is_third_person_noun):
     return random.choice(choices)
 
 
-def de_capitalize(to_de_capitalize):
-    try:
-        return to_de_capitalize.de_capitalize()
-    except AttributeError:
-        old_value = to_de_capitalize.value
-        new_value = old_value[0].lower() + old_value[1:]
-        return Word(new_value)
+def make_verb_with_add_s(verb: NewVerb):
+    return NewVerb(add_s(verb.value), verb.irregular_past, verb.infinitive, verb.tags)
+
+
+# def de_capitalize(to_de_capitalize):
+#     try:
+#         return to_de_capitalize.de_capitalize()
+#     except AttributeError:
+#         old_value = to_de_capitalize.value
+#         new_value = old_value[0].lower() + old_value[1:]
+#         return Word(new_value)
 
 
 def make_is_do_error(verb, be_verb):
     be_value = be_verb.value
-    if isinstance(verb, PastVerb):
+    if verb.has_tags(WordTag.PAST):
         if be_value == 'are':
             be_value = 'were'
         else:
             be_value = 'was'
-    if isinstance(verb, NegativeVerb):
-        return Word('{} not {}'.format(be_value, verb.infinitive))
-    return Word('{} {}'.format(be_value, verb.infinitive))
+    if verb.has_tags(WordTag.NEGATIVE):
+        return BasicWord('{} not {}'.format(be_value, verb.infinitive))
+    return BasicWord('{} {}'.format(be_value, verb.infinitive))
 
 
 def find_subject_special_case(sentence):
