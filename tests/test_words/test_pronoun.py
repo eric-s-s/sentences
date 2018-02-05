@@ -2,6 +2,7 @@ import unittest
 
 from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
 from sentences.words.basicword import BasicWord
+from sentences.words.wordtools.wordtag import WordTag
 
 
 class DummyPronoun(AbstractPronoun):
@@ -116,6 +117,23 @@ class TestAbstractPronoun(unittest.TestCase):
                     self.assertFalse(first[1].is_pair(second[0]))
                     self.assertFalse(first[0].is_pair(second[1]))
                     self.assertFalse(first[1].is_pair(second[1]))
+
+    def test_has_tags_true(self):
+        plurals = [self.pronoun.YOU, self.pronoun.WE, self.pronoun.US, self.pronoun.THEY, self.pronoun.THEM]
+        for pronoun in plurals:
+            self.assertTrue(pronoun.has_tags(WordTag.PLURAL))
+
+    def test_has_tags_plural_false(self):
+        singular = [self.pronoun.I, self.pronoun.ME, self.pronoun.HE, self.pronoun.HIM,
+                    self.pronoun.SHE, self.pronoun.HER, self.pronoun.IT]
+        for pronoun in singular:
+            self.assertFalse(pronoun.has_tags(WordTag.PLURAL))
+
+    def test_has_tags_false_not_plural(self):
+        not_plural = [word_tag for word_tag in WordTag.__members__.values() if word_tag != WordTag.PLURAL]
+        for word_tag in not_plural:
+            for pronoun in self.pronoun.__members__.values():
+                self.assertFalse(pronoun.has_tags(word_tag))
 
 
 class TestPronoun(TestAbstractPronoun):

@@ -1,6 +1,7 @@
 from enum import Enum
 
 from sentences.words.basicword import BasicWord
+from sentences.words.wordtools.wordtag import WordTag
 
 
 class AbstractPronoun(Enum):
@@ -38,8 +39,9 @@ class AbstractPronoun(Enum):
             return False
         return self.subject() == other.subject()
 
-    @staticmethod
-    def has_tags(*tags):  # TODO test this
+    def has_tags(self, *tags):
+        if tags == (WordTag.PLURAL,) and self in (self.YOU, self.WE, self.US, self.THEY, self.THEM):
+            return True
         return False
 
 

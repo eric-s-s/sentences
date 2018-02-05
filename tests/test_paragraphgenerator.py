@@ -7,7 +7,7 @@ from sentences.paragraphsgenerator import ParagraphsGenerator
 from sentences import COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, VERBS_CSV
 from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns, proper_nouns
 from sentences.words.pronoun import Pronoun, CapitalPronoun
-from sentences.words.noun import Noun, ProperNoun, UncountableNoun
+from sentences.words.noun import Noun
 from sentences.words.verb import Verb
 from sentences.words.punctuation import Punctuation
 
@@ -127,8 +127,8 @@ class TestParagraphGenerator(unittest.TestCase):
     def assert_single_value_word_list(self, paragraph_generator, dummy_word):
         self.assertEqual(paragraph_generator._verbs_list[0]['verb'], Verb(dummy_word))
         self.assertEqual(paragraph_generator._nouns_list[0], Noun(dummy_word))
-        self.assertEqual(paragraph_generator._nouns_list[1], UncountableNoun('uncountable {}'.format(dummy_word)))
-        self.assertEqual(paragraph_generator._nouns_list[2], ProperNoun(dummy_word.capitalize()))
+        self.assertEqual(paragraph_generator._nouns_list[1], Noun.uncountable_noun('uncountable {}'.format(dummy_word)))
+        self.assertEqual(paragraph_generator._nouns_list[2], Noun.proper_noun(dummy_word.capitalize()))
 
     def test_load_csv_reloads(self):
         create_single_value_test_csvs('cat')

@@ -1,4 +1,4 @@
-from sentences.words.pronoun import Pronoun, CapitalPronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
 from sentences.words.verb import Verb
 from sentences.words.noun import Noun
 from sentences.words.basicword import BasicWord
@@ -35,14 +35,13 @@ def find_subject(raw_sentence) -> int:
 
 
 def is_third_person(word) -> bool:
-    if isinstance(word, Noun):
+    first_person = [Pronoun.I, Pronoun.ME, CapitalPronoun.I, CapitalPronoun.ME]
+    if isinstance(word, (Noun, AbstractPronoun)) and word not in first_person:
         return not word.has_tags(WordTag.PLURAL)
-    pronouns = [Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT]
-    capitals = [CapitalPronoun.HE, CapitalPronoun.HIM, CapitalPronoun.SHE, CapitalPronoun.HER, CapitalPronoun.IT]
-    return word in pronouns or word in capitals
+    return False
 
 
 def is_word_in_sentence(word, raw_sentence):
-    if isinstance(word, Pronoun):
+    if isinstance(word, AbstractPronoun):
         return any(word.is_pair(element) for element in raw_sentence)
     return word in raw_sentence

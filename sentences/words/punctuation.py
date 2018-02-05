@@ -13,7 +13,7 @@ class Punctuation(Enum):
         return BasicWord(self.value).bold()
 
     @staticmethod
-    def has_tags(*tags):  # TODO test this
+    def has_tags(*tags):
         return False
 
     def capitalize(self):
