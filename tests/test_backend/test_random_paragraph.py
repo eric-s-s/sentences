@@ -8,9 +8,9 @@ from sentences.words.noun import Noun
 from sentences.words.verb import Verb
 from sentences.words.basicword import BasicWord
 
-period = Punctuation.PERIOD
-exclamation = Punctuation.EXCLAMATION
-i, me, you, he, him, she, her, it, we, us, they, them = Pronoun.__members__.values()
+PERIOD = Punctuation.PERIOD
+EXCLAMATION = Punctuation.EXCLAMATION
+I, ME, YOU, HE, HIM, SHE, HER, IT, WE, US, THEY, THEM = Pronoun.__members__.values()
 
 
 class TestRandomParagraph(unittest.TestCase):
@@ -56,13 +56,13 @@ class TestRandomParagraph(unittest.TestCase):
 
         answer = self.rp.get_subject_pool(15)
         self.assertEqual(answer,
-                         [Noun('milk'), Noun('dog'), Noun('sand'), Noun('pig'), it, Noun('frog'),
-                          Noun('rice'), you, Noun('water'), i, Noun('cat'), we, they, she, he])
+                         [Noun('milk'), Noun('dog'), Noun('sand'), Noun('pig'), IT, Noun('frog'),
+                          Noun('rice'), YOU, Noun('water'), I, Noun('cat'), WE, THEY, SHE, HE])
 
         answer = self.rp.get_subject_pool(15)
         self.assertEqual(answer,
                          [Noun('cat'), Noun('water'), Noun('sand'), Noun('milk'), Noun('frog'),
-                          Noun('rice'), they, she, Noun('dog'), we, Noun('pig'), i, it, you, he])
+                          Noun('rice'), THEY, SHE, Noun('dog'), WE, Noun('pig'), I, IT, YOU, HE])
 
     def test_get_subject_pool_raises_value_error(self):
         self.assertRaises(ValueError, self.rp.get_subject_pool, 16)
@@ -80,7 +80,7 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(20)
         paragraph = self.rp.create_pool_paragraph(pool_size=3, num_sentences=20)
 
-        subjects = [Noun('pig'), Noun('cat'), she]
+        subjects = [Noun('pig'), Noun('cat'), SHE]
         for sentence in paragraph:
             subject = sentence[0]
             predicate = sentence[1:]
@@ -95,8 +95,8 @@ class TestRandomParagraph(unittest.TestCase):
 
         answer = repeats.create_pool_paragraph(2, 2)
         expected = [
-            [Noun('water'), Verb('give'), Noun('cat'), Noun('water'), period],
-            [Noun('cat'), Verb('give'), Noun('cat'), Noun('water'), period]
+            [Noun('water'), Verb('give'), Noun('cat'), Noun('water'), PERIOD],
+            [Noun('cat'), Verb('give'), Noun('cat'), Noun('water'), PERIOD]
         ]
         self.assertEqual(answer, expected)
 
@@ -111,11 +111,11 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(3)
         paragraph = self.rp.create_pool_paragraph(2, 5)
         expected = [
-            [Noun('pig'), Verb('eat'), Noun('sand'), period],
-            [Noun('pig'), Verb('give'), Noun('cat'), BasicWord.preposition('to'), Noun('dog'), period],
-            [Noun('sand'), Verb('jump'), BasicWord.preposition('over'), Noun('milk'), exclamation],
-            [Noun('sand'), Verb('eat'), him, period],
-            [Noun('sand'), Verb('jump'), BasicWord.preposition('over'), Noun('milk'), exclamation]
+            [Noun('pig'), Verb('eat'), Noun('sand'), PERIOD],
+            [Noun('pig'), Verb('give'), Noun('cat'), BasicWord.preposition('to'), Noun('dog'), PERIOD],
+            [Noun('sand'), Verb('jump'), BasicWord.preposition('over'), Noun('milk'), EXCLAMATION],
+            [Noun('sand'), Verb('eat'), HIM, PERIOD],
+            [Noun('sand'), Verb('jump'), BasicWord.preposition('over'), Noun('milk'), EXCLAMATION]
         ]
         self.assertEqual(paragraph, expected)
 
@@ -131,9 +131,9 @@ class TestRandomParagraph(unittest.TestCase):
         repeats = RandomParagraph(0.0, verb_list, [Noun('joe'), Noun('bob')])
         paragraph = repeats.create_chain_paragraph(3)
         expected = [
-            [Noun('joe'), Verb('give'), Noun('joe'), Noun('bob'), period],
-            [Noun('bob'), Verb('give'), Noun('bob'), Noun('joe'), exclamation],
-            [Noun('joe'), Verb('give'), Noun('bob'), Noun('joe'), period],
+            [Noun('joe'), Verb('give'), Noun('joe'), Noun('bob'), PERIOD],
+            [Noun('bob'), Verb('give'), Noun('bob'), Noun('joe'), EXCLAMATION],
+            [Noun('joe'), Verb('give'), Noun('bob'), Noun('joe'), PERIOD],
         ]
         self.assertEqual(expected, paragraph)
 
@@ -161,9 +161,9 @@ class TestRandomParagraph(unittest.TestCase):
         rp = RandomParagraph(0.2, verb_list, self.countable + self.uncountable)
         answer = rp.create_chain_paragraph(3)
         expected = [
-            [Noun('sand'), Verb('jump'), exclamation],
-            [Noun('frog'), Verb('jump'), exclamation],
-            [Noun('pig'), Verb('jump'), period]
+            [Noun('sand'), Verb('jump'), EXCLAMATION],
+            [Noun('frog'), Verb('jump'), EXCLAMATION],
+            [Noun('pig'), Verb('jump'), PERIOD]
         ]
         self.assertEqual(expected, answer)
 
@@ -171,9 +171,9 @@ class TestRandomParagraph(unittest.TestCase):
         random.seed(4567)
         answer = self.rp.create_chain_paragraph(4)
         expected = [
-            [Noun('water'), Verb('eat'), Noun('rice'), exclamation],
-            [Noun('rice'), Verb('give'), us, BasicWord.preposition('to'), Noun('cat'), period],
-            [Noun('cat'), Verb('eat'), Noun('dog'), period],
-            [Noun('dog'), Verb('jump'), BasicWord.preposition('over'), Noun('sand'), period],
+            [Noun('water'), Verb('eat'), Noun('rice'), EXCLAMATION],
+            [Noun('rice'), Verb('give'), US, BasicWord.preposition('to'), Noun('cat'), PERIOD],
+            [Noun('cat'), Verb('eat'), Noun('dog'), PERIOD],
+            [Noun('dog'), Verb('jump'), BasicWord.preposition('over'), Noun('sand'), PERIOD],
         ]
         self.assertEqual(answer, expected)

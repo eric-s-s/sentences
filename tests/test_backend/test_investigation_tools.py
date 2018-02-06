@@ -59,7 +59,7 @@ class TestInvestigationTools(unittest.TestCase):
         self.assertTrue(is_third_person(noun))
         self.assertTrue(is_third_person(noun.definite()))
         self.assertTrue(is_third_person(noun.indefinite()))
-        self.assertTrue(is_third_person(Noun('Bob')))
+        self.assertTrue(is_third_person(Noun.proper_noun('Bob')))
 
     def test_is_third_person_plural_nouns(self):
         noun = Noun('dog')
@@ -119,8 +119,8 @@ class TestInvestigationTools(unittest.TestCase):
         predicate = [Verb('play').third_person(), period]
         p_nouns = [he, him, she, her, it]
         capital_p_nouns = [p_noun.capitalize() for p_noun in p_nouns]
-        subjs = [Noun('water'), Noun('dog').definite(), Noun('dog').capitalize(), Noun('dog').indefinite(),
-                 Noun('Joe')]
+        subjs = [Noun.uncountable_noun('water'), Noun('dog').definite(), Noun('dog').capitalize(),
+                 Noun('dog').indefinite(), Noun('Joe')]
         for subj in p_nouns + capital_p_nouns + subjs:
             self.assertEqual(get_present_be_verb([subj] + predicate), BasicWord('is'))
 

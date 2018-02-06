@@ -58,6 +58,15 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(get_article('the dog'), 'the ')
         self.assertEqual(get_article('The dog'), 'The ')
 
+    def test_get_article_two_articles(self):
+        self.assertEqual(get_article('a the dog'), 'a ')
+
+    def test_get_article_no_space(self):
+        self.assertEqual(get_article('thedog'), '')
+
+    def test_get_article_article_in_middle(self):
+        self.assertEqual(get_article('dog the dog'), '')
+
     def test_noun_values(self):
         test = Noun('a', 'b', 'c', Tags([WordTag.DEFINITE]))
         self.assertEqual(test.value, 'a')
@@ -129,6 +138,8 @@ class TestNoun(unittest.TestCase):
                          "Noun('bob', '', 'bob', Tags([WordTag.UNCOUNTABLE]))")
         self.assertEqual(repr(Noun.proper_noun('Bob', plural=True)),
                          "Noun('Bob', '', 'Bob', Tags([WordTag.PLURAL, WordTag.PROPER]))")
+        self.assertEqual(repr(Noun('a', 'b', 'c', Tags([WordTag.PLURAL]))),
+                         "Noun('a', 'b', 'c', Tags([WordTag.PLURAL]))")
 
     def test_hash(self):
         self.assertEqual(hash(Noun('bob')),
@@ -138,7 +149,6 @@ class TestNoun(unittest.TestCase):
 
     def test_capitalize_simple_case(self):
         noun = Noun('dog').capitalize()
-        self.assertIsInstance(noun, Noun)
         self.assertEqual(noun, Noun('Dog', '', 'dog'))
 
     def test_capitalize_capital_letters_in_value(self):
@@ -205,8 +215,8 @@ class TestNoun(unittest.TestCase):
 
     def test_definite(self):
         self.assertEqual(Noun('hour').definite(), Noun('the hour', '', 'hour', tags=self.definite))
-        self.assertEqual(Noun('happy hour').definite(),
-                         Noun('the happy hour', '', 'happy hour', tags=self.definite))
+        self.assertEqual(Noun('ABCs', '', 'ABC').definite(),
+                         Noun('the ABCs', '', 'ABC', tags=self.definite))
 
     def test_definite_preserves_plural(self):
         self.assertEqual(Noun('octopus', 'octopodes').definite(),
@@ -225,18 +235,16 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(noun.definite().definite().definite(), noun)
 
     def test_definite_removes_proper_tag(self):
-        expected_tags = Tags([WordTag.PLURAL, WordTag.DEFINITE])
         noun = Noun.proper_noun('Xs', plural=True)
+        self.assertEqual(noun.tags, self.plural_proper)
 
-        self.assertEqual(noun.definite(), Noun('the Xs', '', 'Xs', tags=expected_tags))
-        self.assertTrue(noun.has_tags(WordTag.PROPER))
+        self.assertEqual(noun.definite(), Noun('the Xs', '', 'Xs', tags=self.definite_plural))
 
     def test_definite_removes_indefinite_tag(self):
-        expected_tags = Tags([WordTag.DEFINITE])
         noun = Noun('x').indefinite()
+        self.assertEqual(noun.tags, self.indefinite)
 
-        self.assertEqual(noun.definite(), Noun('the a x', '', 'x', tags=expected_tags))
-        self.assertTrue(noun.has_tags(WordTag.INDEFINITE))
+        self.assertEqual(noun.definite(), Noun('the a x', '', 'x', tags=self.definite))
 
     def test_indefinite_no_vowel_start(self):
         self.assertEqual(Noun('hour').indefinite(), Noun('a hour', '', 'hour', tags=self.indefinite))
@@ -309,23 +317,23 @@ class TestNoun(unittest.TestCase):
                              Noun(plural_value, 'children', base_value, tags=self.plural))
 
     def test_plural_adds_plural_tag(self):
-        noun = Noun('dog')
-        definite = noun.definite()
-        proper = Noun.proper_noun('Joe')
+        noun = Noun('dog', tags=Tags())
+        definite = Noun('the dog', '', 'dog', tags=self.definite)
+        proper = Noun('Joe', tags=self.proper)
 
         self.assertEqual(noun.plural(), Noun('dogs', '', 'dog', tags=self.plural))
         self.assertEqual(definite.plural(), Noun('the dogs', '', 'dog', tags=self.definite_plural))
         self.assertEqual(proper.plural(), Noun('Joes', '', 'Joe', tags=self.plural_proper))
 
     def test_plural_removes_indefinite_tag(self):
-        noun = Noun('dog').indefinite()
+        noun = Noun('a dog', '', 'dog', tags=self.indefinite)
         self.assertEqual(noun.plural(), Noun('a dogs', '', 'dog', tags=self.plural))
 
     def test_plural_removes_uncountable_tag(self):
         noun = Noun('water', tags=Tags([WordTag.UNCOUNTABLE]))
         self.assertEqual(noun.plural(), Noun('waters', '', 'water', tags=self.plural))
 
-        definite = noun.definite()
+        definite = Noun('the water', '',  'water', tags=self.definite_uncountable)
         self.assertEqual(definite.plural(), Noun('the waters', '', 'water', tags=self.definite_plural))
 
     def test_plural_does_not_change_a_plural_noun(self):

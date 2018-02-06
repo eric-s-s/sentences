@@ -178,7 +178,7 @@ def make_verb_error(verb, is_third_person_noun):
     if verb.has_tags(WordTag.PAST):
         choices = [basic, basic.third_person()]
     elif is_third_person_noun:
-        choices = [basic] * 3 + [basic.past_tense(), add_s_to_verb(basic.past_tense())]
+        choices = [basic] * 3 + [basic.past_tense(), _add_s_to_verb(basic.past_tense())]
 
     else:
         choices = [basic.third_person()] * 3 + [basic.past_tense()]
@@ -186,7 +186,7 @@ def make_verb_error(verb, is_third_person_noun):
     return random.choice(choices)
 
 
-def add_s_to_verb(verb: Verb):
+def _add_s_to_verb(verb: Verb):
     return Verb(add_s(verb.value), verb.irregular_past, verb.infinitive, verb.tags)
 
 

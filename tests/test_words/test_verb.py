@@ -16,14 +16,14 @@ class TestNewVerb(unittest.TestCase):
         self.negative_past = Tags([WordTag.NEGATIVE, WordTag.PAST])
         self.negative_third_person = Tags([WordTag.NEGATIVE, WordTag.THIRD_PERSON])
 
-    def test_noun_values(self):
+    def test_init(self):
         test = Verb('a', 'b', 'c', Tags([WordTag.NEGATIVE]))
         self.assertEqual(test.value, 'a')
         self.assertEqual(test.irregular_past, 'b')
         self.assertEqual(test.infinitive, 'c')
         self.assertEqual(test.tags, Tags([WordTag.NEGATIVE]))
 
-    def test_noun_empty_values(self):
+    def test_init_empty_values(self):
         test = Verb('a')
         self.assertEqual(test.value, 'a')
         self.assertEqual(test.irregular_past, '')
@@ -46,7 +46,7 @@ class TestNewVerb(unittest.TestCase):
         self.assertEqual(test, equal)
         self.assertNotEqual(test, not_equal)
 
-    def test_equality_true_false_by_base_noun(self):
+    def test_equality_true_false_by_infinitive(self):
         test = Verb('a', 'b', 'c', tags=self.past)
         equal = Verb('a', 'b', 'c', tags=self.past)
         not_equal = Verb('a', 'b', 'x', tags=self.past)
@@ -62,7 +62,7 @@ class TestNewVerb(unittest.TestCase):
         self.assertEqual(test, equal)
         self.assertNotEqual(test, not_equal)
 
-    def test_eq_must_be_noun(self):
+    def test_eq_must_be_verb(self):
         self.assertNotEqual(Verb('go'), BasicWord('go'))
 
     def test_repr(self):
@@ -90,6 +90,7 @@ class TestNewVerb(unittest.TestCase):
     def test_bold(self):
         verb = Verb('go', 'went', tags=self.negative)
         self.assertEqual(verb.bold(), Verb('<bold>go</bold>', 'went', 'go', tags=self.negative))
+        self.assertEqual(verb.bold().bold(), Verb('<bold>go</bold>', 'went', 'go', tags=self.negative))
 
     def test_past_tense_regular_verb(self):
         verb = Verb('play')

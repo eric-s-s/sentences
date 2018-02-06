@@ -8,18 +8,18 @@ class Tags(object):
     def to_list(self):
         return sorted(self._tags)
 
-    def add(self, new_type):
+    def add(self, new_tag):
         new_val = self.to_list()
-        new_val.append(new_type)
+        new_val.append(new_tag)
         return Tags(new_val)
 
-    def remove(self, type_):
+    def remove(self, candidate_tag):
         new_val = set(self.to_list())
-        new_val.discard(type_)
+        new_val.discard(candidate_tag)
         return Tags(list(new_val))
 
-    def has(self, type_):
-        return type_ in self._tags
+    def has(self, candidate_tag):
+        return candidate_tag in self._tags
 
     def copy(self):
         return Tags(self.to_list())

@@ -3,14 +3,14 @@ from copy import deepcopy
 from typing import List, Union
 
 from sentences.backend.investigation_tools import requires_third_person, find_subject
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import AbstractPronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.noun import Noun
 from sentences.words.verb import Verb
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.wordtag import WordTag
 
-Paragraph = List[List[Union[AbstractWord, Pronoun, Punctuation]]]
+Paragraph = List[List[Union[AbstractWord, AbstractPronoun, Punctuation]]]
 
 
 class Grammarizer(object):

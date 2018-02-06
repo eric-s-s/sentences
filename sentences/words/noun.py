@@ -82,20 +82,19 @@ class Noun(AbstractWord):
         if self.has_tags(WordTag.INDEFINITE):
             return self
         article = 'a '
-        vowels = 'aeiouAEIOU'
-        if any(self.value.startswith(vowel) for vowel in vowels):
+        if any(self.value.startswith(vowel) for vowel in 'aeiouAEIOU'):
             article = 'an '
         return Noun(article + self.value, self.irregular_plural, self.base_noun, Tags([WordTag.INDEFINITE]))
 
     def plural(self):
         if self.has_tags(WordTag.PLURAL):
             return self
-        new_value = self.irregular_plural
+
         new_tags = self.tags.add(WordTag.PLURAL).remove(WordTag.INDEFINITE).remove(WordTag.UNCOUNTABLE)
-        if not new_value:
+        if not self.irregular_plural:
             return Noun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
 
-        new_value = get_article(self.value) + new_value
+        new_value = get_article(self.value) + self.irregular_plural
         return Noun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def to_basic_noun(self):

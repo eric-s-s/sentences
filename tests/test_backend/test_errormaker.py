@@ -644,7 +644,7 @@ class TestErrorMaker(unittest.TestCase):
         self.assertEqual(error_maker.answer_paragraph, answer_paragraph)
         self.assertEqual(error_maker.error_count, 2)
 
-    def test_error_maker_create_period_errors_does_not_bold_when_proper_noun_is_unchanged(self):
+    def test_error_maker_create_period_errors_does_not_bold_when_noun_is_unchanged(self):
         sox = Noun('the Sox')
         joe = Noun('Joe')
         grab = Verb('grab')

@@ -135,6 +135,12 @@ class TestAbstractPronoun(unittest.TestCase):
             for pronoun in self.pronoun.__members__.values():
                 self.assertFalse(pronoun.has_tags(word_tag))
 
+    def test_has_tags_false_plural_and_other(self):
+        not_plural = [word_tag for word_tag in WordTag.__members__.values() if word_tag != WordTag.PLURAL]
+        for word_tag in not_plural:
+            for pronoun in self.pronoun.__members__.values():
+                self.assertFalse(pronoun.has_tags(word_tag, WordTag.PLURAL))
+
 
 class TestPronoun(TestAbstractPronoun):
 
