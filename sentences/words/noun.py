@@ -1,122 +1,118 @@
-from sentences.words.word import Word
+from sentences.words.wordtools.abstractword import AbstractWord
+from sentences.words.wordtools.common_functions import add_s, bold
+from sentences.words.wordtools.wordtag import WordTag
+from sentences.words.wordtools.tags import Tags
 
 
-class Noun(Word):
-    def __init__(self, word, irregular_plural='', base=''):
+class Noun(AbstractWord):
+    def __init__(self, value, irregular_plural='', base='', tags=None):
+        self._value = value
         self._irregular = irregular_plural
-        super(Noun, self).__init__(word)
-        self._base_noun = base
-        if self._base_noun == '':
-            self._base_noun = word
+        if not base:
+            base = value
+        self._base = base
+
+        if not tags:
+            tags = Tags()
+        self._tags = tags.copy()
+
+    @classmethod
+    def uncountable_noun(cls, value):
+        return cls(value, '', '', Tags([WordTag.UNCOUNTABLE]))
+
+    @classmethod
+    def proper_noun(cls, value, plural=False):
+        tags = Tags([WordTag.PROPER])
+        if plural:
+            tags = tags.add(WordTag.PLURAL)
+        return cls(value, '', '', tags)
 
     @property
-    def base_noun(self):
-        return self._base_noun
+    def value(self):
+        return self._value
 
     @property
     def irregular_plural(self):
         return self._irregular
 
-    def capitalize(self):
-        value = self.value[0].upper() + self.value[1:]
-        return self.__class__(value, self.irregular_plural, self.base_noun)
+    @property
+    def base_noun(self):
+        return self._base
 
-    def de_capitalize(self):
-        value = self.value[0].lower() + self.value[1:]
-        return self.__class__(value, self.irregular_plural, self.base_noun)
+    @property
+    def tags(self):
+        return self._tags.copy()
 
-    def indefinite(self) -> 'Noun':
-        article = 'a '
-        vowels = 'aeiouAEIOU'
-        if any(self.value.startswith(vowel) for vowel in vowels):
-            article = 'an '
-        return IndefiniteNoun(article + self.value, self.irregular_plural, self.base_noun)
-
-    def definite(self) -> 'Noun':
-        return DefiniteNoun('the ' + self.value, self.irregular_plural, self.base_noun)
-
-    def plural(self) -> 'Noun':
-        if self.irregular_plural:
-            return PluralNoun(self.irregular_plural, self.irregular_plural, base=self.base_noun)
-        return PluralNoun(get_plural_value(self), base=self.base_noun)
-
-    def to_base_noun(self) -> 'Noun':
-        return Noun(self.base_noun, self.irregular_plural)
-    
     def __eq__(self, other):
-        return (super(Noun, self).__eq__(other) and
-                (self.irregular_plural, self.base_noun) == (other.irregular_plural, other.base_noun))
-
-    def __hash__(self):
-        return super(Noun, self).__hash__()
+        if not isinstance(other, Noun):
+            return False
+        return ((self.value, self.irregular_plural, self.base_noun, self.tags) ==
+                (other.value, other.irregular_plural, other.base_noun, other.tags))
 
     def __repr__(self):
-        return '{}({!r}, {!r}, {!r})'.format(self.__class__.__name__, self.value, self.irregular_plural, self.base_noun)
+        return '{}({!r}, {!r}, {!r}, {!r})'.format(
+            self.__class__.__name__, self.value, self.irregular_plural, self.base_noun, self.tags
+        )
 
+    def __hash__(self):
+        return hash('hash of {!r}'.format(self))
 
-class PluralNoun(Noun):
-    def definite(self):
-        return DefinitePluralNoun('the ' + self.value, self.irregular_plural, self.base_noun)
-
-
-class DefiniteNoun(Noun):
-    def plural(self):
-        plural_val = 'the ' + self.irregular_plural
-        if plural_val == 'the ':
-            plural_val = get_plural_value(self)
-        return DefinitePluralNoun(plural_val, self.irregular_plural, self.base_noun)
-
-
-class IndefiniteNoun(Noun):
-    def plural(self):
-        if self.irregular_plural:
-            article = self.value.split(' ')[0]
-            plural_val = '{} {}'.format(article, self.irregular_plural)
-        else:
-            plural_val = get_plural_value(self)
-        return PluralNoun(plural_val, self.irregular_plural, self.base_noun)
-
-
-class DefinitePluralNoun(DefiniteNoun, PluralNoun):
-    pass
-
-
-class UncountableNoun(Noun):
-    def definite(self):
-        return DefiniteUncountableNoun('the ' + self.value, self.irregular_plural, self.base_noun)
-
-
-class DefiniteUncountableNoun(UncountableNoun, DefiniteNoun):
-    pass
-
-
-class ProperNoun(Noun):
-    def plural(self):
-        return PluralProperNoun(get_plural_value(self), self.irregular_plural, self.base_noun)
-
-    def to_base_noun(self):
-        return self.__class__(self.base_noun, self.irregular_plural)
+    def capitalize(self):
+        new_value = self.value[0].upper() + self.value[1:]
+        return Noun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
     def de_capitalize(self):
-        new_val = self.value
-        if self._is_base_lower():
-            new_val = new_val[0].lower() + new_val[1:]
-        return self.__class__(new_val, self.irregular_plural, self.base_noun)
+        if self.value.startswith(self.base_noun):
+            return self
 
-    def _is_base_lower(self):
-        return self.base_noun[0].islower()
+        new_value = self.value[0].lower() + self.value[1:]
+        return Noun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
+    def bold(self):
+        return Noun(bold(self.value), self.irregular_plural, self.base_noun, self.tags)
 
-class PluralProperNoun(ProperNoun, PluralNoun):
+    def definite(self):
+        if self.has_tags(WordTag.DEFINITE):
+            return self
+        new_value = 'the ' + self.value
+        new_tags = self.tags.add(WordTag.DEFINITE).remove(WordTag.INDEFINITE).remove(WordTag.PROPER)
+        return Noun(new_value, self.irregular_plural, self.base_noun, new_tags)
+
+    def indefinite(self):
+        if self.has_tags(WordTag.INDEFINITE):
+            return self
+        article = 'a '
+        if any(self.value.startswith(vowel) for vowel in 'aeiouAEIOU'):
+            article = 'an '
+        return Noun(article + self.value, self.irregular_plural, self.base_noun, Tags([WordTag.INDEFINITE]))
+
     def plural(self):
-        return self
+        if self.has_tags(WordTag.PLURAL):
+            return self
+
+        new_tags = self.tags.add(WordTag.PLURAL).remove(WordTag.INDEFINITE).remove(WordTag.UNCOUNTABLE)
+        if not self.irregular_plural:
+            return Noun(get_plural_value(self.value), self.irregular_plural, self.base_noun, new_tags)
+
+        new_value = get_article(self.value) + self.irregular_plural
+        return Noun(new_value, self.irregular_plural, self.base_noun, new_tags)
+
+    def to_basic_noun(self):
+        return Noun(self.base_noun, self.irregular_plural)
 
 
-def get_plural_value(noun):
-    value = noun.value
+def get_plural_value(value):
     if value.endswith('ife'):
         return value[:-3] + 'ives'
     elif any(value.endswith('{}f'.format(ending)) for ending in ('al', 'el', 'ar', 'ea', 'ol')):
         return value[:-1] + 'ves'
     else:
-        return noun.add_s().value
+        return add_s(value)
+
+
+def get_article(value):
+    articles = ['The ', 'the ', 'A ', 'a ', 'An ', 'an ']
+    for article in articles:
+        if value.startswith(article):
+            return article
+    return ''

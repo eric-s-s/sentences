@@ -1,20 +1,21 @@
-from sentences.words.pronoun import Pronoun, CapitalPronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
 from sentences.words.verb import Verb
-from sentences.words.noun import Noun, PluralNoun
-from sentences.words.word import Word
+from sentences.words.noun import Noun
+from sentences.words.basicword import BasicWord
+from sentences.words.wordtools.wordtag import WordTag
 
 
 def get_present_be_verb(sentence):
     subj_index = find_subject(sentence)
     if subj_index == -1:
-        return Word('be')
+        return BasicWord('be')
     subj = sentence[subj_index]
     if requires_third_person(sentence):
-        return Word('is')
+        return BasicWord('is')
     elif subj in (Pronoun.I, Pronoun.ME, CapitalPronoun.I, CapitalPronoun.ME):
-        return Word('am')
+        return BasicWord('am')
     else:
-        return Word('are')
+        return BasicWord('are')
 
 
 def requires_third_person(raw_sentence) -> bool:
@@ -34,14 +35,13 @@ def find_subject(raw_sentence) -> int:
 
 
 def is_third_person(word) -> bool:
-    if isinstance(word, Noun):
-        return not isinstance(word, PluralNoun)
-    pronouns = [Pronoun.HE, Pronoun.HIM, Pronoun.SHE, Pronoun.HER, Pronoun.IT]
-    capitals = [CapitalPronoun.HE, CapitalPronoun.HIM, CapitalPronoun.SHE, CapitalPronoun.HER, CapitalPronoun.IT]
-    return word in pronouns or word in capitals
+    first_person = [Pronoun.I, Pronoun.ME, CapitalPronoun.I, CapitalPronoun.ME]
+    if isinstance(word, (Noun, AbstractPronoun)) and word not in first_person:
+        return not word.has_tags(WordTag.PLURAL)
+    return False
 
 
 def is_word_in_sentence(word, raw_sentence):
-    if isinstance(word, Pronoun):
+    if isinstance(word, AbstractPronoun):
         return any(word.is_pair(element) for element in raw_sentence)
     return word in raw_sentence

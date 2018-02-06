@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sentences',
-      version='3.1',
+      version='3.2',
       description='sentence generator',
       long_description=readme(),
       keywords='',
@@ -22,7 +22,7 @@ setup(name='sentences',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui'],
+      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui', 'sentences.words.wordtools'],
       entry_points={
           'console_scripts': ['gen_pdf = sentences.guimain:main_app'],
       },

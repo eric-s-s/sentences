@@ -1,13 +1,24 @@
-from sentences.words.word import Word
+from sentences.words.wordtools.abstractword import AbstractWord
+from sentences.words.wordtools.tags import Tags
+from sentences.words.wordtools.wordtag import WordTag
+from sentences.words.wordtools.common_functions import add_s, add_ed, bold
 
 
-class Verb(Word):
-    def __init__(self, value, irregular_past='', infinitive=''):
-        super(Verb, self).__init__(value)
+class Verb(AbstractWord):
+    def __init__(self, value, irregular_past='', infinitive='', tags=None):
+        self._value = value
         self._irregular_past = irregular_past
-        self._inf = infinitive
         if not infinitive:
-            self._inf = value
+            infinitive = value
+        self._inf = infinitive
+
+        if tags is None:
+            tags = Tags()
+        self._tags = tags.copy()
+
+    @property
+    def value(self):
+        return self._value
 
     @property
     def infinitive(self):
@@ -17,70 +28,71 @@ class Verb(Word):
     def irregular_past(self):
         return self._irregular_past
 
-    def add_ed(self):
-        value = super(Verb, self).add_ed().value
-        return self.__class__(value, self.irregular_past, self.infinitive)
-
-    def add_s(self):
-        value = super(Verb, self).add_s().value
-        return self.__class__(value, self.irregular_past, self.infinitive)
-
-    def past_tense(self):
-        past_tense_value = self.irregular_past
-        if not past_tense_value:
-            past_tense_value = Word(self.infinitive).add_ed().value
-        return PastVerb(past_tense_value, self.irregular_past, self.infinitive)
-
-    def third_person(self):
-        with_s = Word(self.infinitive).add_s().value
-        if with_s == 'haves':
-            with_s = 'has'
-        return ThirdPersonVerb(with_s, self.irregular_past, self.infinitive)
-
-    def capitalize(self):
-        class_ = self.__class__
-        return class_(self.value.capitalize(), self.irregular_past, self.infinitive)
-
-    def negative(self):
-        return NegativeVerb("don't " + self.infinitive, self.irregular_past, self.infinitive)
-
-    def to_base_verb(self):
-        return Verb(self.infinitive, self.irregular_past, '')
-
-    def __repr__(self):
-        return '{}({!r}, {!r}, {!r})'.format(
-            self.__class__.__name__, self.value, self.irregular_past, self.infinitive
-        )
+    @property
+    def tags(self):
+        return self._tags.copy()
 
     def __eq__(self, other):
-        return (super(Verb, self).__eq__(other) and
-                (self.infinitive, self.irregular_past) == (other.infinitive, other.irregular_past))
+        if not isinstance(other, Verb):
+            return False
+        return ((self.value, self.irregular_past, self.infinitive, self.tags) ==
+                (other.value, other.irregular_past, other.infinitive, other.tags))
+
+    def __repr__(self):
+        return '{}({!r}, {!r}, {!r}, {!r})'.format(
+            self.__class__.__name__, self.value, self.irregular_past, self.infinitive, self.tags
+        )
 
     def __hash__(self):
-        return super(Verb, self).__hash__()
+        return hash('hash of {!r}'.format(self))
 
+    def capitalize(self):
+        new_value = self.value[0].upper() + self.value[1:]
+        return Verb(new_value, self.irregular_past, self.infinitive, self.tags)
 
-class PastVerb(Verb):
-    def negative(self):
-        return NegativePastVerb("didn't " + self.infinitive, self.irregular_past, self.infinitive)
+    def de_capitalize(self):
+        new_value = self.value[0].lower() + self.value[1:]
+        return Verb(new_value, self.irregular_past, self.infinitive, self.tags)
 
+    def bold(self):
+        return Verb(bold(self.value), self.irregular_past, self.infinitive, self.tags)
 
-class NegativeVerb(Verb):
     def past_tense(self):
-        return NegativePastVerb("didn't " + self.infinitive, self.irregular_past, self.infinitive)
+        if self.has_tags(WordTag.PAST):
+            return self
+
+        new_tags = self.tags.add(WordTag.PAST).remove(WordTag.THIRD_PERSON)
+        if self.has_tags(WordTag.NEGATIVE):
+            return Verb("didn't " + self.infinitive, self.irregular_past, self.infinitive, new_tags)
+
+        past_tense_value = self.irregular_past
+        if not past_tense_value:
+            past_tense_value = add_ed(self.infinitive)
+        return Verb(past_tense_value, self.irregular_past, self.infinitive, new_tags)
 
     def third_person(self):
-        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.irregular_past, self.infinitive)
+        if self.has_tags(WordTag.THIRD_PERSON):
+            return self
 
+        new_tags = self.tags.add(WordTag.THIRD_PERSON).remove(WordTag.PAST)
+        if self.has_tags(WordTag.NEGATIVE):
+            return Verb("doesn't " + self.infinitive, self.irregular_past, self.infinitive, new_tags)
 
-class ThirdPersonVerb(Verb):
+        with_s = add_s(self.infinitive)
+        if with_s == 'haves':
+            with_s = 'has'
+        return Verb(with_s, self.irregular_past, self.infinitive, new_tags)
+
     def negative(self):
-        return NegativeThirdPersonVerb("doesn't " + self.infinitive, self.irregular_past, self.infinitive)
+        if self.has_tags(WordTag.NEGATIVE):
+            return self
+        new_tags = self.tags.add(WordTag.NEGATIVE)
+        negative = "don't "
+        if self.has_tags(WordTag.THIRD_PERSON):
+            negative = "doesn't "
+        if self.has_tags(WordTag.PAST):
+            negative = "didn't "
+        return Verb(negative + self.infinitive, self.irregular_past, self.infinitive, new_tags)
 
-
-class NegativePastVerb(NegativeVerb, PastVerb):
-    pass
-
-
-class NegativeThirdPersonVerb(NegativeVerb, ThirdPersonVerb):
-    pass
+    def to_basic_verb(self):
+        return Verb(self.infinitive, self.irregular_past)

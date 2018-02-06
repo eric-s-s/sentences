@@ -1,6 +1,7 @@
 from enum import Enum
 
-from sentences.words.word import Word
+from sentences.words.basicword import BasicWord
+from sentences.words.wordtools.wordtag import WordTag
 
 
 class AbstractPronoun(Enum):
@@ -11,7 +12,7 @@ class AbstractPronoun(Enum):
         raise NotImplementedError
 
     def bold(self):
-        return Word(self.value).bold()
+        return BasicWord(self.value).bold()
 
     def object(self):
         changes = {self.I: self.ME,
@@ -37,6 +38,11 @@ class AbstractPronoun(Enum):
         if not isinstance(other, AbstractPronoun):
             return False
         return self.subject() == other.subject()
+
+    def has_tags(self, *tags):
+        if tags == (WordTag.PLURAL,) and self in (self.YOU, self.WE, self.US, self.THEY, self.THEM):
+            return True
+        return False
 
 
 class Pronoun(AbstractPronoun):

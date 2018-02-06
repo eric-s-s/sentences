@@ -2,7 +2,7 @@ import random
 
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.word import SeparableParticle
+from sentences.words.wordtools.wordtag import WordTag
 
 
 class RandomSentences(object):
@@ -95,6 +95,7 @@ def assign_objects(verb_group, objects):
 def does_preposition_precede_separable_particle(preposition, separable_particle):
     return (
         None in preposition and
-        all(isinstance(word, SeparableParticle) for word in separable_particle) and
+        None not in separable_particle and
+        all(word.has_tags(WordTag.SEPARABLE_PARTICLE) for word in separable_particle) and
         any(isinstance(word, Pronoun) for word in preposition)
     )

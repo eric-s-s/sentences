@@ -48,7 +48,7 @@ executables = [
 ]
 
 setup(name='sentence_mangler',
-      version='3.1',
+      version='3.2',
       description='a gui to create random sentences with errors',
       options=options,
       executables=executables,
@@ -65,7 +65,7 @@ setup(name='sentence_mangler',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui'],
+      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui', 'sentences.words.wordtools'],
 
       package_data={
           '': ['data/*.csv', 'data/default.cfg', 'data/*.txt', 'data/*.ico']
