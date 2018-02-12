@@ -1,7 +1,5 @@
 # lines starting with '#' are ignored. To make a phrasal verb (take out) enter as 'take out, took out'
 # infinitive, irregular past, preposition, number of objects (default is 1),
-arrest
-bang
 bite, bit
 bore
 break, broke
@@ -10,19 +8,18 @@ bring, brought, to, 2
 build, built
 buy, bought
 catch, caught
+clean up,
 cook
 cut, cut
 cut, cut, with, 2
 disgust
 draw, drew
 eat, ate
-excite
 fall, fell, on
 feed, fed
 fight, fought
 find, found
 freeze, froze
-get, got
 give, gave, null, 2
 grab
 hate
@@ -42,6 +39,7 @@ make, made, out of, 2
 marry
 own
 pick up,
+put away, put away
 play, null, with
 pull
 push
