@@ -8,15 +8,28 @@ DEFAULT_SAVE_DIR = 'pdfs'
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
 
 
+class ConfigFileError(OSError):
+    pass
+
+
 class ConfigLoader(object):
-    def __init__(self):
+    def __init__(self, filename=CONFIG_FILE):
         try:
-            self._dictionary = load_config(CONFIG_FILE)
+            self._dictionary = load_config(filename)
         except (ValueError, OSError):
             create_default_config()
             self._dictionary = load_config(CONFIG_FILE)
 
-        self._set_up_directories()
+        try:
+            self._set_up_directories()
+
+        except OSError:
+            home_dir_raw = self._dictionary['home_directory']
+            save_dir_raw = self._dictionary['save_directory']
+            home_dir = '\n{}'.format(os.path.abspath(home_dir_raw)) if home_dir_raw else ''
+            save_dir = '\n{}'.format(os.path.abspath(save_dir_raw)) if save_dir_raw else ''
+            msg = 'Config file could not find or create one of the following directories:' + home_dir + save_dir
+            raise ConfigFileError(msg)
         self._set_up_word_files()
         self._create_empty_csv()
 
@@ -57,13 +70,11 @@ class ConfigLoader(object):
             if filename is None:
                 filename = full_default_name
 
-            while not os.path.exists(filename):
-                if filename == full_default_name:
-                    with open(os.path.join(DATA_PATH, default_name), 'r') as read_file:
-                        with open(filename, 'w') as write_file:
-                            write_file.write(read_file.read())
-                else:
-                    filename = full_default_name
+            if not os.path.exists(filename):
+                filename = full_default_name
+                with open(os.path.join(DATA_PATH, default_name), 'r') as read_file:
+                    with open(filename, 'w') as write_file:
+                        write_file.write(read_file.read())
             self._dictionary[key] = filename
 
     def reload(self):

@@ -5,7 +5,7 @@ from shutil import rmtree, copytree
 from sentences import (DATA_PATH, APP_NAME, VERBS_CSV,
                        UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, COUNTABLE_NOUNS_CSV, DEFAULT_CONFIG)
 from tests import TESTS_FILES
-from sentences.configloader import (CONFIG_FILE, DEFAULT_SAVE_DIR,
+from sentences.configloader import (ConfigFileError, CONFIG_FILE, DEFAULT_SAVE_DIR,
                                     create_default_config, save_config, load_config, ConfigLoader,
                                     get_documents_folder, get_single_key_value_pair, get_key_value_pairs,
                                     create_config_text_line)
@@ -399,7 +399,17 @@ class TestConfigLoader(unittest.TestCase):
     def test_ConfigLoader_init_existing_config_fails_when_directory_parent_not_there(self):
         home = 'not_there/really_not_there'
         save_config({'home_directory': home})
-        self.assertRaises(OSError, ConfigLoader)
+        self.assertRaises(ConfigFileError, ConfigLoader)
+
+    def test_ConfigLoader_init_existing_config_fails_when_directory_parent_not_there_message(self):
+        home = 'not_there/really_not_there'
+        save_config({'home_directory': home})
+        with self.assertRaises(ConfigFileError) as context:
+            ConfigLoader()
+        error = context.exception
+        msg = 'Config file could not find or create one of the following directories:\n'
+        msg += os.path.abspath(home)
+        self.assertEqual(error.args[0], msg)
 
     def test_ConfigLoader_reload_config_config_did_not_change(self):
         new = ConfigLoader()

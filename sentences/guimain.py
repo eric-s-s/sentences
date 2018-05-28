@@ -121,11 +121,9 @@ class MainFrame(tk.Tk):
     def update_paragraph_generator(self, *call_back_args):
         self.paragraph_generator.update_options(self.get_state())
 
+    @catch_errors('Bad file')
     def reload_files(self):
-        try:
-            self.paragraph_generator.load_lists_from_file()
-        except LoaderError as e:
-            showerror('Bad file', '{}: {}'.format(e.__class__.__name__, e.args[0]))
+        self.paragraph_generator.load_lists_from_file()
 
     def default_word_files(self):
         home = self.get_state()['home_directory']
