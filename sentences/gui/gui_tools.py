@@ -93,12 +93,12 @@ class SetVariablesFrame(tk.Frame):
 
         if isinstance(variable, PctSpinBox) and isinstance(value, float):
             variable.set_probability(value)
-        elif isinstance(variable, IntSpinBox) and isinstance(value, int):  # TODO show bool/int relation with pctspinbox
+        elif isinstance(variable, IntSpinBox) and isinstance(value, int):
             variable.set_int(value)
         elif isinstance(variable, tk.IntVar) and isinstance(value, bool):
             variable.set(int(value))
         else:
-            check_for_value_error(variable, value)  # TODO test!
+            check_for_value_error(variable, value)
             variable.set(value)
 
 
@@ -112,7 +112,7 @@ def all_children(widget):
     return answer
 
 
-def check_for_value_error(var, val):  # TODO test!
+def check_for_value_error(var, val):
     if isinstance(var, tk.IntVar):
         check_type = int
     elif isinstance(var, tk.BooleanVar):
@@ -122,7 +122,6 @@ def check_for_value_error(var, val):  # TODO test!
     elif isinstance(var, tk.StringVar):
         check_type = str
     else:
-        print('here')
         raise ValueError('Unrecognized variable type')
 
     if not isinstance(val, check_type):

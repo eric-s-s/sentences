@@ -7,7 +7,7 @@ import os
 from sentences import DATA_PATH
 
 from sentences.create_pdf import create_pdf
-from sentences.configloader import ConfigLoader, save_config, ConfigFileError
+from sentences.configloader import ConfigLoader, save_config, save_config_to_filename, ConfigFileError
 from sentences.paragraphsgenerator import ParagraphsGenerator
 from sentences.backend.create_word_files import create_default_word_files
 
@@ -47,7 +47,7 @@ class MainFrame(tk.Tk):
         self._pack_action_frame(action_frame)
 
         self.frames = self._pack_set_variable_frames()
-        self.load_config()  # TODO problem occurs here
+        self.load_config()
 
         try:
             self.paragraph_generator = ParagraphsGenerator(self.get_state())
@@ -129,16 +129,19 @@ class MainFrame(tk.Tk):
         home = self.get_state()['home_directory']
         create_default_word_files(home)
 
-    @catch_errors('bad config')    # TODO the following should @catch_errors
+    @catch_errors('bad config')    # TODO test @catch_errors  test reverts on error.
     def load_config(self):
         loader = ConfigLoader()
         self._load_new_state(loader)
 
+    @catch_errors('bad config file')  # TODO test in entirety including reverts on error to self._load_new_state
     def load_config_from_file(self):
         loader = ConfigLoader()
 
-        # TODO askopenfilename
-        filename = askopenfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file')
+        filename = askopenfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file',
+                                   defaultextension='.cfg')
+        if not filename:
+            return None
 
         loader.set_state_from_file(filename)
         self._load_new_state(loader)
@@ -167,10 +170,12 @@ class MainFrame(tk.Tk):
 
         self.file_prefix.set(file_prefix if file_prefix is not None else '')
 
-    def export_config_file(self):
+    def export_config_file(self):  # TODO test
         filename = asksaveasfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file',
                                      initialfile='exported_config.cfg', defaultextension='.cfg')
-        # TODO do stuff with filename
+        if not filename:
+            return None
+        save_config_to_filename(self.get_state(), filename)
 
     def set_config(self):
         save_config(self.get_state())

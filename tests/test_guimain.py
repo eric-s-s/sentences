@@ -9,7 +9,7 @@ import tkinter as tk
 from sentences import DATA_PATH, APP_NAME
 from tests import TESTS_FILES
 from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
-                                    VERBS_CSV, DEFAULT_SAVE_DIR, ConfigLoader, get_documents_folder)
+                                    VERBS_CSV, DEFAULT_SAVE_DIR, ConfigLoader, get_documents_folder, save_config)
 from sentences.gui.filemanagement import FileManagement
 
 from sentences.guimain import MainFrame
@@ -89,10 +89,10 @@ class TestGuiMain(unittest.TestCase):
         self.assertEqual(main.paragraph_generator._options, loader.state)
 
     def test_reload_files(self):
-        loader = ConfigLoader()
-        loader.save_and_reload({'probability_plural_noun': 0,
-                                'probability_negative_verb': 0,
-                                'probability_pronoun': 0})
+        ConfigLoader()
+        save_config({'probability_plural_noun': 0,
+                     'probability_negative_verb': 0,
+                     'probability_pronoun': 0})
         new_verb = Verb('boogahboogah').third_person()
         new_noun = Noun('wackawacka').definite()
         main = MainFrame()
@@ -135,9 +135,9 @@ class TestGuiMain(unittest.TestCase):
 
     def test_load_config(self):
         main = MainFrame()
-        loader = ConfigLoader()
 
-        loader.save_and_reload({'probability_plural_noun': 0})
+        save_config({'probability_plural_noun': 0})
+        loader = ConfigLoader()
 
         self.assertNotEqual(loader.state, main.get_state())
         main.load_config()
@@ -163,8 +163,13 @@ class TestGuiMain(unittest.TestCase):
         self.assertEqual(top_levels, 1)
 
     def test_revert_to_original(self):
-        loader = ConfigLoader()
-        loader.save_and_reload({'probability_pronoun': 0})
+        ConfigLoader()  # set up directories
+
+        save_config({'probability_pronoun': 0})
+        with open(DEFAULT_CONFIG, 'r') as default:
+            with open(CONFIG_FILE, 'r') as current:
+                self.assertNotEqual(default.read(), current.read())
+
         verb_file = os.path.join(APP_FOLDER, VERBS_CSV)
         with open(verb_file, 'w') as f:
             f.write('go')
@@ -198,8 +203,8 @@ class TestGuiMain(unittest.TestCase):
 
     @patch("sentences.guimain.showerror")
     def test_create_text_error_pool_not_large_enough(self, mock_error):
-        loader = ConfigLoader()
-        loader.save_and_reload({'paragraph_type': 'pool', 'probability_pronoun': 0})
+        ConfigLoader()  # set up directories
+        save_config({'paragraph_type': 'pool', 'probability_pronoun': 0})
         for file_name in (UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV):
             with open(os.path.join(APP_FOLDER, file_name), 'w') as f:
                 f.write('dog')
@@ -256,8 +261,7 @@ class TestGuiMain(unittest.TestCase):
         for count, key in enumerate(('countable_nouns', 'uncountable_nouns', 'verbs')):
             self.assertEqual(mock_error.call_count, count)
             main.revert_to_original()
-            loader = ConfigLoader()
-            loader.save_and_reload({key: bad_file})
+            save_config({key: bad_file})
 
             main.load_config()
             message = ('LoaderError: Could not read CSV file. ' +
