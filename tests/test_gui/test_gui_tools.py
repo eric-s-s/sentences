@@ -124,6 +124,12 @@ class TestGuiTools(unittest.TestCase):
         box.set_int(5)
         self.assertEqual(box.get_int(), 5)
 
+    def test_IntSpinBox_set_int_bad_values_ignored(self):
+        box = IntSpinBox(range_=(2, 5))
+        for bad_val in ([1, 2, 3], None, 'hi'):
+            box.set_int(bad_val)
+            self.assertEqual(box.get_int(), 2)
+
     def test_PctSpinBox(self):
         box = PctSpinBox()
         self.assertEqual(box.range, (0, 100))

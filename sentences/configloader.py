@@ -8,30 +8,45 @@ DEFAULT_SAVE_DIR = 'pdfs'
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
 
 
-class ConfigFileError(OSError):
+class ConfigFileError(ValueError):
     pass
 
 
 class ConfigLoader(object):
-    def __init__(self, filename=CONFIG_FILE):
+    def __init__(self):
         try:
-            self._dictionary = load_config(filename)
+            self._dictionary = load_config(CONFIG_FILE)
         except (ValueError, OSError):
             create_default_config()
             self._dictionary = load_config(CONFIG_FILE)
 
-        try:
-            self._set_up_directories()
+        # TODO raise error with bad config. remove stuff from self._set_up_directories
+        # try:
+        #     self._dictionary = load_config(CONFIG_FILE)
+        #     self._set_up_directories()
+        # except (ValueError, OSError) as error:
+        #     create_default_config()
+        #     self._dictionary = load_config(CONFIG_FILE)
+        #     message = 'While loading from the config file, the following error occurred:\n{}: {}'
+        #     message += '\nIn response, the config file was overwritten with the default and reloaded.'
+        #     raise ConfigFileError(message.format(error.__class__.__name__, error))
 
-        except OSError:
-            home_dir_raw = self._dictionary['home_directory']
-            save_dir_raw = self._dictionary['save_directory']
-            home_dir = '\n{}'.format(os.path.abspath(home_dir_raw)) if home_dir_raw else ''
-            save_dir = '\n{}'.format(os.path.abspath(save_dir_raw)) if save_dir_raw else ''
-            msg = 'Config file could not find or create one of the following directories:' + home_dir + save_dir
-            raise ConfigFileError(msg)
+        self._set_up_directories()
         self._set_up_word_files()
         self._create_empty_csv()
+
+    def set_state_from_file(self, filename):
+        current = self.state
+        try:
+            self._dictionary.update(load_config(filename))
+            self._set_up_directories()
+            self._set_up_word_files()
+        except (ValueError, OSError) as error:
+            self._dictionary = current
+            self._set_up_directories()
+            self._set_up_word_files()
+            msg = 'The file could not be loaded. Settings were not changed. Error:\n{}: {}'
+            raise ConfigFileError(msg.format(error.__class__.__name__, error))
 
     @property
     def state(self):
@@ -46,10 +61,17 @@ class ConfigLoader(object):
         if save_dir is None:
             save_dir = os.path.join(home_dir, DEFAULT_SAVE_DIR)
 
-        if not os.path.exists(home_dir):
-            os.mkdir(home_dir)
-        if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+        def ensure_directory(directory_name):
+            if not os.path.exists(directory_name):
+                try:
+                    os.mkdir(directory_name)
+                except OSError as error:
+                    msg = 'Config Loader attempted to create the following directory:\n{}\nOriginal error message:\n'
+                    msg += '{}: {}'.format(error.__class__.__name__, error)
+                    raise ConfigFileError(msg.format(os.path.abspath(directory_name)))
+
+        ensure_directory(home_dir)
+        ensure_directory(save_dir)
 
         self._dictionary['home_directory'] = home_dir
         self._dictionary['save_directory'] = save_dir
@@ -101,8 +123,12 @@ class ConfigLoader(object):
         for key, value in self._dictionary.items():
             try:
                 frame.set_variable(key, value)
+
             except AttributeError:
                 continue
+            except ValueError:
+                msg = 'Tried to set key: {!r} to incompatible value: {!r}.'.format(key, value)  # TODO test!
+                raise ConfigFileError(msg)
 
 
 def create_default_config():

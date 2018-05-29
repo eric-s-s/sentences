@@ -349,9 +349,11 @@ class TestConfigLoader(unittest.TestCase):
         home = os.path.abspath('to_delete')
         save = os.path.abspath('bogus_save')
         existing_verbs = os.path.join(home, 'my_verb.csv')
+        if not os.path.exists(home):
+            os.mkdir(home)
+        if not os.path.exists(save):
+            os.mkdir(save)
 
-        os.mkdir(home)
-        os.mkdir(save)
         with open(existing_verbs, 'w') as f:
             f.write('exists')
 
@@ -372,8 +374,10 @@ class TestConfigLoader(unittest.TestCase):
         save = os.path.abspath('bogus_save')
         existing_verbs = os.path.join(home, 'not_really_there.csv')
 
-        os.mkdir(home)
-        os.mkdir(save)
+        if not os.path.exists(home):
+            os.mkdir(home)
+        if not os.path.exists(save):
+            os.mkdir(save)
 
         save_config({'home_directory': home, 'save_directory': save, 'verbs': existing_verbs})
 
@@ -407,9 +411,9 @@ class TestConfigLoader(unittest.TestCase):
         with self.assertRaises(ConfigFileError) as context:
             ConfigLoader()
         error = context.exception
-        msg = 'Config file could not find or create one of the following directories:\n'
+        msg = 'Config Loader attempted to create the following directory:\n'
         msg += os.path.abspath(home)
-        self.assertEqual(error.args[0], msg)
+        self.assertIn(msg, error.args[0])
 
     def test_ConfigLoader_reload_config_config_did_not_change(self):
         new = ConfigLoader()
@@ -533,6 +537,8 @@ class TestConfigLoader(unittest.TestCase):
         fm = FileManagement()
         loader = ConfigLoader()
         loader.set_up_frame(fm)
+        print(loader.state)
+        print(fm.get_values())
         home = os.path.join(get_documents_folder(), APP_NAME)
         answer = {'home_directory': home,
                   'save_directory': os.path.join(home, DEFAULT_SAVE_DIR),

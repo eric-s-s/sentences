@@ -1,14 +1,14 @@
 from functools import wraps
 import tkinter as tk
 from tkinter.messagebox import showerror
+from tkinter.filedialog import asksaveasfilename, askopenfilename
 import os
 
 from sentences import DATA_PATH
 
 from sentences.create_pdf import create_pdf
-from sentences.configloader import ConfigLoader
+from sentences.configloader import ConfigLoader, save_config, ConfigFileError
 from sentences.paragraphsgenerator import ParagraphsGenerator
-from sentences.configloader import save_config
 from sentences.backend.create_word_files import create_default_word_files
 
 from sentences.gui.errordetails import ErrorDetails
@@ -27,7 +27,7 @@ def catch_errors(title, extra_message=''):
         def catch_wrapper(*args):
             try:
                 return func(*args)
-            except (ValueError, LoaderError) as e:
+            except (ConfigFileError, ValueError, LoaderError) as e:
                 message = extra_message + '{}: {}'.format(e.__class__.__name__, e.args[0])
                 showerror(title, message)
 
@@ -47,7 +47,7 @@ class MainFrame(tk.Tk):
         self._pack_action_frame(action_frame)
 
         self.frames = self._pack_set_variable_frames()
-        self.load_config()
+        self.load_config()  # TODO problem occurs here
 
         try:
             self.paragraph_generator = ParagraphsGenerator(self.get_state())
@@ -129,16 +129,48 @@ class MainFrame(tk.Tk):
         home = self.get_state()['home_directory']
         create_default_word_files(home)
 
+    @catch_errors('bad config')    # TODO the following should @catch_errors
     def load_config(self):
         loader = ConfigLoader()
-        self._load_local(loader.state)
-        for frame in self.frames:
-            loader.set_up_frame(frame)
+        self._load_new_state(loader)
+
+    def load_config_from_file(self):
+        loader = ConfigLoader()
+
+        # TODO askopenfilename
+        filename = askopenfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file')
+
+        loader.set_state_from_file(filename)
+        self._load_new_state(loader)
+
+    def _load_new_state(self, loader):
+        try:
+            self._load_local(loader.state)
+            for frame in self.frames:
+                loader.set_up_frame(frame)
+        except ConfigFileError as error:
+            self.revert_to_original()
+            raise error
 
     def _load_local(self, state):
-        self.font_size.set_int(state['font_size'])
+        font_size = state['font_size']
         file_prefix = state['file_prefix']
+        if file_prefix is None:
+            file_prefix = ''
+
+        if not isinstance(font_size, int) or not isinstance(file_prefix, str):   # TODO test
+            msg = 'Tried to set key to incompatible value\nkey: "font_size", value: {!r}'.format(font_size)
+            msg += '\nkey: "file_prefix", value: {!r}'.format(file_prefix)
+            raise ConfigFileError(msg)
+
+        self.font_size.set_int(state['font_size'])
+
         self.file_prefix.set(file_prefix if file_prefix is not None else '')
+
+    def export_config_file(self):
+        filename = asksaveasfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file',
+                                     initialfile='exported_config.cfg', defaultextension='.cfg')
+        # TODO do stuff with filename
 
     def set_config(self):
         save_config(self.get_state())
