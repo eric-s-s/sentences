@@ -6,13 +6,15 @@ import os
 import shutil
 import tkinter as tk
 
-from sentences import DATA_PATH, APP_NAME
+from sentences import DATA_PATH, APP_NAME, ConfigFileError, LoaderError
 from tests import TESTS_FILES
 from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV,
-                                    VERBS_CSV, DEFAULT_SAVE_DIR, ConfigLoader, get_documents_folder, save_config)
+                                    VERBS_CSV, DEFAULT_SAVE_DIR, ConfigLoader, get_documents_folder, save_config,
+                                    save_config_to_filename)
+
 from sentences.gui.filemanagement import FileManagement
 
-from sentences.guimain import MainFrame
+from sentences.guimain import MainFrame, catch_errors
 from sentences.words.verb import Verb
 from sentences.words.noun import Noun
 
@@ -81,6 +83,44 @@ class TestGuiMain(unittest.TestCase):
         rm_config()
         rm_app_folder()
 
+    @patch("sentences.guimain.showerror")
+    def test_catch_errors_decorator(self, mock_error):
+        def error_func(num):
+            if num == 1:
+                raise ValueError('bad value')
+            elif num == 2:
+                raise ConfigFileError('bad file')
+            elif num == 3:
+                raise LoaderError('bad load')
+            else:
+                raise AttributeError('bad attr')
+
+        without_msg = catch_errors('title')(error_func)
+
+        without_msg(1)
+        mock_error.assert_called_with('title', 'ValueError: bad value')
+
+        without_msg(2)
+        mock_error.assert_called_with('title', 'ConfigFileError: bad file')
+
+        without_msg(3)
+        mock_error.assert_called_with('title', 'LoaderError: bad load')
+
+        self.assertRaises(AttributeError, without_msg, 4)
+
+        with_msg = catch_errors('title', 'msg')(error_func)
+
+        with_msg(1)
+        mock_error.assert_called_with('title', 'msgValueError: bad value')
+
+        with_msg(2)
+        mock_error.assert_called_with('title', 'msgConfigFileError: bad file')
+
+        with_msg(3)
+        mock_error.assert_called_with('title', 'msgLoaderError: bad load')
+
+        self.assertRaises(AttributeError, with_msg, 4)
+
     def test_init_no_config(self):
         main = MainFrame()
         loader = ConfigLoader()
@@ -142,6 +182,189 @@ class TestGuiMain(unittest.TestCase):
         self.assertNotEqual(loader.state, main.get_state())
         main.load_config()
         self.assertEqual(loader.state, main.get_state())
+
+    @patch("sentences.guimain.showerror")
+    def test_load_config_error_reverts(self, mock_error):
+        main = MainFrame()
+        default_state = main.get_state()
+
+        save_config({'probability_plural_noun': 0.0})
+        main.load_config()
+
+        self.assertNotEqual(main.get_state(), default_state)
+
+        save_config({'probability_plural_noun': 'oops'})
+
+        main.load_config()
+        mock_error.assert_called_with(
+            'bad config',
+            "ConfigFileError: Tried to set key: 'probability_plural_noun' to incompatible value: 'oops'."
+        )
+
+        self.assertEqual(main.get_state(), default_state)
+
+    @patch("sentences.guimain.showerror")
+    def test_load_config_white_box_test_font_size_error(self, mock_error):
+        main = MainFrame()
+        default_state = main.get_state()
+
+        save_config({'probability_plural_noun': 0.0})
+        main.load_config()
+
+        save_config({'font_size': 'oops'})
+        main.load_config()
+        self.assertEqual(main.get_state(), default_state)
+        self.assertEqual(mock_error.call_args[0][0], 'bad config')
+        self.assertIn('ConfigFileError: Tried to set key to incompatible value', mock_error.call_args[0][1])
+
+    @patch("sentences.guimain.showerror")
+    def test_load_config_white_box_test_file_prefix_error(self, mock_error):
+        main = MainFrame()
+        default_state = main.get_state()
+
+        save_config({'probability_plural_noun': 0.0})
+        main.load_config()
+
+        save_config({'file_prefix': 10})
+        main.load_config()
+        self.assertEqual(main.get_state(), default_state)
+        self.assertEqual(mock_error.call_args[0][0], 'bad config')
+        self.assertIn('ConfigFileError: Tried to set key to incompatible value', mock_error.call_args[0][1])
+
+    @patch("sentences.guimain.askopenfilename")
+    def test_load_config_from_file_empty_string_does_nothing(self, mock_filename):
+        main = MainFrame()
+        save_config({'probability_plural_noun': 0.0})
+        main.load_config()
+
+        current_state = main.get_state()
+
+        mock_filename.return_value = ''
+        main.load_config_from_file()
+        self.assertEqual(current_state, main.get_state())
+
+    @patch("sentences.guimain.askopenfilename")
+    def test_load_config_from_file_loads_from_file(self, mock_filename):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+
+        mock_filename.return_value = filename
+
+        save_config_to_filename({'probability_plural_noun': 0.0}, filename)
+
+        main = MainFrame()
+        default_state = main.get_state()
+
+        main.load_config_from_file()
+
+        self.assertNotEqual(main.get_state(), default_state)
+
+        loader = ConfigLoader()
+        loader.set_state_from_file(filename)
+        self.assertEqual(loader.state, main.get_state())
+
+        os.remove(filename)
+
+    @patch("sentences.guimain.showerror")
+    @patch("sentences.guimain.askopenfilename")
+    def test_load_config_from_file_bad_file_with_reset(self, mock_filename, mock_error):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+
+        mock_filename.return_value = filename
+
+        save_config_to_filename({'probability_plural_noun': 'oops'}, filename)
+
+        main = MainFrame()
+        default_state = main.get_state()
+        save_config({'probability_plural_noun': 0.0})
+        main.load_config()
+
+        main.load_config_from_file()
+
+        self.assertEqual(main.get_state(), default_state)
+        mock_error.assert_called_with(
+            'bad config file',
+            "ConfigFileError: Tried to set key: 'probability_plural_noun' to incompatible value: 'oops'."
+        )
+
+        os.remove(filename)
+
+    @patch("sentences.guimain.showerror")
+    @patch("sentences.guimain.askopenfilename")
+    def test_load_config_from_file_bad_file_without_reset(self, mock_filename, mock_error):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+        bad_path = os.path.join(TESTS_FILES, 'nope', 'really_nope')
+
+        mock_filename.return_value = filename
+
+        save_config_to_filename({'save_directory': bad_path}, filename)
+
+        main = MainFrame()
+        save_config({'probability_plural_noun': 0.0})
+        main.load_config()
+        current_state = main.get_state()
+
+        main.load_config_from_file()
+
+        self.assertEqual(main.get_state(), current_state)
+        self.assertEqual(mock_error.call_args[0][0], 'bad config file')
+        msg = "ConfigFileError: Config Loader failed to create the following directory:\n"
+        self.assertIn(msg, mock_error.call_args[0][1])
+
+        os.remove(filename)
+
+    @patch("sentences.guimain.asksaveasfilename")
+    def test_export_config_file_saves_correctly(self, mock_filename):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        main = MainFrame()
+        default_state = main.get_state()
+        main.font_size.set_int(15)
+        current_state = main.get_state()
+
+        config_state = ConfigLoader().state
+        expected_state = config_state.copy()
+        expected_state['font_size'] = 15
+
+        # test current state
+        self.assertEqual(default_state, config_state)
+        self.assertEqual(current_state, expected_state)
+        self.assertNotEqual(default_state, current_state)
+
+        mock_filename.return_value = filename
+        main.export_config_file()
+
+        saved_config = ConfigLoader()
+        saved_config.set_state_from_file(filename)
+        config_file_state = ConfigLoader().state
+
+        self.assertEqual(saved_config.state, current_state)
+        self.assertEqual(main.get_state(), current_state)
+        self.assertEqual(config_file_state, default_state)
+
+        mock_filename.assert_called_with(
+            initialdir=current_state['home_directory'], title='select .cfg file',
+            initialfile='exported_config.cfg', defaultextension='.cfg'
+        )
+        os.remove(filename)
+
+    @patch("sentences.guimain.save_config_to_filename")
+    @patch("sentences.guimain.asksaveasfilename")
+    def test_export_config_file_no_save(self, mock_filename, mock_save_config):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+
+        mock_filename.return_value = filename
+
+        main = MainFrame()
+        main.export_config_file()
+        self.assertEqual(mock_save_config.call_count, 1)
+
+        mock_filename.return_value = ''
+
+        main.export_config_file()
+        self.assertEqual(mock_save_config.call_count, 1)
 
     def test_set_config(self):
         main = MainFrame()

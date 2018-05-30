@@ -2,14 +2,11 @@ import os
 
 from sentences.gui.gui_tools import SetVariablesFrame
 from sentences import (DATA_PATH, APP_NAME, DEFAULT_CONFIG, VERBS_CSV,
-                       COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV)
+                       COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, ConfigFileError)
 
 DEFAULT_SAVE_DIR = 'pdfs'
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
 
-
-class ConfigFileError(ValueError):
-    pass
 
 
 class ConfigLoader(object):

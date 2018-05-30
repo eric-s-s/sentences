@@ -70,29 +70,42 @@ class MainFrame(tk.Tk):
         padx, pady = (20, 5)
 
         button_kwargs = [
-            {'text': 'Save current settings', 'command': self.set_config, 'bg': 'CadetBlue1'},
-            {'text': 'Reset to saved settings', 'command': self.load_config, 'bg': 'aquamarine2'},
-            {},
-            {'text': 'New default word files', 'command': self.default_word_files, 'bg': 'plum1'},
-            {'text': 'Factory Reset', 'command': self.revert_to_original, 'bg': 'firebrick1'},
+            (
+                {'text': 'Save current settings', 'command': self.set_config, 'bg': 'CadetBlue1'},
+                {'text': 'Export\nsettings', 'command': self.export_config_file, 'bg': 'CadetBlue1'}
+            ),
+            (
+                {'text': 'Reset to saved settings', 'command': self.load_config, 'bg': 'aquamarine2'},
+                {'text': 'Load\nconfig file', 'command': self.load_config_from_file, 'bg': 'aquamarine2'}
+             ),
+            ({},),
+            ({'text': 'New default word files', 'command': self.default_word_files, 'bg': 'plum1'},),
+            ({'text': 'Factory Reset', 'command': self.revert_to_original, 'bg': 'firebrick1'},),
         ]
-        for row, kwargs in enumerate(button_kwargs):
+        for row, kwargs_tuple in enumerate(button_kwargs):
+            kwargs = kwargs_tuple[0]
             if not kwargs:
                 continue
-            tk.Button(master=action_frame, **kwargs).grid(row=row, column=0, padx=padx, pady=pady)
+            second_column = None
+            if len(kwargs_tuple) == 2:
+                second_column = kwargs_tuple[1]
 
-        tk.Entry(master=action_frame, textvar=self.file_prefix).grid(row=0, column=1, sticky=tk.E, padx=2, pady=pady)
-        self.font_size.grid(row=1, column=1, padx=2, pady=pady, sticky=tk.E)
+            tk.Button(master=action_frame, **kwargs).grid(row=row, column=1, padx=padx, pady=pady)
+            if second_column:
+                tk.Button(master=action_frame, **second_column).grid(row=row, column=0, padx=padx, pady=pady)
+
+        tk.Entry(master=action_frame, textvar=self.file_prefix).grid(row=0, column=2, sticky=tk.E, padx=2, pady=pady)
+        self.font_size.grid(row=1, column=2, padx=2, pady=pady, sticky=tk.E)
 
         pdf_button = tk.Button(master=action_frame, text='Make me some PDFs',
                                command=self.create_texts, bg='chartreuse2')
-        pdf_button.grid(row=2, column=1, padx=padx, pady=pady)
+        pdf_button.grid(row=2, column=2, padx=padx, pady=pady)
 
-        tk.Label(master=action_frame, text='Add a file prefix').grid(row=0, column=2, padx=2, pady=pady, sticky=tk.W)
-        tk.Label(master=action_frame, text='Font Size').grid(row=1, column=2, padx=2, pady=pady, sticky=tk.W)
+        tk.Label(master=action_frame, text='Add a file prefix').grid(row=0, column=3, padx=2, pady=pady, sticky=tk.W)
+        tk.Label(master=action_frame, text='Font Size').grid(row=1, column=3, padx=2, pady=pady, sticky=tk.W)
 
         help_btn = tk.Button(master=action_frame, text='Help', command=self.read_me, bg='light blue')
-        help_btn.grid(row=3, column=2, sticky=(tk.E,))
+        help_btn.grid(row=3, column=3, sticky=(tk.E,))
 
         action_frame.grid(row=0, column=0, columnspan=2)
 
@@ -129,12 +142,12 @@ class MainFrame(tk.Tk):
         home = self.get_state()['home_directory']
         create_default_word_files(home)
 
-    @catch_errors('bad config')    # TODO test @catch_errors  test reverts on error.
+    @catch_errors('bad config')
     def load_config(self):
         loader = ConfigLoader()
         self._load_new_state(loader)
 
-    @catch_errors('bad config file')  # TODO test in entirety including reverts on error to self._load_new_state
+    @catch_errors('bad config file')
     def load_config_from_file(self):
         loader = ConfigLoader()
 
@@ -153,7 +166,7 @@ class MainFrame(tk.Tk):
                 loader.set_up_frame(frame)
         except ConfigFileError as error:
             self.revert_to_original()
-            raise error
+            raise ConfigFileError(error.args[0])
 
     def _load_local(self, state):
         font_size = state['font_size']
@@ -161,7 +174,7 @@ class MainFrame(tk.Tk):
         if file_prefix is None:
             file_prefix = ''
 
-        if not isinstance(font_size, int) or not isinstance(file_prefix, str):   # TODO test
+        if not isinstance(font_size, int) or not isinstance(file_prefix, str):
             msg = 'Tried to set key to incompatible value\nkey: "font_size", value: {!r}'.format(font_size)
             msg += '\nkey: "file_prefix", value: {!r}'.format(file_prefix)
             raise ConfigFileError(msg)
@@ -170,7 +183,7 @@ class MainFrame(tk.Tk):
 
         self.file_prefix.set(file_prefix if file_prefix is not None else '')
 
-    def export_config_file(self):  # TODO test
+    def export_config_file(self):
         filename = asksaveasfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file',
                                      initialfile='exported_config.cfg', defaultextension='.cfg')
         if not filename:
