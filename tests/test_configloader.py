@@ -117,6 +117,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertEqual(get_single_key_value_pair('special = true'), ('special', True))
         self.assertEqual(get_single_key_value_pair('special = false'), ('special', False))
         self.assertEqual(get_single_key_value_pair('special = none'), ('special', None))
+        self.assertEqual(get_single_key_value_pair('special = empty_string'), ('special', ''))
 
         self.assertEqual(get_single_key_value_pair('special = TRUE'), ('special', True))
         self.assertEqual(get_single_key_value_pair('special = FALSE'), ('special', False))
@@ -182,7 +183,7 @@ class TestConfigLoader(unittest.TestCase):
             ('', None),
             ('# MAIN', None),
             ('font_size', 13),
-            ('file_prefix', None),
+            ('file_prefix', ''),
             ('', None)
         ]
         self.assertEqual(get_key_value_pairs(DEFAULT_CONFIG), answer)
@@ -196,6 +197,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertEqual(create_config_text_line('TRUE', True), 'TRUE = true')
         self.assertEqual(create_config_text_line('FALSE', False), 'FALSE = false')
         self.assertEqual(create_config_text_line('NONE', None), 'NONE = none')
+        self.assertEqual(create_config_text_line('empty', ''), 'empty = empty_string')
 
     def test_save_config(self):
         with open(DEFAULT_CONFIG, 'r') as f:
@@ -253,7 +255,7 @@ class TestConfigLoader(unittest.TestCase):
             'paragraph_size': 15,
 
             'font_size': 13,
-            'file_prefix': None
+            'file_prefix': ''
         })
 
     def test_load_config_bad_file_ValueError(self):
@@ -327,7 +329,7 @@ class TestConfigLoader(unittest.TestCase):
             'paragraph_size': 15,
 
             'font_size': 13,
-            'file_prefix': None
+            'file_prefix': ''
         }
         self.assertEqual(answer, expected)
 

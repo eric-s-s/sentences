@@ -8,7 +8,6 @@ DEFAULT_SAVE_DIR = 'pdfs'
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
 
 
-
 class ConfigLoader(object):
     def __init__(self):
         try:
@@ -100,7 +99,6 @@ class ConfigLoader(object):
         for key, value in self._dictionary.items():
             try:
                 frame.set_variable(key, value)
-
             except AttributeError:
                 continue
             except ValueError:
@@ -160,7 +158,7 @@ def get_single_key_value_pair(line):
     except ValueError:
         pass
 
-    special_strings = {'none': None, 'true': True, 'false': False}
+    special_strings = {'none': None, 'true': True, 'false': False, 'empty_string': ''}
     try:
         return key, special_strings[value.lower()]
     except KeyError:
@@ -169,6 +167,8 @@ def get_single_key_value_pair(line):
 
 def create_config_text_line(key, value):
     value_str = str(value)
+    if value_str == '':
+        value_str = 'empty_string'
     if value_str in ['True', 'False', 'None']:
         value_str = value_str.lower()
     line = ' = '.join((key, value_str))

@@ -13,6 +13,8 @@ from sentences.configloader import (CONFIG_FILE, DEFAULT_CONFIG, COUNTABLE_NOUNS
                                     save_config_to_filename)
 
 from sentences.gui.filemanagement import FileManagement
+from sentences.gui.actions import Actions
+from sentences.gui.gui_tools import all_children
 
 from sentences.guimain import MainFrame, catch_errors
 from sentences.words.verb import Verb
@@ -62,6 +64,12 @@ def restore_config():
         os.remove(SAVE_CONFIG)
     else:
         rm_config()
+
+
+def get_action_frame(main_frame):
+    for frame in main_frame.frames:
+        if isinstance(frame, Actions):
+            return frame
 
 
 class TestGuiMain(unittest.TestCase):
@@ -127,6 +135,82 @@ class TestGuiMain(unittest.TestCase):
         self.assertEqual(main.get_state(), loader.state)
 
         self.assertEqual(main.paragraph_generator._options, loader.state)
+
+    @patch.object(MainFrame, 'default_word_files')
+    def test_init_button_assignment_default_word_files(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.default_word_files.invoke()
+        mock_method.assert_called_once()
+
+    @patch("sentences.guimain.askopenfilename")
+    def test_init_button_assignment_load_config(self, mock_filename):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+        mock_filename.return_value = filename
+        save_config_to_filename({'file_prefix': 'silly'}, filename)
+
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+
+        default = main.get_state()
+
+        main.load_config_from_file()
+        self.assertNotEqual(default, main.get_state())
+
+        action_frame.reload_config.invoke()
+        self.assertEqual(default, main.get_state())
+
+        os.remove(filename)
+
+    @patch.object(MainFrame, 'load_config_from_file')
+    def test_init_button_assignment_load_config_from_file(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.load_config_file.invoke()
+        mock_method.assert_called_once()
+
+    @patch.object(MainFrame, 'export_config_file')
+    def test_init_button_assignment_export_config_file(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.export_settings.invoke()
+        mock_method.assert_called_once()
+
+    @patch.object(MainFrame, 'set_config')
+    def test_init_button_assignment_set_config(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.save_settings.invoke()
+        mock_method.assert_called_once()
+
+    @patch.object(MainFrame, 'create_texts')
+    def test_init_button_assignment_create_texts(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.make_pdfs.invoke()
+        mock_method.assert_called_once()
+
+    @patch.object(MainFrame, 'revert_to_original')
+    def test_init_button_assignment_create_texts(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.factory_reset.invoke()
+        mock_method.assert_called_once()
+
+    @patch.object(MainFrame, 'read_me')
+    def test_init_button_assignment_read_me(self, mock_method):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        action_frame.read_me.invoke()
+        mock_method.assert_called_once()
+
+    def test_init_action_frame_all_buttons_assigned(self):
+        main = MainFrame()
+        action_frame = get_action_frame(main)
+        for child in all_children(action_frame):
+            if isinstance(child, tk.Button):
+                command = child.cget('command')
+                self.assertNotEqual(command, '')
 
     def test_reload_files(self):
         ConfigLoader()
@@ -202,34 +286,6 @@ class TestGuiMain(unittest.TestCase):
         )
 
         self.assertEqual(main.get_state(), default_state)
-
-    @patch("sentences.guimain.showerror")
-    def test_load_config_white_box_test_font_size_error(self, mock_error):
-        main = MainFrame()
-        default_state = main.get_state()
-
-        save_config({'probability_plural_noun': 0.0})
-        main.load_config()
-
-        save_config({'font_size': 'oops'})
-        main.load_config()
-        self.assertEqual(main.get_state(), default_state)
-        self.assertEqual(mock_error.call_args[0][0], 'bad config')
-        self.assertIn('ConfigFileError: Tried to set key to incompatible value', mock_error.call_args[0][1])
-
-    @patch("sentences.guimain.showerror")
-    def test_load_config_white_box_test_file_prefix_error(self, mock_error):
-        main = MainFrame()
-        default_state = main.get_state()
-
-        save_config({'probability_plural_noun': 0.0})
-        main.load_config()
-
-        save_config({'file_prefix': 10})
-        main.load_config()
-        self.assertEqual(main.get_state(), default_state)
-        self.assertEqual(mock_error.call_args[0][0], 'bad config')
-        self.assertIn('ConfigFileError: Tried to set key to incompatible value', mock_error.call_args[0][1])
 
     @patch("sentences.guimain.askopenfilename")
     def test_load_config_from_file_empty_string_does_nothing(self, mock_filename):
@@ -321,8 +377,11 @@ class TestGuiMain(unittest.TestCase):
 
         main = MainFrame()
         default_state = main.get_state()
-        main.font_size.set_int(15)
+        save_config({'font_size': 15})
+        main.load_config()
         current_state = main.get_state()
+
+        ConfigLoader().revert_to_default()
 
         config_state = ConfigLoader().state
         expected_state = config_state.copy()
@@ -533,6 +592,8 @@ class TestGuiMain(unittest.TestCase):
     @patch("sentences.guimain.CancelableMessagePopup")
     def test_message_popup_create_texts(self, mock_popup):
         main = MainFrame()
+        # for key, val in main.get_state().items():
+        #     print(key, repr(val), sep=': ')
         main.create_texts()
         message = 'Your files are located at:\n{}'.format(main.get_state()['save_directory'])
         mock_popup.assert_called_with('success', message, main.do_not_show_popup)
@@ -544,8 +605,11 @@ class TestGuiMain(unittest.TestCase):
     def test_create_texts_creates_files(self):
         prefix = 'adjjk409dvc'
         main = MainFrame()
+
+        save_config({'file_prefix': prefix})
+        main.load_config()
+
         main.do_not_show_popup.set(1)
-        main.file_prefix.set(prefix)
         main.create_texts()
         self.assertTrue(os.path.exists(os.path.join(APP_FOLDER, DEFAULT_SAVE_DIR, prefix + '01_answer.pdf')))
         self.assertTrue(os.path.exists(os.path.join(APP_FOLDER, DEFAULT_SAVE_DIR, prefix + '01_error.pdf')))

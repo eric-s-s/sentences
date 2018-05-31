@@ -15,7 +15,8 @@ from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.paragraphtype import ParagraphType
 from sentences.gui.grammardetails import GrammarDetails
 from sentences.gui.filemanagement import FileManagement
-from sentences.gui.gui_tools import IntSpinBox, CancelableMessagePopup
+from sentences.gui.actions import Actions
+from sentences.gui.gui_tools import CancelableMessagePopup
 from sentences.gui.readme_text import ReadMeText
 
 from sentences.backend.loader import LoaderError
@@ -40,12 +41,6 @@ class MainFrame(tk.Tk):
         super(MainFrame, self).__init__(*args, **kwargs)
         self.iconbitmap(os.path.join(DATA_PATH, 'go_time.ico'))
 
-        action_frame = tk.Frame(master=self)
-        self.font_size = IntSpinBox(master=action_frame, range_=(2, 20))
-        self.file_prefix = tk.StringVar()
-
-        self._pack_action_frame(action_frame)
-
         self.frames = self._pack_set_variable_frames()
         self.load_config()
 
@@ -66,49 +61,6 @@ class MainFrame(tk.Tk):
         self.do_not_show_popup = tk.IntVar()
         self.do_not_show_popup.set(0)
 
-    def _pack_action_frame(self, action_frame):
-        padx, pady = (20, 5)
-
-        button_kwargs = [
-            (
-                {'text': 'Save current settings', 'command': self.set_config, 'bg': 'CadetBlue1'},
-                {'text': 'Export\nsettings', 'command': self.export_config_file, 'bg': 'CadetBlue1'}
-            ),
-            (
-                {'text': 'Reset to saved settings', 'command': self.load_config, 'bg': 'aquamarine2'},
-                {'text': 'Load\nconfig file', 'command': self.load_config_from_file, 'bg': 'aquamarine2'}
-             ),
-            ({},),
-            ({'text': 'New default word files', 'command': self.default_word_files, 'bg': 'plum1'},),
-            ({'text': 'Factory Reset', 'command': self.revert_to_original, 'bg': 'firebrick1'},),
-        ]
-        for row, kwargs_tuple in enumerate(button_kwargs):
-            kwargs = kwargs_tuple[0]
-            if not kwargs:
-                continue
-            second_column = None
-            if len(kwargs_tuple) == 2:
-                second_column = kwargs_tuple[1]
-
-            tk.Button(master=action_frame, **kwargs).grid(row=row, column=1, padx=padx, pady=pady)
-            if second_column:
-                tk.Button(master=action_frame, **second_column).grid(row=row, column=0, padx=padx, pady=pady)
-
-        tk.Entry(master=action_frame, textvar=self.file_prefix).grid(row=0, column=2, sticky=tk.E, padx=2, pady=pady)
-        self.font_size.grid(row=1, column=2, padx=2, pady=pady, sticky=tk.E)
-
-        pdf_button = tk.Button(master=action_frame, text='Make me some PDFs',
-                               command=self.create_texts, bg='chartreuse2')
-        pdf_button.grid(row=2, column=2, padx=padx, pady=pady)
-
-        tk.Label(master=action_frame, text='Add a file prefix').grid(row=0, column=3, padx=2, pady=pady, sticky=tk.W)
-        tk.Label(master=action_frame, text='Font Size').grid(row=1, column=3, padx=2, pady=pady, sticky=tk.W)
-
-        help_btn = tk.Button(master=action_frame, text='Help', command=self.read_me, bg='light blue')
-        help_btn.grid(row=3, column=3, sticky=(tk.E,))
-
-        action_frame.grid(row=0, column=0, columnspan=2)
-
     def _pack_set_variable_frames(self):
         error_details = ErrorDetails(master=self)
         error_details.set_bg('light cyan')
@@ -122,13 +74,28 @@ class MainFrame(tk.Tk):
         file_management = FileManagement(master=self)
         file_management.set_bg('light blue')
 
+        action_frame = Actions(master=self)
+        actions = [
+            (action_frame.save_settings, self.set_config),
+            (action_frame.export_settings, self.export_config_file),
+            (action_frame.reload_config, self.load_config),
+            (action_frame.load_config_file, self.load_config_from_file),
+            (action_frame.default_word_files, self.default_word_files),
+            (action_frame.factory_reset, self.revert_to_original),
+            (action_frame.make_pdfs, self.create_texts),
+            (action_frame.read_me, self.read_me)
+        ]
+        for btn, command in actions:
+            btn.config(command=command)
+
         expand_out = {'sticky': tk.N + tk.S + tk.E + tk.W}
+        action_frame.grid(row=0, column=0, columnspan=2)
         error_details.grid(row=1, column=0, rowspan=2, **expand_out)
         paragraph_type.grid(row=1, column=1, **expand_out)
         grammar_details.grid(row=2, column=1, **expand_out)
         file_management.grid(row=3, column=0, columnspan=2, **expand_out)
 
-        return error_details, file_management, grammar_details, paragraph_type
+        return error_details, file_management, grammar_details, paragraph_type, action_frame
 
     @catch_errors('Bad file')
     def update_paragraph_generator(self, *call_back_args):
@@ -161,27 +128,11 @@ class MainFrame(tk.Tk):
 
     def _load_new_state(self, loader):
         try:
-            self._load_local(loader.state)
             for frame in self.frames:
                 loader.set_up_frame(frame)
         except ConfigFileError as error:
             self.revert_to_original()
             raise ConfigFileError(error.args[0])
-
-    def _load_local(self, state):
-        font_size = state['font_size']
-        file_prefix = state['file_prefix']
-        if file_prefix is None:
-            file_prefix = ''
-
-        if not isinstance(font_size, int) or not isinstance(file_prefix, str):
-            msg = 'Tried to set key to incompatible value\nkey: "font_size", value: {!r}'.format(font_size)
-            msg += '\nkey: "file_prefix", value: {!r}'.format(file_prefix)
-            raise ConfigFileError(msg)
-
-        self.font_size.set_int(state['font_size'])
-
-        self.file_prefix.set(file_prefix if file_prefix is not None else '')
 
     def export_config_file(self):
         filename = asksaveasfilename(initialdir=self.get_state()['home_directory'], title='select .cfg file',
@@ -197,20 +148,13 @@ class MainFrame(tk.Tk):
         answer = {}
         for frame in self.frames:
             answer.update(frame.get_values())
-        answer.update(self._get_local())
         return answer
-
-    def _get_local(self):
-        file_prefix = self.file_prefix.get().strip()
-        if not file_prefix:
-            file_prefix = None
-        return {'font_size': self.font_size.get_int(), 'file_prefix': file_prefix}
 
     @catch_errors('Uh-oh!')
     def create_texts(self):
         state = self.get_state()
-        file_prefix = self.file_prefix.get().strip()
-        font_size = self.font_size.get_int()
+        file_prefix = state['file_prefix']
+        font_size = state['font_size']
 
         self.paragraph_generator.update_options(state)
         self.paragraph_generator.load_lists_from_file()
