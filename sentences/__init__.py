@@ -1,5 +1,7 @@
 import os
 
+from sentences.errors import ConfigFileError, LoaderError
+
 APP_NAME = 'sentence_mangler'
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'data')

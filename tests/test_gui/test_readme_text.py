@@ -69,4 +69,3 @@ class TestReadMeText(unittest.TestCase):
             self.assertEqual(text.tag_cget(tag_name, 'lmargin1'), '0')
             lmargin2 = str(find_second_margin(paragraph) * fontsize)
             self.assertEqual(text.tag_cget(tag_name, 'lmargin2'), lmargin2)
-

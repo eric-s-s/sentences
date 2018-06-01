@@ -1,12 +1,10 @@
 import csv
 
+from sentences import LoaderError
 from sentences.words.noun import Noun
 from sentences.words.verb import Verb
 from sentences.words.basicword import BasicWord
 
-
-class LoaderError(ValueError):
-    pass
 
 
 def load_csv(filename):

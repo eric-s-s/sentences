@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 
 from sentences.gui.gui_tools import (validate_int, IntSpinBox, PctSpinBox, FilenameVar, DirectoryVar, PopupSelectVar,
-                                     SetVariablesFrame, all_children, CancelableMessagePopup)
+                                     SetVariablesFrame, check_for_value_error, all_children, CancelableMessagePopup)
 
 
 class TestGuiTools(unittest.TestCase):
@@ -203,6 +203,12 @@ class TestGuiTools(unittest.TestCase):
         frame.set_variable('pct', 0.3)
         self.assertEqual(frame.pct.get_probability(), 0.3)
 
+    def test_SetVariableFrame_PctSpinBox_and_int(self):
+        frame = SetVariablesFrame()
+        frame.pct = PctSpinBox()
+        frame.set_variable('pct', 2)
+        self.assertEqual(frame.pct.get_probability(), 0.02)
+
     def test_SetVariableFrame_IntBox_and_int(self):
         frame = SetVariablesFrame()
         frame.int = IntSpinBox(range_=(2, 10))
@@ -223,13 +229,78 @@ class TestGuiTools(unittest.TestCase):
         frame.set_variable('selector', 'new_value')
         self.assertEqual(frame.selector.get(), 'new_value')
 
-    def test_SetVariableFrame_unanticipated_value_defaults_to_set(self):
+    def test_check_for_value_error_passes_all_types(self):
+
+        inherited = PopupSelectVar()
+        basic = tk.StringVar()
+        self.assertIsNone(check_for_value_error(inherited, 'hi'))
+        self.assertIsNone(check_for_value_error(basic, 'hi'))
+
+        basic = tk.IntVar()
+        self.assertIsNone(check_for_value_error(basic, 1))
+        self.assertIsNone(check_for_value_error(basic, True))
+
+        basic = tk.BooleanVar()
+        self.assertIsNone(check_for_value_error(basic, True))
+
+        basic = tk.DoubleVar()
+        self.assertIsNone(check_for_value_error(basic, 1.0))
+
+    def test_check_for_value_error_fails_wrong_type(self):
+
+        basic = tk.DoubleVar()
+        self.assertRaises(ValueError, check_for_value_error, basic, 'a')
+        self.assertRaises(ValueError, check_for_value_error, basic, 1)
+
+        basic = tk.IntVar()
+        self.assertRaises(ValueError, check_for_value_error, basic, 'a')
+        self.assertRaises(ValueError, check_for_value_error, basic, 1.0)
+
+        basic = tk.StringVar()
+        self.assertRaises(ValueError, check_for_value_error, basic, True)
+        self.assertRaises(ValueError, check_for_value_error, basic, 1)
+
+        basic = tk.BooleanVar()
+        self.assertRaises(ValueError, check_for_value_error, basic, 'a')
+        self.assertRaises(ValueError, check_for_value_error, basic, 1)
+
+    def test_check_for_error_fails_on_type_not_inherited_from_tk_XxxVar_even_if_set_func_present(self):
+        tst = IntSpinBox(range_=(2, 3))
+        self.assertRaises(ValueError, check_for_value_error, tst, 1)
+
+        tst = tk.Scale(from_=2, to=10)
+        tst.set(5)
+        self.assertEqual(tst.get(), 5)
+        self.assertRaises(ValueError, check_for_value_error, tst, 3)
+
+    def test_SetVariableFrame_unanticipated_value_raises_error(self):
         frame = SetVariablesFrame()
-        frame.fail = PctSpinBox()
-        frame.succeed = tk.IntVar()
-        frame.set_variable('succeed', -2)
-        self.assertEqual(frame.succeed.get(), -2)
-        self.assertRaises(AttributeError, frame.set_variable, 'fail', '1')
+        frame.pct = PctSpinBox()
+        frame.int_box = IntSpinBox(range_=(2, 5))
+        frame.int_var = tk.IntVar()
+        frame.str_var = tk.StringVar()
+
+        self.assertRaises(ValueError, frame.set_variable, 'pct', '.1')
+        self.assertRaises(ValueError, frame.set_variable, 'int_box', 1.0)
+        self.assertRaises(ValueError, frame.set_variable, 'int_var', 1.0)
+        self.assertRaises(ValueError, frame.set_variable, 'str_var', True)
+
+    def test_SetVariableFrame_set_variable_EDGE_CASE_pct_spin_box_set_int(self):
+        frame = SetVariablesFrame()
+        frame.pct = PctSpinBox()
+        frame.set_variable('pct', 5)
+        self.assertEqual(frame.pct.get_probability(), 0.05)
+
+    def test_SetVariableFrame_set_variable_WTF_edge_case_bool_is_int_and_Tk_evaluates_to_zero(self):
+        frame = SetVariablesFrame()
+        frame.int = IntSpinBox(range_=(0, 10))
+        frame.pct = PctSpinBox()
+
+        frame.set_variable('int', True)
+        self.assertEqual(frame.int.get_int(), 0)
+
+        frame.set_variable('pct', True)
+        self.assertEqual(frame.pct.get_probability(), 0.0)
 
     def test_all_children_no_children(self):
         widget = tk.Label(text='hi')

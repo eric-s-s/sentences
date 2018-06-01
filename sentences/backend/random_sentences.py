@@ -93,9 +93,10 @@ def assign_objects(verb_group, objects):
 
 
 def does_preposition_precede_separable_particle(preposition, separable_particle):
-    return (
-        None in preposition and
+    lacks_preposition = None in preposition
+    only_separable_particle = (
         None not in separable_particle and
-        all(word.has_tags(WordTag.SEPARABLE_PARTICLE) for word in separable_particle) and
-        any(isinstance(word, Pronoun) for word in preposition)
+        all(word.has_tags(WordTag.SEPARABLE_PARTICLE) for word in separable_particle)
     )
+    preposition_with_pronoun = any(isinstance(word, Pronoun) for word in preposition)
+    return lacks_preposition and only_separable_particle and preposition_with_pronoun

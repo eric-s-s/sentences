@@ -48,13 +48,13 @@ class ErrorDetails(SetVariablesFrame):
     def get_values(self):
         """
         :keys:
-        - error_probability
-        - noun_errors
-        - pronoun_errors
-        - verb_errors
-        - 'is_do_errors'
-        - 'preposition_transpose_errors'
-        - 'punctuation_errors'
+            - error_probability
+            - noun_errors
+            - pronoun_errors
+            - verb_errors
+            - is_do_errors
+            - preposition_transpose_errors
+            - punctuation_errors
         """
         return {
             'error_probability': self.error_probability.get_probability(),

@@ -5,9 +5,9 @@ from shutil import rmtree, copytree
 from sentences import (DATA_PATH, APP_NAME, VERBS_CSV,
                        UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, COUNTABLE_NOUNS_CSV, DEFAULT_CONFIG)
 from tests import TESTS_FILES
-from sentences.configloader import (CONFIG_FILE, DEFAULT_SAVE_DIR,
-                                    create_default_config, save_config, load_config, ConfigLoader,
-                                    get_documents_folder, get_single_key_value_pair, get_key_value_pairs,
+from sentences.configloader import (ConfigFileError, CONFIG_FILE, DEFAULT_SAVE_DIR,
+                                    create_default_config, save_config, save_config_to_filename, load_config,
+                                    ConfigLoader, get_documents_folder, get_single_key_value_pair, get_key_value_pairs,
                                     create_config_text_line)
 from sentences.gui.errordetails import ErrorDetails
 from sentences.gui.filemanagement import FileManagement
@@ -117,6 +117,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertEqual(get_single_key_value_pair('special = true'), ('special', True))
         self.assertEqual(get_single_key_value_pair('special = false'), ('special', False))
         self.assertEqual(get_single_key_value_pair('special = none'), ('special', None))
+        self.assertEqual(get_single_key_value_pair('special = empty_string'), ('special', ''))
 
         self.assertEqual(get_single_key_value_pair('special = TRUE'), ('special', True))
         self.assertEqual(get_single_key_value_pair('special = FALSE'), ('special', False))
@@ -182,7 +183,7 @@ class TestConfigLoader(unittest.TestCase):
             ('', None),
             ('# MAIN', None),
             ('font_size', 13),
-            ('file_prefix', None),
+            ('file_prefix', ''),
             ('', None)
         ]
         self.assertEqual(get_key_value_pairs(DEFAULT_CONFIG), answer)
@@ -196,6 +197,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertEqual(create_config_text_line('TRUE', True), 'TRUE = true')
         self.assertEqual(create_config_text_line('FALSE', False), 'FALSE = false')
         self.assertEqual(create_config_text_line('NONE', None), 'NONE = none')
+        self.assertEqual(create_config_text_line('empty', ''), 'empty = empty_string')
 
     def test_save_config(self):
         with open(DEFAULT_CONFIG, 'r') as f:
@@ -203,6 +205,22 @@ class TestConfigLoader(unittest.TestCase):
         save_config({'paragraph_type': 'bobo', 'paragraph_size': 10})
         with open(CONFIG_FILE, 'r') as f:
             config_text = f.read()
+
+        answer = default_text.replace('paragraph_size = 15', 'paragraph_size = 10')
+        answer = answer.replace('paragraph_type = chain', 'paragraph_type = bobo')
+        self.assertEqual(answer, config_text)
+
+    def test_save_config_to_filename(self):
+        filename = os.path.join(TESTS_FILES, 'test.cfg')
+
+        with open(DEFAULT_CONFIG, 'r') as f:
+            default_text = f.read()
+        save_config_to_filename({'paragraph_type': 'bobo', 'paragraph_size': 10}, filename)
+        with open(filename, 'r') as f:
+            config_text = f.read()
+
+        # cleanup
+        os.remove(filename)
 
         answer = default_text.replace('paragraph_size = 15', 'paragraph_size = 10')
         answer = answer.replace('paragraph_type = chain', 'paragraph_type = bobo')
@@ -237,7 +255,7 @@ class TestConfigLoader(unittest.TestCase):
             'paragraph_size': 15,
 
             'font_size': 13,
-            'file_prefix': None
+            'file_prefix': ''
         })
 
     def test_load_config_bad_file_ValueError(self):
@@ -311,7 +329,7 @@ class TestConfigLoader(unittest.TestCase):
             'paragraph_size': 15,
 
             'font_size': 13,
-            'file_prefix': None
+            'file_prefix': ''
         }
         self.assertEqual(answer, expected)
 
@@ -349,9 +367,11 @@ class TestConfigLoader(unittest.TestCase):
         home = os.path.abspath('to_delete')
         save = os.path.abspath('bogus_save')
         existing_verbs = os.path.join(home, 'my_verb.csv')
+        if not os.path.exists(home):
+            os.mkdir(home)
+        if not os.path.exists(save):
+            os.mkdir(save)
 
-        os.mkdir(home)
-        os.mkdir(save)
         with open(existing_verbs, 'w') as f:
             f.write('exists')
 
@@ -372,8 +392,10 @@ class TestConfigLoader(unittest.TestCase):
         save = os.path.abspath('bogus_save')
         existing_verbs = os.path.join(home, 'not_really_there.csv')
 
-        os.mkdir(home)
-        os.mkdir(save)
+        if not os.path.exists(home):
+            os.mkdir(home)
+        if not os.path.exists(save):
+            os.mkdir(save)
 
         save_config({'home_directory': home, 'save_directory': save, 'verbs': existing_verbs})
 
@@ -396,10 +418,73 @@ class TestConfigLoader(unittest.TestCase):
         # cleanup
         rmtree(home)
 
-    def test_ConfigLoader_init_existing_config_fails_when_directory_parent_not_there(self):
+    def test_ConfigLoader_init_existing_config_fails_when_directory_parent_not_there_home_directory(self):
         home = 'not_there/really_not_there'
         save_config({'home_directory': home})
-        self.assertRaises(OSError, ConfigLoader)
+        self.assertRaises(ConfigFileError, ConfigLoader)
+
+    def test_ConfigLoader_init_existing_config_fails_when_directory_parent_not_there_save_directory(self):
+        save = 'not_there/really_not_there'
+        save_config({'save_directory': save})
+        self.assertRaises(ConfigFileError, ConfigLoader)
+
+    def test_ConfigLoader_init_existing_config_fails_when_directory_parent_not_there_message(self):
+        home = 'not_there/really_not_there'
+        save_config({'home_directory': home})
+        with self.assertRaises(ConfigFileError) as context:
+            ConfigLoader()
+        error = context.exception
+        msg = 'Config Loader failed to create the following directory:\n'
+        msg += os.path.abspath(home)
+        self.assertIn(msg, error.args[0])
+
+    def test_ConfigLoader_set_state_from_file_no_errors(self):
+        filename = os.path.join(TESTS_FILES, 'test.cfg')
+        save_config_to_filename({'error_probability': 1.0}, filename)  # default 0.20
+        loader = ConfigLoader()
+        loader.set_state_from_file(filename)
+
+        default_loader = ConfigLoader()
+
+        loader_state = loader.state
+        default_state = default_loader.state
+
+        self.assertNotEqual(loader_state, default_state)
+        self.assertEqual(loader_state['error_probability'], 1.0)
+        loader_state['error_probability'] = 0.20
+
+        self.assertEqual(loader_state, default_state)
+
+        # cleanup
+        os.remove(filename)
+
+    def test_ConfigLoader_set_state_from_file_bad_file_ConfigFileError(self):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+        bad_text = 'no comment and no equal'
+        with open(filename, 'w') as f:
+            f.write(bad_text)
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_state_from_file, filename)
+
+        # cleanup
+        os.remove(filename)
+
+    def test_ConfigLoader_set_state_from_file_missing_file_ConfigFileError(self):
+        filename = os.path.join(TESTS_FILES, 'not_there.cfg')
+        if os.path.exists(filename):
+            os.remove(filename)
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_state_from_file, filename)
+
+    def test_ConfigLoader_set_state_from_file_bad_directory_value_raises_ConfigFileError(self):
+        filename = os.path.join(TESTS_FILES, 'tst.cfg')
+        loader = ConfigLoader()
+
+        save_config_to_filename({'home_directory': os.path.join(TESTS_FILES, 'not', 'there')}, filename)
+        self.assertRaises(ConfigFileError, loader.set_state_from_file, filename)
+
+        # cleanup
+        os.remove(filename)
 
     def test_ConfigLoader_reload_config_config_did_not_change(self):
         new = ConfigLoader()
@@ -447,38 +532,6 @@ class TestConfigLoader(unittest.TestCase):
             with open(os.path.join(new_home, filename), 'r') as new_file:
                 self.assertEqual(new_file.read(), default_text)
         rmtree(new_home)
-
-    def test_ConfigLoader_save_and_update_home_directory_change_keeps_original_csvs(self):
-        new = ConfigLoader()
-        new_home = os.path.abspath('delete_me')
-        old_home = os.path.join(get_documents_folder(), APP_NAME)
-        full_config = new.state
-        full_config.update({'home_directory': new_home})
-        self.assertNotEqual(full_config, new.state)
-
-        new.save_and_reload({'home_directory': new_home})
-
-        self.assertEqual(full_config, new.state)
-        for filename in [COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, VERBS_CSV]:
-            with open(os.path.join(DATA_PATH, filename), 'r') as default:
-                with open(os.path.join(old_home, filename), 'r') as target:
-                    self.assertEqual(default.read(), target.read())
-        # new_home should be empty. If this raises an error, there's something very wrong.
-        os.rmdir(new_home)
-
-    def test_ConfigLoader_save_and_update_does_not_overwrite_files(self):
-        new = ConfigLoader()
-        home = os.path.join(get_documents_folder(), APP_NAME)
-        save = os.path.join(home, DEFAULT_SAVE_DIR)
-        verb_file = os.path.join(home, VERBS_CSV)
-        with open(verb_file, 'w') as f:
-            f.write('new stuff')
-        new.save_and_reload({})
-
-        self.assert_ConfigLoader_state(new, home, save, VERBS_CSV)
-        with open(verb_file, 'r') as f:
-            self.assertEqual(f.read(), 'new stuff')
-        self.assertEqual(new.state['verbs'], verb_file)
 
     def test_ConfigLoader_revert_to_default_resets_csvs_but_leaves_other_files(self):
         new = ConfigLoader()
@@ -569,16 +622,90 @@ class TestConfigLoader(unittest.TestCase):
 
         self.assertEqual(pt.get_values(), answer)
 
-    def test_ConfigLoader_change_default_then_set_up_again(self):
+    def test_ConfigLoader_set_up_frame_raises_ConfigFileError_string(self):
+        # Default: 'paragraph_type' = 'chain'
         pt = ParagraphType()
+
+        save_config({'paragraph_type': 1})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, pt)
+
+        save_config({'paragraph_type': True})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, pt)
+
+        save_config({'paragraph_type': None})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, pt)
+
+    def test_ConfigLoader_set_up_frame_raises_ConfigFileError_float(self):
+        # Default: 'error_probability' = 0.02
+        ed = ErrorDetails()
+
+        save_config({'error_probability': 'hi'})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, ed)
+
+        save_config({'error_probability': None})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, ed)
+
+    def test_ConfigLoader_set_up_frame_raises_ConfigFileError_int(self):
+        # Default: 'subject_pool' = 5
+        pt = ParagraphType()
+
+        save_config({'subject_pool': 'hello'})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, pt)
+
+        save_config({'subject_pool': 10.0})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, pt)
+
+    def test_ConfigLoader_set_up_frame_raises_ConfigFileError_bool(self):
+        # Default: 'verb_errors' = True
+        ed = ErrorDetails()
+
+        save_config({'verb_errors': 'hello'})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, ed)
+
+        save_config({'verb_errors': 10.0})
+        loader = ConfigLoader()
+        self.assertRaises(ConfigFileError, loader.set_up_frame, ed)
+
+    def test_ConfigLoader_set_up_frame_bool_no_error_with_int(self):
+        # Default: 'verb_errors' = True
+        ed = ErrorDetails()
+
+        save_config({'verb_errors': 0})
+        loader = ConfigLoader()
+        loader.set_up_frame(ed)
+        self.assertEqual(ed.get_values()['verb_errors'], False)
+
+        save_config({'verb_errors': 2})
+        loader = ConfigLoader()
+        loader.set_up_frame(ed)
+        self.assertEqual(ed.get_values()['verb_errors'], True)
+
+    def test_ConfigLoader_set_up_frame_PctSpinBox_no_error_with_int(self):
+        # Default: 'error_probability' = 0.02
+        ed = ErrorDetails()
+
+        save_config({'error_probability': 10})
+        loader = ConfigLoader()
+        loader.set_up_frame(ed)
+        self.assertEqual(ed.get_values()['error_probability'], 0.10)
+
+    def test_WARNING_ConfigLoader_set_up_frame_int_and_pct_edge_case_with_bool_WARNING(self):
+        # 'subject_pool' minimum = 2
+        # 'error_probability' minimum = 0.0
+        pt = ParagraphType()
+        ed = ErrorDetails()
+
+        save_config({'subject_pool': True, 'error_probability': True})
         loader = ConfigLoader()
         loader.set_up_frame(pt)
-        loader.save_and_reload({'subject_pool': 3})
-        loader.set_up_frame(pt)
-
-        answer = {'paragraph_type': 'chain',
-                  'subject_pool': 3,
-                  'num_paragraphs': 4,
-                  'paragraph_size': 15}
-
-        self.assertEqual(pt.get_values(), answer)
+        loader.set_up_frame(ed)
+        self.assertEqual(pt.get_values()['subject_pool'], 2)
+        self.assertEqual(ed.get_values()['error_probability'], 0.0)

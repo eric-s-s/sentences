@@ -44,6 +44,15 @@ class FileManagement(SetVariablesFrame):
         self.verbs.set('none')
 
     def get_values(self):
+        """
+        :keys:
+            - 'home_directory'
+            - 'save_directory'
+            - 'countable_nouns'
+            - 'uncountable_nouns'
+            - 'proper_nouns'
+            - 'verbs'
+        """
         return {
             'home_directory': self.home_directory.get(),
             'save_directory': self.save_directory.get(),

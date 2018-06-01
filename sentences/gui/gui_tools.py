@@ -85,7 +85,12 @@ class SetVariablesFrame(tk.Frame):
             child.config(bg=color)
 
     def set_variable(self, key, value):
+        """
+
+        :raises: ValueError, if value is the wrong type for a key.
+        """
         variable = getattr(self, key)
+
         if isinstance(variable, PctSpinBox) and isinstance(value, float):
             variable.set_probability(value)
         elif isinstance(variable, IntSpinBox) and isinstance(value, int):
@@ -93,6 +98,7 @@ class SetVariablesFrame(tk.Frame):
         elif isinstance(variable, tk.IntVar) and isinstance(value, bool):
             variable.set(int(value))
         else:
+            check_for_value_error(variable, value)
             variable.set(value)
 
 
@@ -104,6 +110,22 @@ def all_children(widget):
     for child in children:
         answer += all_children(child)
     return answer
+
+
+def check_for_value_error(var, val):
+    if isinstance(var, tk.IntVar):
+        check_type = int
+    elif isinstance(var, tk.BooleanVar):
+        check_type = bool
+    elif isinstance(var, tk.DoubleVar):
+        check_type = float
+    elif isinstance(var, tk.StringVar):
+        check_type = str
+    else:
+        raise ValueError('Unrecognized variable type')
+
+    if not isinstance(val, check_type):
+        raise ValueError('value: {!r} is wrong type for variable: {}'.format(val, var))
 
 
 class CancelableMessagePopup(tk.Toplevel):

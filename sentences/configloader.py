@@ -2,7 +2,7 @@ import os
 
 from sentences.gui.gui_tools import SetVariablesFrame
 from sentences import (DATA_PATH, APP_NAME, DEFAULT_CONFIG, VERBS_CSV,
-                       COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV)
+                       COUNTABLE_NOUNS_CSV, UNCOUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV, ConfigFileError)
 
 DEFAULT_SAVE_DIR = 'pdfs'
 CONFIG_FILE = os.path.join(DATA_PATH, 'config.cfg')
@@ -20,6 +20,16 @@ class ConfigLoader(object):
         self._set_up_word_files()
         self._create_empty_csv()
 
+    def set_state_from_file(self, filename):
+        try:
+            self._dictionary.update(load_config(filename))
+        except (ValueError, OSError) as error:
+            msg = 'Error loading file. Original error:\n{}: {}'
+            raise ConfigFileError(msg.format(error.__class__.__name__, error))
+
+        self._set_up_directories()
+        self._set_up_word_files()
+
     @property
     def state(self):
         return self._dictionary.copy()
@@ -33,10 +43,17 @@ class ConfigLoader(object):
         if save_dir is None:
             save_dir = os.path.join(home_dir, DEFAULT_SAVE_DIR)
 
-        if not os.path.exists(home_dir):
-            os.mkdir(home_dir)
-        if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+        def create_if_not_exists(directory_name):
+            if not os.path.exists(directory_name):
+                try:
+                    os.mkdir(directory_name)
+                except OSError as error:
+                    msg = 'Config Loader failed to create the following directory:\n{}\nOriginal error message:\n'
+                    msg += '{}: {}'.format(error.__class__.__name__, error)
+                    raise ConfigFileError(msg.format(os.path.abspath(directory_name)))
+
+        create_if_not_exists(home_dir)
+        create_if_not_exists(save_dir)
 
         self._dictionary['home_directory'] = home_dir
         self._dictionary['save_directory'] = save_dir
@@ -57,25 +74,17 @@ class ConfigLoader(object):
             if filename is None:
                 filename = full_default_name
 
-            while not os.path.exists(filename):
-                if filename == full_default_name:
-                    with open(os.path.join(DATA_PATH, default_name), 'r') as read_file:
-                        with open(filename, 'w') as write_file:
-                            write_file.write(read_file.read())
-                else:
-                    filename = full_default_name
+            if not os.path.exists(filename):
+                filename = full_default_name
+                with open(os.path.join(DATA_PATH, default_name), 'r') as read_file:
+                    with open(filename, 'w') as write_file:
+                        write_file.write(read_file.read())
             self._dictionary[key] = filename
 
     def reload(self):
         self._dictionary = load_config(CONFIG_FILE)
         self._set_up_directories()
         self._set_up_word_files()
-
-    def save_and_reload(self, config_dict):
-        full_config = self._dictionary.copy()
-        full_config.update(config_dict)
-        save_config(full_config)
-        self.reload()
 
     def revert_to_default(self):
         default_home_path = os.path.join(get_documents_folder(), APP_NAME)
@@ -92,6 +101,9 @@ class ConfigLoader(object):
                 frame.set_variable(key, value)
             except AttributeError:
                 continue
+            except ValueError:
+                msg = 'Tried to set key: {!r} to incompatible value: {!r}.'.format(key, value)
+                raise ConfigFileError(msg)
 
 
 def create_default_config():
@@ -103,6 +115,10 @@ def create_default_config():
 
 
 def save_config(dictionary):
+    save_config_to_filename(dictionary, CONFIG_FILE)
+
+
+def save_config_to_filename(dictionary, filename):
     lines = get_key_value_pairs(DEFAULT_CONFIG)
     to_write = []
     for key, value in lines:
@@ -112,7 +128,7 @@ def save_config(dictionary):
             if key in dictionary:
                 value = dictionary[key]
             to_write.append(create_config_text_line(key, value))
-    with open(CONFIG_FILE, 'w') as f:
+    with open(filename, 'w') as f:
         f.write('\n'.join(to_write))
 
 
@@ -142,7 +158,7 @@ def get_single_key_value_pair(line):
     except ValueError:
         pass
 
-    special_strings = {'none': None, 'true': True, 'false': False}
+    special_strings = {'none': None, 'true': True, 'false': False, 'empty_string': ''}
     try:
         return key, special_strings[value.lower()]
     except KeyError:
@@ -151,6 +167,8 @@ def get_single_key_value_pair(line):
 
 def create_config_text_line(key, value):
     value_str = str(value)
+    if value_str == '':
+        value_str = 'empty_string'
     if value_str in ['True', 'False', 'None']:
         value_str = value_str.lower()
     line = ' = '.join((key, value_str))
