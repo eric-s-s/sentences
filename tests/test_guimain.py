@@ -592,8 +592,6 @@ class TestGuiMain(unittest.TestCase):
     @patch("sentences.guimain.CancelableMessagePopup")
     def test_message_popup_create_texts(self, mock_popup):
         main = MainFrame()
-        # for key, val in main.get_state().items():
-        #     print(key, repr(val), sep=': ')
         main.create_texts()
         message = 'Your files are located at:\n{}'.format(main.get_state()['save_directory'])
         mock_popup.assert_called_with('success', message, main.do_not_show_popup)

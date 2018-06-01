@@ -44,10 +44,10 @@ class ParagraphType(SetVariablesFrame):
     def get_values(self):
         """
         :keys:
-        - num_paragraphs
-        - paragraph_size
-        - subject_pool
-        - paragraph_type
+            - num_paragraphs
+            - paragraph_size
+            - subject_pool
+            - paragraph_type
         """
         return {
             'num_paragraphs': self.num_paragraphs.get_int(),

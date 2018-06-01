@@ -41,10 +41,10 @@ class GrammarDetails(SetVariablesFrame):
     def get_values(self):
         """
         :keys:
-        - tense
-        - probability_plural_noun
-        - probability_negative_verb
-        - probability_pronoun
+            - tense
+            - probability_plural_noun
+            - probability_negative_verb
+            - probability_pronoun
         """
         return {
             'tense': self.tense.get(),

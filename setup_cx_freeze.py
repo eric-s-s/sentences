@@ -48,7 +48,7 @@ executables = [
 ]
 
 setup(name='sentence_mangler',
-      version='3.2',
+      version='3.3',
       description='a gui to create random sentences with errors',
       options=options,
       executables=executables,

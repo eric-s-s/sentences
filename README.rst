@@ -1,4 +1,4 @@
-sentences v3.0
+sentences v3.3
 ==============
 
 This module creates randomly generated paragraphs and then assigns specific kinds of errors to those paragraphs.
@@ -28,7 +28,9 @@ GUI options details:
 
 - **Main Options**
     - *Save current settings*: Saves the current setting to the config file. They will be set at startup.
+    - *Export settings*: Saves the current settings to a .cfg file that can be loaded later.
     - *Reset to saved settings*: Reloads the config file.
+    - *Load config file*: Loads setting from a .cfg file.
     - *New default word files*: Moves "nouns.csv", "verbs.csv" and "uncountable.csv" to new locations (such as
       "nouns_old_01.csv") and then copies the default word files.
     - *Factory Reset*: Overwrites the config file and default word files without saving them.
