@@ -1,6 +1,16 @@
 import tkinter as tk
+from tkinter.messagebox import showwarning
 
 from sentences.gui.gui_tools import IntSpinBox, SetVariablesFrame
+
+
+def validate_file_prefix(text):
+    reserved = '"<>:\\/?*|'
+    allowed = not any(char in reserved for char in text)
+    with_spaces = reserved.replace('', ' ').strip()
+    if not allowed:
+        showwarning('illegal character', 'The following characters are not allowed: {}'.format(with_spaces))
+    return allowed
 
 
 class Actions(SetVariablesFrame):
@@ -38,7 +48,12 @@ class Actions(SetVariablesFrame):
             col, row = col_row
             button.grid(row=row, column=col, padx=padx, pady=pady)
 
-        tk.Entry(master=self, textvar=self.file_prefix).grid(row=0, column=2, sticky=tk.E, padx=2, pady=pady)
+        validate = 'key'
+        entry = tk.Entry(master=self, textvar=self.file_prefix, validate=validate)
+        check_int = (self.register(validate_file_prefix), '%P')
+        entry.config(vcmd=check_int)
+        entry.grid(row=0, column=2, sticky=tk.E, padx=2, pady=pady)
+
         self.font_size.grid(row=1, column=2, padx=2, pady=pady, sticky=tk.E)
 
         self.make_pdfs.grid(row=2, column=2, padx=padx, pady=pady)
@@ -57,4 +72,3 @@ class Actions(SetVariablesFrame):
         file_prefix = self.file_prefix.get().strip()
         return {'font_size': self.font_size.get_int(),
                 'file_prefix': file_prefix}
-

@@ -1,12 +1,37 @@
 import unittest
+from unittest.mock import patch
 
-from sentences.gui.actions import Actions
+import string
+
+import tkinter as tk
+
+from sentences.gui.actions import Actions, validate_file_prefix
 from sentences.gui.gui_tools import IntSpinBox
 
 
 class TestGrammarDetails(unittest.TestCase):
     def setUp(self):
         self.frame = Actions()
+
+    def test_validate_file_prefix_true(self):
+        reserved = '"<>:\\/?*|'
+        all_chars = string.ascii_letters + string.punctuation
+        for char in all_chars:
+            if char not in reserved:
+                self.assertTrue(validate_file_prefix(char))
+                self.assertTrue(validate_file_prefix('a' + char))
+        self.assertTrue(validate_file_prefix(''))
+
+    @patch('sentences.gui.actions.showwarning')
+    def test_validate_file_prefix_false(self, mock_warning):
+        reserved = '"<>:\\/?*|'
+        with_spaces = '" < > : \\ / ? * |'
+        for char in reserved:
+            self.assertFalse(validate_file_prefix(char))
+            self.assertFalse(validate_file_prefix('a' + char))
+        self.assertEqual(mock_warning.call_count, 2 * len(reserved))
+        mock_warning.assert_called_with('illegal character',
+                                        'The following characters are not allowed: {}'.format(with_spaces))
 
     def test_init(self):
         answer = self.frame.get_values()
@@ -37,3 +62,27 @@ class TestGrammarDetails(unittest.TestCase):
             'file_prefix': 'thingy',
             'font_size': 5
         })
+
+    @patch('sentences.gui.actions.showwarning')
+    def test_entry_validates_file_prefix(self, mock_warning):
+        reserved = '"<>:\\/?*|'
+
+        entry = None  # type: tk.Entry
+        for widget in self.frame.winfo_children():
+            if isinstance(widget, tk.Entry):
+                entry = widget
+                break
+
+        entry.insert(0, 'a')
+        for char in reserved:
+            entry.insert(tk.END, char)
+
+        self.assertEqual(entry.get(), 'a')
+        entry.insert(tk.END, 'b')
+        self.assertEqual(entry.get(), 'ab')
+        entry.delete(0, 1)
+        self.assertEqual(entry.get(), 'b')
+        entry.delete(0, tk.END)
+        self.assertEqual(entry.get(), '')
+
+        self.assertEqual(mock_warning.call_count, len(reserved))
