@@ -39,7 +39,11 @@ def catch_errors(title, extra_message=''):
 class MainFrame(tk.Tk):
     def __init__(self, *args, **kwargs):
         super(MainFrame, self).__init__(*args, **kwargs)
-        self.iconbitmap(os.path.join(DATA_PATH, 'go_time.ico'))
+
+        try:
+            self.wm_iconbitmap(os.path.join(DATA_PATH, 'go_time.ico'))
+        except tk.TclError:
+            pass
 
         self.frames = self._pack_set_variable_frames()
         self.load_config()
