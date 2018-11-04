@@ -1,5 +1,7 @@
 from enum import Enum
+from abc import ABCMeta
 
+from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.basicword import BasicWord
 
 
@@ -21,3 +23,6 @@ class Punctuation(Enum):
 
     def de_capitalize(self):
         return self
+
+
+ABCMeta.register(AbstractWord, Punctuation)

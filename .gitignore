@@ -5,3 +5,4 @@ dist/
 pdfs/
 sentences/data/config.cfg
 sentences.egg-info/
+venv/

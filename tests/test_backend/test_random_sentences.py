@@ -2,6 +2,8 @@ import random
 import unittest
 
 from sentences.backend.random_sentences import RandomSentences, assign_objects
+
+from sentences.word_groups.sentence import Sentence
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.noun import Noun
@@ -41,8 +43,8 @@ class TestRawWordsRandomisation(unittest.TestCase):
             self.uncountable[index] = 'oops'
             self.verbs[index] = 'oops'
         answer = self.generator.sentence()
-        expected = [Noun('dog'), Verb('give'), Noun('water'), BasicWord.preposition('to'),
-                    Noun('frog'), PERIOD]
+        expected = Sentence([Noun('dog'), Verb('give'), Noun('water'), BasicWord.preposition('to'),
+                             Noun('frog'), PERIOD])
         self.assertEqual(answer, expected)
 
     def test_subject_p_pronoun_zero(self):
@@ -144,14 +146,14 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_sentence(self):
         random.seed(1)
         answer = self.generator.sentence()
-        self.assertEqual(answer, [I, Verb('jump'), BasicWord.preposition('over'), IT, PERIOD])
+        self.assertEqual(answer, Sentence([I, Verb('jump'), BasicWord.preposition('over'), IT, PERIOD]))
 
         answer = self.generator.sentence()
-        self.assertEqual(answer, [Noun('frog'), Verb('eat'), Noun('milk'), PERIOD])
+        self.assertEqual(answer, Sentence([Noun('frog'), Verb('eat'), Noun('milk'), PERIOD]))
 
         answer = self.generator.sentence()
-        expected = [Noun('dog'), Verb('give'), Noun('frog'), BasicWord.preposition('to'),
-                    Noun('cat'), PERIOD]
+        expected = Sentence([Noun('dog'), Verb('give'), Noun('frog'), BasicWord.preposition('to'),
+                    Noun('cat'), PERIOD])
         self.assertEqual(answer, expected)
 
     def test_assign_preposition(self):
@@ -163,10 +165,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
         self.assertEqual(answer,
-                         [Noun('sand'), Verb('jump'), BasicWord.preposition('on'), US, PERIOD])
+                         Sentence([Noun('sand'), Verb('jump'), BasicWord.preposition('on'), US, PERIOD]))
 
         answer = generator.sentence()
-        expected = [Noun('cat'), Verb('jump'), BasicWord.preposition('on'), Noun('frog'), PERIOD]
+        expected = Sentence([Noun('cat'), Verb('jump'), BasicWord.preposition('on'), Noun('frog'), PERIOD])
         self.assertEqual(answer, expected)
 
     def test_assign_preposition_insert_preposition_true(self):
@@ -177,12 +179,17 @@ class TestRawWordsRandomisation(unittest.TestCase):
                       'particle': None}]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('milk'), Verb('bring'), Noun('water'), BasicWord.preposition('to'),
-                                  Noun('rice'), EXCLAMATION])
+        self.assertEqual(
+            answer,
+            Sentence([Noun('milk'), Verb('bring'), Noun('water'), BasicWord.preposition('to'),
+                      Noun('rice'), EXCLAMATION])
+        )
 
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('water'), Verb('bring'), Noun('dog'),
-                                  BasicWord.preposition('to'), Noun('milk'), PERIOD])
+        self.assertEqual(
+            answer,
+            Sentence([Noun('water'), Verb('bring'), Noun('dog'), BasicWord.preposition('to'), Noun('milk'), PERIOD])
+        )
 
     def test_two_objects_second_obj_is_never_pronoun(self):
         random.seed(456)
@@ -326,10 +333,10 @@ class TestRawWordsRandomisation(unittest.TestCase):
                       'particle': BasicWord.particle('up')}]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('sand'), Verb('pick'), US, BasicWord.particle('up'), PERIOD])
+        self.assertEqual(answer, Sentence([Noun('sand'), Verb('pick'), US, BasicWord.particle('up'), PERIOD]))
 
         answer = generator.sentence()
-        self.assertEqual(answer, [Noun('cat'), Verb('pick'), BasicWord.particle('up'), Noun('frog'), PERIOD])
+        self.assertEqual(answer, Sentence([Noun('cat'), Verb('pick'), BasicWord.particle('up'), Noun('frog'), PERIOD]))
 
     def test_random_sentences_sentence_with_phrasal_verb_one_obj_and_preposition(self):
         random.seed(456123)
@@ -339,13 +346,13 @@ class TestRawWordsRandomisation(unittest.TestCase):
                       'particle': BasicWord.particle('up')}]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
-        expected = [Noun('pig'), Verb('put'), BasicWord.particle('up'), BasicWord.preposition('with'),
-                    YOU, PERIOD]
+        expected = Sentence([Noun('pig'), Verb('put'), BasicWord.particle('up'), BasicWord.preposition('with'),
+                             YOU, PERIOD])
         self.assertEqual(answer, expected)
 
         answer = generator.sentence()
-        expected = [Noun('water'), Verb('put'), BasicWord.particle('up'), BasicWord.preposition('with'),
-                    Noun('pig'), EXCLAMATION]
+        expected = Sentence([Noun('water'), Verb('put'), BasicWord.particle('up'), BasicWord.preposition('with'),
+                             Noun('pig'), EXCLAMATION])
         self.assertEqual(answer, expected)
 
     def test_random_sentences_sentence_with_phrasal_verb_two_obj_and_preposition(self):
@@ -356,11 +363,11 @@ class TestRawWordsRandomisation(unittest.TestCase):
                       'particle': BasicWord.particle('away')}]
         generator = RandomSentences(verb_list, self.countable + self.uncountable)
         answer = generator.sentence()
-        expected = [Noun('dog'), Verb('throw'), US, BasicWord.particle('away'), BasicWord.preposition('for'),
-                    Noun('water'), EXCLAMATION]
+        expected = Sentence([Noun('dog'), Verb('throw'), US, BasicWord.particle('away'), BasicWord.preposition('for'),
+                    Noun('water'), EXCLAMATION])
         self.assertEqual(answer, expected)
 
         answer = generator.sentence()
-        expected = [Noun('rice'), Verb('throw'), BasicWord.particle('away'), Noun('water'),
-                    BasicWord.preposition('for'), Noun('frog'), PERIOD]
+        expected = Sentence([Noun('rice'), Verb('throw'), BasicWord.particle('away'), Noun('water'),
+                    BasicWord.preposition('for'), Noun('frog'), PERIOD])
         self.assertEqual(answer, expected)

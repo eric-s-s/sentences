@@ -1,5 +1,6 @@
 import random
 
+from sentences.word_groups.sentence import Sentence
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.wordtools.wordtag import WordTag
@@ -26,7 +27,7 @@ class RandomSentences(object):
         subj = self.subject(p_pronoun)
         predicate = self.predicate(p_pronoun)
         predicate.insert(0, subj)
-        return predicate
+        return Sentence(predicate)
 
     def predicate(self, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)

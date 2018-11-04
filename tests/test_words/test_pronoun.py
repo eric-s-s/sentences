@@ -1,5 +1,6 @@
 import unittest
 
+from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
 from sentences.words.basicword import BasicWord
 from sentences.words.wordtools.wordtag import WordTag
@@ -39,6 +40,9 @@ class TestAbstractPronoun(unittest.TestCase):
         cls.pronoun = DummyPronoun
         cls.names = ['I', 'ME', 'YOU', 'HE', 'HIM', 'SHE', 'HER', 'IT', 'WE', 'US', 'THEY', 'THEM']
         cls.values = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
+
+    def test_register_as_subclass_of_AbstractWord(self):
+        self.assertTrue(isinstance(self.pronoun.I, AbstractWord))
 
     def test_order(self):
         p_list = list(self.pronoun.__members__.values())

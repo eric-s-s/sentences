@@ -1,5 +1,7 @@
 from enum import Enum
+from abc import ABCMeta
 
+from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.basicword import BasicWord
 from sentences.words.wordtools.wordtag import WordTag
 
@@ -43,6 +45,9 @@ class AbstractPronoun(Enum):
         if tags == (WordTag.PLURAL,) and self in (self.YOU, self.WE, self.US, self.THEY, self.THEM):
             return True
         return False
+
+
+ABCMeta.register(AbstractWord, AbstractPronoun)
 
 
 class Pronoun(AbstractPronoun):
