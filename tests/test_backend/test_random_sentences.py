@@ -24,7 +24,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
             {'verb': Verb('eat'), 'preposition': None, 'objects': 1, 'particle': None},
             {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'particle': None},
             {'verb': Verb('jump'), 'preposition': BasicWord.preposition('over'), 'objects': 1, 'particle': None},
-            {'verb': Verb('give'), 'preposition': BasicWord.preposition('to'), 'objects': 2, 'particle': None},
+            {'verb': Verb('lend'), 'preposition': BasicWord.preposition('to'), 'objects': 2, 'particle': None},
         ]
         self.generator = RandomSentences(self.verbs, self.countable + self.uncountable)
 
@@ -39,12 +39,11 @@ class TestRawWordsRandomisation(unittest.TestCase):
     def test_makes_copy_of_input_list(self):
         random.seed(148)
         for index in range(4):
-            self.countable[index] = 'oops'
-            self.uncountable[index] = 'oops'
-            self.verbs[index] = 'oops'
-        answer = self.generator.sentence()
-        expected = Sentence([Noun('dog'), Verb('give'), Noun('water'), BasicWord.preposition('to'),
-                             Noun('frog'), PERIOD])
+            self.countable[index] = Noun('oops')
+            self.uncountable[index] = Noun('oops')
+            self.verbs[index] = {'oops': 1}
+        answer = self.generator.predicate()
+        expected = [Verb('lend'), Noun('dog'), BasicWord.preposition('to'), Noun('milk'), PERIOD]
         self.assertEqual(answer, expected)
 
     def test_subject_p_pronoun_zero(self):
@@ -140,58 +139,52 @@ class TestRawWordsRandomisation(unittest.TestCase):
         self.assertEqual(answer, [Verb('give'), Noun('pig'), Noun('sand'), PERIOD])
 
         answer = self.generator.predicate()
-        expected = [Verb('give'), Noun('frog'), BasicWord.preposition('to'), Noun('pig'), PERIOD]
+        expected = [Verb('lend'), Noun('frog'), BasicWord.preposition('to'), Noun('pig'), PERIOD]
         self.assertEqual(answer, expected)
 
-    def test_sentence(self):
-        random.seed(1)
-        answer = self.generator.sentence()
-        self.assertEqual(answer, Sentence([I, Verb('jump'), BasicWord.preposition('over'), IT, PERIOD]))
+    def test_predicate_p_pronoun_one_or_greater(self):
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'particle': None, 'preposition': None}]
+        generator = RandomSentences(verbs, self.countable)
 
-        answer = self.generator.sentence()
-        self.assertEqual(answer, Sentence([Noun('frog'), Verb('eat'), Noun('milk'), PERIOD]))
+        pronoun = generator.predicate(1.0)[1]
+        self.assertIsInstance(pronoun, Pronoun)
 
-        answer = self.generator.sentence()
-        expected = Sentence([Noun('dog'), Verb('give'), Noun('frog'), BasicWord.preposition('to'),
-                    Noun('cat'), PERIOD])
-        self.assertEqual(answer, expected)
+        pronoun = generator.predicate(1.1)[1]
+        self.assertIsInstance(pronoun, Pronoun)
 
-    def test_assign_preposition(self):
-        random.seed(1234)
-        verb_list = [{'verb': Verb('jump'),
-                      'preposition': BasicWord.preposition('on'),
-                      'objects': 1,
-                      'particle': None}]
-        generator = RandomSentences(verb_list, self.countable + self.uncountable)
-        answer = generator.sentence()
-        self.assertEqual(answer,
-                         Sentence([Noun('sand'), Verb('jump'), BasicWord.preposition('on'), US, PERIOD]))
+    def test_predicate_p_pronoun_zero_or_less(self):
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'particle': None, 'preposition': None}]
+        generator = RandomSentences(verbs, self.countable)
 
-        answer = generator.sentence()
-        expected = Sentence([Noun('cat'), Verb('jump'), BasicWord.preposition('on'), Noun('frog'), PERIOD])
-        self.assertEqual(answer, expected)
+        noun = generator.predicate(0.0)[1]
+        self.assertIsInstance(noun, Noun)
 
-    def test_assign_preposition_insert_preposition_true(self):
-        random.seed(7890)
-        verb_list = [{'verb': Verb('bring'),
-                      'preposition': BasicWord.preposition('to'),
-                      'objects': 2,
-                      'particle': None}]
-        generator = RandomSentences(verb_list, self.countable + self.uncountable)
-        answer = generator.sentence()
-        self.assertEqual(
-            answer,
-            Sentence([Noun('milk'), Verb('bring'), Noun('water'), BasicWord.preposition('to'),
-                      Noun('rice'), EXCLAMATION])
-        )
+        noun = generator.predicate(-0.1)[1]
+        self.assertIsInstance(noun, Noun)
 
-        answer = generator.sentence()
-        self.assertEqual(
-            answer,
-            Sentence([Noun('water'), Verb('bring'), Noun('dog'), BasicWord.preposition('to'), Noun('milk'), PERIOD])
-        )
+    def test_predicate_p_pronoun_between_zero_and_one(self):
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'particle': None, 'preposition': None}]
+        generator = RandomSentences(verbs, self.countable)
+        random.seed(347859)
+        nouns = [0, 1, 4, 5, 6]
+        for iteration in range(10):
+            word = generator.predicate(0.5)[1]
+            if iteration in nouns:
+                self.assertIsInstance(word, Noun)
+            else:
+                self.assertIsInstance(word, Pronoun)
 
-    def test_two_objects_second_obj_is_never_pronoun(self):
+    def test_predicate_chooses_from_all_verbs(self):
+        random.seed(100)
+        verbs = [el['verb'] for el in self.verbs]
+        self.assertEqual(len(verbs), 4)
+        verbs_indices = [1, 0, 3, 1, 3, 0, 1, 1, 1, 2]
+        for iteration in range(10):
+            verb = self.generator.predicate()[0]
+            expected_verb_index = verbs_indices[iteration]
+            self.assertEqual(verb, verbs[expected_verb_index])
+
+    def test_predicate_two_objects_second_obj_is_never_pronoun(self):
         random.seed(456)
         verb_list = [
             {'verb': Verb('bring'), 'preposition': BasicWord.preposition('to'), 'objects': 2, 'particle': None},
@@ -207,7 +200,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
         answer = generator.predicate(1.0)
         self.assertEqual(answer, [Verb('give'), HIM, Noun('milk'), EXCLAMATION])
 
-    def test_two_objects_are_never_the_same(self):
+    def test_predicate_two_objects_are_never_the_same(self):
         verb_list = [
             {'verb': Verb('give'), 'preposition': None, 'objects': 2, 'particle': None},
         ]
@@ -222,7 +215,7 @@ class TestRawWordsRandomisation(unittest.TestCase):
             self.assertIn(noun_1, test_membership)
             self.assertIn(noun_2, test_membership)
 
-    def test_two_objects_the_same_when_no_other_options(self):
+    def test_predicate_two_objects_the_same_when_no_other_options(self):
         random.seed(101)
         verb_list = [{'verb': Verb('give'),
                       'preposition': None,
@@ -325,49 +318,111 @@ class TestRawWordsRandomisation(unittest.TestCase):
             [Verb('throw'), BasicWord.particle('away'), Noun('cat'), BasicWord.preposition('for'), Noun('dog')]
         )
 
-    def test_random_sentences_sentence_with_phrasal_verb_no_preposition(self):
-        random.seed(1234)
-        verb_list = [{'verb': Verb('pick'),
-                      'preposition': None,
-                      'objects': 1,
-                      'particle': BasicWord.particle('up')}]
-        generator = RandomSentences(verb_list, self.countable + self.uncountable)
-        answer = generator.sentence()
-        self.assertEqual(answer, Sentence([Noun('sand'), Verb('pick'), US, BasicWord.particle('up'), PERIOD]))
+    def test_predicate_uses_all_endings(self):
+        random.seed(475)
+        periods = [1, 2, 3, 5, 6, 8, 9]
+        for iteration in range(10):
+            punctuation = self.generator.predicate()[-1]
 
-        answer = generator.sentence()
-        self.assertEqual(answer, Sentence([Noun('cat'), Verb('pick'), BasicWord.particle('up'), Noun('frog'), PERIOD]))
+            if iteration in periods:
+                self.assertEqual(punctuation, PERIOD)
+            else:
+                self.assertEqual(punctuation, EXCLAMATION)
 
-    def test_random_sentences_sentence_with_phrasal_verb_one_obj_and_preposition(self):
-        random.seed(456123)
-        verb_list = [{'verb': Verb('put'),
-                      'preposition': BasicWord.preposition('with'),
-                      'objects': 1,
-                      'particle': BasicWord.particle('up')}]
-        generator = RandomSentences(verb_list, self.countable + self.uncountable)
-        answer = generator.sentence()
-        expected = Sentence([Noun('pig'), Verb('put'), BasicWord.particle('up'), BasicWord.preposition('with'),
-                             YOU, PERIOD])
-        self.assertEqual(answer, expected)
+    def test_sentence_p_pronoun_gte_one(self):
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'preposition': None, 'particle': None}]
+        generator = RandomSentences(verbs, self.countable)
+        subject = HE
 
-        answer = generator.sentence()
-        expected = Sentence([Noun('water'), Verb('put'), BasicWord.particle('up'), BasicWord.preposition('with'),
-                             Noun('pig'), EXCLAMATION])
-        self.assertEqual(answer, expected)
+        obj = generator.sentence(subject, p_pronoun=1.0).get(2)
+        self.assertIsInstance(obj, Pronoun)
 
-    def test_random_sentences_sentence_with_phrasal_verb_two_obj_and_preposition(self):
-        random.seed(789)
-        verb_list = [{'verb': Verb('throw'),
-                      'preposition': BasicWord.preposition('for'),
-                      'objects': 2,
-                      'particle': BasicWord.particle('away')}]
-        generator = RandomSentences(verb_list, self.countable + self.uncountable)
-        answer = generator.sentence()
-        expected = Sentence([Noun('dog'), Verb('throw'), US, BasicWord.particle('away'), BasicWord.preposition('for'),
-                    Noun('water'), EXCLAMATION])
-        self.assertEqual(answer, expected)
+        obj = generator.sentence(subject, p_pronoun=1.1).get(2)
+        self.assertIsInstance(obj, Pronoun)
 
-        answer = generator.sentence()
-        expected = Sentence([Noun('rice'), Verb('throw'), BasicWord.particle('away'), Noun('water'),
-                    BasicWord.preposition('for'), Noun('frog'), PERIOD])
-        self.assertEqual(answer, expected)
+    def test_sentence_p_pronoun_lte_zero(self):
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'preposition': None, 'particle': None}]
+        generator = RandomSentences(verbs, self.countable)
+        subject = HE
+
+        obj = generator.sentence(subject, p_pronoun=0.0).get(2)
+        self.assertIsInstance(obj, Noun)
+
+        obj = generator.sentence(subject, p_pronoun=-0.1).get(2)
+        self.assertIsInstance(obj, Noun)
+
+    def test_sentence_p_pronoun_between_one_and_zero(self):
+        random.seed(38754)
+
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'preposition': None, 'particle': None}]
+        generator = RandomSentences(verbs, self.countable)
+        subject = HE
+        nouns = [2, 3, 6, 9]
+        for iteration in range(10):
+            obj = generator.sentence(subject, p_pronoun=0.5).get(2)
+            if iteration in nouns:
+                self.assertIsInstance(obj, Noun)
+            else:
+                self.assertIsInstance(obj, Pronoun)
+
+    def test_sentence_noun_subject_not_in_predicate(self):
+        subject = Noun('cat')
+        self.assertIn(subject, self.countable)
+        generator = RandomSentences(self.verbs, self.countable)
+        for _ in range(20):
+            sentence = generator.sentence(subject)
+            predicate = sentence.word_list()[1:]
+            self.assertNotIn(subject, predicate)
+
+    def test_sentence_pronoun_subject_not_in_predicate(self):
+        subject = HE
+        for _ in range(20):
+            sentence = self.generator.sentence(subject, p_pronoun=1.0)
+            predicate = sentence.word_list()[1:]
+            self.assertNotIn(subject, predicate)
+
+    def test_sentence_must_repeat_subject(self):
+        nouns = [Noun('dog')]
+        verbs = [{'verb': Verb('eat'), 'objects': 1, 'preposition': None, 'particle': None}]
+        generator = RandomSentences(verbs, nouns)
+        subject = Noun('dog')
+
+        sentence = generator.sentence(subject, p_pronoun=0.0)
+        possibles = [
+            Sentence([Noun('dog'), Verb('eat'), Noun('dog'), PERIOD]),
+            Sentence([Noun('dog'), Verb('eat'), Noun('dog'), EXCLAMATION])
+        ]
+        self.assertIn(sentence, possibles)
+
+    def test_sentence_particle(self):
+        random.seed(47)
+        nouns = [Noun('dog')]
+        verbs = [{'verb': Verb('pick'), 'objects': 1, 'preposition': None, 'particle': BasicWord.particle('up')}]
+        generator = RandomSentences(verbs, nouns)
+        subj = HE
+
+        sentence = generator.sentence(subj, p_pronoun=1.0)
+        expected = Sentence([HE, Verb('pick'), US, BasicWord.particle('up'), PERIOD])
+        self.assertEqual(sentence, expected)
+
+        sentence = generator.sentence(subj, p_pronoun=0.0)
+        expected = Sentence([HE, Verb('pick'), BasicWord.particle('up'), Noun('dog'), PERIOD])
+        self.assertEqual(sentence, expected)
+
+    def test_sentence_particle_preposition(self):
+        random.seed(2743)
+        nouns = [Noun('dog'), Noun('cat')]
+        verbs = [{'verb': Verb('pick'), 'objects': 2, 'preposition': BasicWord.preposition('with'),
+                  'particle': BasicWord.particle('up')}]
+        generator = RandomSentences(verbs, nouns)
+        subj = HE
+
+        sentence = generator.sentence(subj, p_pronoun=1.0)
+        expected = Sentence([HE, Verb('pick'), THEM, BasicWord.particle('up'), BasicWord.preposition('with'),
+                             Noun('cat'), PERIOD])
+        self.assertEqual(sentence, expected)
+
+        sentence = generator.sentence(subj, p_pronoun=0.0)
+        expected = Sentence([HE, Verb('pick'), BasicWord.particle('up'), Noun('cat'),
+                             BasicWord.preposition('with'), Noun('dog'), EXCLAMATION])
+        self.assertEqual(sentence, expected)

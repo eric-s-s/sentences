@@ -21,12 +21,19 @@ class RandomSentences(object):
         if not self._nouns:
             raise ValueError('There are no nouns in any of the nouns lists.')
 
-    def sentence(self, p_pronoun=0.2):
+    def sentence(self, subject, p_pronoun=0.2):
         p_pronoun = min(max(p_pronoun, 0), 1)
+        to_test = subject
+        if isinstance(subject, Pronoun):
+            to_test = subject.object()
 
-        subj = self.subject(p_pronoun)
-        predicate = self.predicate(p_pronoun)
-        predicate.insert(0, subj)
+        max_loops_until_repeats_allowed = 100
+        predicate = self.predicate(p_pronoun)  # linter issue
+        for _ in range(max_loops_until_repeats_allowed):
+            if to_test not in predicate:
+                break
+            predicate = self.predicate(p_pronoun)
+        predicate.insert(0, subject)
         return Sentence(predicate)
 
     def predicate(self, p_pronoun=0.2):
