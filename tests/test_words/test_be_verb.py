@@ -3,8 +3,8 @@ import unittest
 from sentences.words.be_verb import BeVerb
 
 from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.words.wordtools.tags import Tags
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.tags import Tags
+from sentences.tags.wordtag import WordTag
 from sentences.words.basicword import BasicWord
 
 

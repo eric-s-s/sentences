@@ -1,10 +1,15 @@
+from typing import List, Optional
+
+from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.verb import Verb
 from sentences.words.be_verb import BeVerb
 from sentences.words.punctuation import Punctuation
 
+WordList = List[AbstractWord]
+
 
 class Sentence(object):
-    def __init__(self, word_list=None):
+    def __init__(self, word_list: WordList=None):
         if word_list is None:
             word_list = []
         self._word_list = word_list.copy()

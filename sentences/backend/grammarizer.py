@@ -8,7 +8,7 @@ from sentences.words.punctuation import Punctuation
 from sentences.words.noun import Noun
 from sentences.words.verb import Verb
 from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 Paragraph = List[List[Union[AbstractWord, AbstractPronoun, Punctuation]]]
 

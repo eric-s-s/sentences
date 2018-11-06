@@ -161,4 +161,3 @@ class TestSentence(unittest.TestCase):
     def test_sentence_get_subject_no_subject(self):
         sentence = Sentence([Verb('do'), BasicWord('it')])
         self.assertEqual(sentence.get_subject(), -1)
-

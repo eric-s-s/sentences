@@ -9,8 +9,8 @@ from sentences.words.punctuation import Punctuation
 from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.verb import Verb
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
-from sentences.words.wordtools.tags import Tags
+from sentences.tags.wordtag import WordTag
+from sentences.tags.tags import Tags
 
 
 class TestErrorMaker(unittest.TestCase):

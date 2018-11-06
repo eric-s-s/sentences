@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 
 class TestWordTag(unittest.TestCase):

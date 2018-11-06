@@ -1,6 +1,6 @@
 import random
 
-from sentences.backend.random_sentences import RandomSentences
+from sentences.backend.random_assignments.random_sentences import RandomSentences
 from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun
 

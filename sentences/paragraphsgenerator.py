@@ -1,6 +1,6 @@
 from sentences.backend.errormaker import ErrorMaker
 from sentences.backend.grammarizer import Grammarizer
-from sentences.backend.random_paragraph import RandomParagraph
+from sentences.backend.random_assignments.random_paragraph import RandomParagraph
 from sentences.backend.wordconnector import convert_paragraph
 from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns, proper_nouns
 

@@ -3,7 +3,7 @@ import random
 from sentences.backend.grammarizer import normalize_probability
 from sentences.backend.investigation_tools import requires_third_person, get_present_be_verb, find_subject
 
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 from sentences.words.wordtools.common_functions import add_s
 
 from sentences.words.noun import Noun

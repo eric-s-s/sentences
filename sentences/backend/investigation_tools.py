@@ -2,7 +2,7 @@ from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
 from sentences.words.verb import Verb
 from sentences.words.noun import Noun
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 
 def get_present_be_verb(sentence):

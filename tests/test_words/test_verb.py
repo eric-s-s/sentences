@@ -1,8 +1,8 @@
 import unittest
 
 from sentences.words.verb import Verb
-from sentences.words.wordtools.tags import Tags
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.tags import Tags
+from sentences.tags.wordtag import WordTag
 from sentences.words.basicword import BasicWord
 
 

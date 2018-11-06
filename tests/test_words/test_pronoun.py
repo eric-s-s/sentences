@@ -3,7 +3,7 @@ import unittest
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.pronoun import Pronoun, CapitalPronoun, AbstractPronoun
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 
 class DummyPronoun(AbstractPronoun):

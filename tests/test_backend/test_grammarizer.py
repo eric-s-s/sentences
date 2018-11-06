@@ -8,8 +8,8 @@ from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.noun import Noun
 from sentences.words.verb import Verb
-from sentences.words.wordtools.wordtag import WordTag
-from sentences.words.wordtools.tags import Tags
+from sentences.tags.wordtag import WordTag
+from sentences.tags.tags import Tags
 
 
 PERIOD = Punctuation.PERIOD

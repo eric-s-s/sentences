@@ -1,7 +1,7 @@
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.common_functions import add_s, bold
-from sentences.words.wordtools.wordtag import WordTag
-from sentences.words.wordtools.tags import Tags
+from sentences.tags.wordtag import WordTag
+from sentences.tags.tags import Tags
 
 
 class Noun(AbstractWord):
@@ -57,18 +57,18 @@ class Noun(AbstractWord):
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
 
-    def capitalize(self):
+    def capitalize(self) -> 'Noun':
         new_value = self.value[0].upper() + self.value[1:]
         return Noun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
-    def de_capitalize(self):
+    def de_capitalize(self) -> 'Noun':
         if self.value.startswith(self.base_noun):
             return self
 
         new_value = self.value[0].lower() + self.value[1:]
         return Noun(new_value, self.irregular_plural, self.base_noun, self.tags)
 
-    def bold(self):
+    def bold(self) -> 'Noun':
         return Noun(bold(self.value), self.irregular_plural, self.base_noun, self.tags)
 
     def definite(self):

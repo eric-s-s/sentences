@@ -3,8 +3,8 @@ import unittest
 
 from sentences.words.noun import Noun, get_plural_value, get_article
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
-from sentences.words.wordtools.tags import Tags
+from sentences.tags.wordtag import WordTag
+from sentences.tags.tags import Tags
 
 
 class TestNoun(unittest.TestCase):

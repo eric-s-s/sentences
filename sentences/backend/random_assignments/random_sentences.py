@@ -3,7 +3,7 @@ import random
 from sentences.word_groups.sentence import Sentence
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 
 class RandomSentences(object):

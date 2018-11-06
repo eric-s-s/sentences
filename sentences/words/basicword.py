@@ -1,6 +1,6 @@
 from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.words.wordtools.tags import Tags
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.tags import Tags
+from sentences.tags.wordtag import WordTag
 from sentences.words.wordtools.common_functions import bold
 
 

@@ -3,13 +3,13 @@ import unittest
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.punctuation import Punctuation
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 comma, period, exclamation, question = Punctuation
 
 
 class TestPunctuation(unittest.TestCase):
-    def test_register_as_subclass_of_AbstracttWord(self):
+    def test_register_as_subclass_of_AbstractWord(self):
         self.assertTrue(isinstance(comma, AbstractWord))
 
     def test_values(self):
@@ -36,4 +36,3 @@ class TestPunctuation(unittest.TestCase):
     def test_de_capitalize(self):
         for punctuation in Punctuation.__members__.values():
             self.assertEqual(punctuation, punctuation.de_capitalize())
-

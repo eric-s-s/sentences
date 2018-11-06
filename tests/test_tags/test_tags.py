@@ -2,8 +2,8 @@ import unittest
 
 import random
 
-from sentences.words.wordtools.tags import Tags
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.tags import Tags
+from sentences.tags.wordtag import WordTag
 
 
 class TestTags(unittest.TestCase):

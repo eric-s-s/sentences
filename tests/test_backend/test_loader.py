@@ -9,7 +9,7 @@ from sentences.backend.loader import (load_csv, strip_spaces,
 from sentences.words.noun import Noun
 from sentences.words.verb import Verb
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 from sentences import DATA_PATH, VERBS_CSV, COUNTABLE_NOUNS_CSV
 from tests import TESTS_FILES
 

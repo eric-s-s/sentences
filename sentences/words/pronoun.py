@@ -3,7 +3,7 @@ from abc import ABCMeta
 
 from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.basicword import BasicWord
-from sentences.words.wordtools.wordtag import WordTag
+from sentences.tags.wordtag import WordTag
 
 
 class AbstractPronoun(Enum):

@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from sentences.backend.random_sentences import RandomSentences, assign_objects
+from sentences.backend.random_assignments.random_sentences import RandomSentences, assign_objects
 
 from sentences.word_groups.sentence import Sentence
 from sentences.words.pronoun import Pronoun
