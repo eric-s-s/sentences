@@ -1,15 +1,16 @@
-from typing import List, Optional
+from typing import List, Union
 
-from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.words.verb import Verb
 from sentences.words.be_verb import BeVerb
+from sentences.words.pronoun import AbstractPronoun
 from sentences.words.punctuation import Punctuation
+from sentences.words.verb import Verb
+from sentences.words.wordtools.abstractword import AbstractWord
 
-WordList = List[AbstractWord]
+WordList = List[Union[AbstractWord, AbstractPronoun, Punctuation, BeVerb]]
 
 
 class Sentence(object):
-    def __init__(self, word_list: WordList=None):
+    def __init__(self, word_list: WordList = None):
         if word_list is None:
             word_list = []
         self._word_list = word_list.copy()
@@ -68,9 +69,3 @@ class Sentence(object):
             else:
                 answer += ' {}'.format(word.value)
         return answer
-
-
-
-
-
-

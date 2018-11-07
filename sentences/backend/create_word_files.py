@@ -1,5 +1,6 @@
-import shutil
 import os
+import shutil
+
 from sentences import DATA_PATH, VERBS_CSV, UNCOUNTABLE_NOUNS_CSV, COUNTABLE_NOUNS_CSV, PROPER_NOUNS_CSV
 
 

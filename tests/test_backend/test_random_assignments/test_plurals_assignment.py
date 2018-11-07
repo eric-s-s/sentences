@@ -1,15 +1,14 @@
-import unittest
 import random
+import unittest
 
-from sentences.backend.random_assignments.plurals_assignement import PluralsAssignment, get_countable_nouns, is_countable_noun
-
+from sentences.backend.random_assignments.plurals_assignement import (PluralsAssignment, get_countable_nouns,
+                                                                      is_countable_noun)
+from sentences.tags.status_tag import StatusTag
+from sentences.tags.tags import Tags
 from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
-from sentences.words.noun import Noun
 from sentences.words.basicword import BasicWord
-
-from sentences.tags.tags import Tags
-from sentences.tags.status_tag import StatusTag
+from sentences.words.noun import Noun
 
 
 class TestPluralsAssignment(unittest.TestCase):
@@ -19,6 +18,20 @@ class TestPluralsAssignment(unittest.TestCase):
         pa = PluralsAssignment(Paragraph(sentences, tags))
         self.assertEqual(pa.raw.sentence_list(), sentences)
         self.assertEqual(pa.raw.tags, tags)
+
+    def test_init_reverts_nouns_if_has_plural(self):
+        original_sentences = [Sentence([Noun('x').plural(), Noun('y'),
+                                        Noun.uncountable_noun('z'), Noun.proper_noun('A', plural=True)])]
+        original_tags = Tags([StatusTag.HAS_PLURALS, StatusTag.RAW])
+        original_paragraph = Paragraph(original_sentences, original_tags)
+        pa = PluralsAssignment(original_paragraph)
+
+        self.assertEqual(original_paragraph.sentence_list(), original_sentences)
+        self.assertEqual(original_paragraph.tags, original_tags)
+
+        expected = [Sentence([Noun('x'), Noun('y'), Noun.uncountable_noun('z'), Noun.proper_noun('A', plural=True)])]
+        self.assertEqual(pa.raw.sentence_list(), expected)
+        self.assertEqual(pa.raw.tags, Tags([StatusTag.RAW]))
 
     def test_assign_plurals(self):
         raw_sentences = [

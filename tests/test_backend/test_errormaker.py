@@ -132,7 +132,7 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_noun_error(noun)
             if index in definite:
-                self.assertEqual(Noun('the Eds', '', 'Eds', tags=self.definite), to_test)
+                self.assertEqual(Noun('the Eds', '', 'Eds', tags=self.definite_plural), to_test)
             else:
                 self.assertEqual(Noun('an Eds', '', 'Eds', tags=self.indefinite), to_test)
 
@@ -143,7 +143,7 @@ class TestErrorMaker(unittest.TestCase):
         for index in range(10):
             to_test = make_noun_error(noun)
             if index in definite:
-                self.assertEqual(Noun('the the Joneses', '', 'the Joneses', tags=self.definite), to_test)
+                self.assertEqual(Noun('the the Joneses', '', 'the Joneses', tags=self.definite_plural), to_test)
             else:
                 self.assertEqual(Noun('a the Joneses', '', 'the Joneses', tags=self.indefinite), to_test)
 

@@ -1,8 +1,8 @@
 from sentences.backend.errormaker import ErrorMaker
 from sentences.backend.grammarizer import Grammarizer
+from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns, proper_nouns
 from sentences.backend.random_assignments.random_paragraph import RandomParagraph
 from sentences.backend.wordconnector import convert_paragraph
-from sentences.backend.loader import verbs, uncountable_nouns, countable_nouns, proper_nouns
 
 
 class ParagraphsGenerator(object):
@@ -71,6 +71,9 @@ class ParagraphsGenerator(object):
             raw_paragraph = paragraph_generator.create_pool_paragraph(subj_pool, paragraph_size)
         else:
             raw_paragraph = paragraph_generator.create_chain_paragraph(paragraph_size)
+
+        # TODO - old state runs on List[List[AbstractWord]]
+        raw_paragraph = [sentence.word_list() for sentence in raw_paragraph]
 
         present_tense = self._get_present_tense_bool()
         kwargs = self._get_kwargs('probability_plural_noun', 'probability_negative_verb')

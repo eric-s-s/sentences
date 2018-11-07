@@ -1,7 +1,7 @@
 import random
 
-from sentences.word_groups.paragraph import Paragraph
 from sentences.tags.status_tag import StatusTag
+from sentences.word_groups.paragraph import Paragraph
 from sentences.words.verb import Verb
 
 

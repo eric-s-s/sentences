@@ -98,7 +98,14 @@ class Noun(AbstractWord):
         return Noun(new_value, self.irregular_plural, self.base_noun, new_tags)
 
     def to_basic_noun(self):
-        return Noun(self.base_noun, self.irregular_plural)
+        tags = []
+        if self.has_tags(WordTag.UNCOUNTABLE):
+            tags.append(WordTag.UNCOUNTABLE)
+        if self.has_tags(WordTag.PROPER):
+            tags.append(WordTag.PROPER)
+        if self.has_tags(WordTag.PROPER, WordTag.PLURAL):
+            tags.append(WordTag.PLURAL)
+        return Noun(self.base_noun, self.irregular_plural, tags=Tags(tags))
 
 
 def get_plural_value(value):

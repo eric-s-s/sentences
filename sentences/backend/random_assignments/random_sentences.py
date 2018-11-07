@@ -1,9 +1,11 @@
 import random
+from typing import List
 
+from sentences.tags.wordtag import WordTag
 from sentences.word_groups.sentence import Sentence
 from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
-from sentences.tags.wordtag import WordTag
+from sentences.words.wordtools.abstractword import AbstractWord
 
 
 class RandomSentences(object):
@@ -50,18 +52,16 @@ class RandomSentences(object):
 
     def _get_objects(self, object_count, p_pronoun):
         objects = []
-        object_position = 0
         loop_count = 0
         max_loops_until_repeats_allowed = 100
-        while object_position < object_count:
-            if object_position == 0:
+        while len(objects) < object_count:
+            if not objects:
                 new_obj = self.object(p_pronoun)
             else:
                 new_obj = self.object(p_pronoun=0)
 
             if new_obj not in objects or loop_count > max_loops_until_repeats_allowed:
                 objects.append(new_obj)
-                object_position += 1
 
             loop_count += 1
         return objects
@@ -82,7 +82,7 @@ class RandomSentences(object):
 def assign_objects(verb_group, objects):
     preposition = [verb_group['preposition']]
     separable_particle = [verb_group['particle']]
-    predicate = [verb_group['verb']]
+    predicate = [verb_group['verb']]  # type: List[AbstractWord]
 
     while objects:
         obj = objects.pop()
@@ -103,8 +103,8 @@ def assign_objects(verb_group, objects):
 def does_preposition_precede_separable_particle(preposition, separable_particle):
     lacks_preposition = None in preposition
     only_separable_particle = (
-        None not in separable_particle and
-        all(word.has_tags(WordTag.SEPARABLE_PARTICLE) for word in separable_particle)
+            None not in separable_particle and
+            all(word.has_tags(WordTag.SEPARABLE_PARTICLE) for word in separable_particle)
     )
     preposition_with_pronoun = any(isinstance(word, Pronoun) for word in preposition)
     return lacks_preposition and only_separable_particle and preposition_with_pronoun

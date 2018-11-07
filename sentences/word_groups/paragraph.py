@@ -44,6 +44,11 @@ class Paragraph(object):
     def set_tags(self, tags: Tags):
         return Paragraph(self.sentence_list(), tags)
 
+    def set_sentence(self, index, new_sentence):
+        sentences = self.sentence_list()
+        sentences[index] = new_sentence
+        return Paragraph(sentences, self.tags)
+
     def set(self, sentence_index, word_index, value: AbstractWord):
         sentences = self.sentence_list()
         sentences[sentence_index] = sentences[sentence_index].set(word_index, value)

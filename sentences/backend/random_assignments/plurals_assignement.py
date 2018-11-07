@@ -1,16 +1,27 @@
 import random
 
-
-from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.words.noun import Noun
-from sentences.word_groups.paragraph import Paragraph
 from sentences.tags.status_tag import StatusTag
 from sentences.tags.wordtag import WordTag
+from sentences.word_groups.paragraph import Paragraph
+from sentences.words.noun import Noun
+from sentences.words.wordtools.abstractword import AbstractWord
 
 
 class PluralsAssignment(object):
     def __init__(self, raw_paragraph: Paragraph):
-        self.raw = raw_paragraph
+        self._raw = raw_paragraph
+        if raw_paragraph.tags.has(StatusTag.HAS_PLURALS):
+            self._revert_nouns()
+
+    def _revert_nouns(self):
+        for s_index, w_index, word in self._raw.indexed_all_words():
+            if isinstance(word, Noun):
+                self._raw = self._raw.set(s_index, w_index, word.to_basic_noun())  # type: Paragraph
+        self._raw = self._raw.set_tags(self._raw.tags.remove(StatusTag.HAS_PLURALS))
+
+    @property
+    def raw(self):
+        return self._raw
 
     def assign_plural(self, to_plural) -> Paragraph:
         new_paragraph = self.raw
@@ -38,5 +49,3 @@ def get_countable_nouns(paragraph):
 
 def is_countable_noun(word: AbstractWord):
     return isinstance(word, Noun) and not (word.has_tags(WordTag.UNCOUNTABLE) or word.has_tags(WordTag.PROPER))
-
-

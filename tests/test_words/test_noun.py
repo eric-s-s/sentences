@@ -403,6 +403,7 @@ class TestNoun(unittest.TestCase):
 
     def test_to_basic_noun_no_special_plural(self):
         original = Noun('bob')
+        self.assertEqual(original.to_basic_noun(), original)
         self.assertEqual(original.plural().to_basic_noun(), original)
         self.assertEqual(original.bold().to_basic_noun(), original)
         self.assertEqual(original.indefinite().to_basic_noun(), original)
@@ -412,6 +413,7 @@ class TestNoun(unittest.TestCase):
 
     def test_to_basic_noun_special_plural(self):
         original = Noun('bob', 'boberino')
+        self.assertEqual(original.to_basic_noun(), original)
         self.assertEqual(original.plural().to_basic_noun(), original)
         self.assertEqual(original.bold().to_basic_noun(), original)
         self.assertEqual(original.indefinite().to_basic_noun(), original)
@@ -419,13 +421,16 @@ class TestNoun(unittest.TestCase):
         self.assertEqual(original.definite().plural().to_basic_noun(), original)
         self.assertEqual(original.capitalize().plural().definite().to_basic_noun(), original)
 
-    def test_to_basic_noun_removes_tags(self):
+    def test_to_basic_noun_does_not_remove_specific_tags(self):
+        original = Noun.proper_noun('Joe', plural=False)
+        self.assertEqual(original.to_basic_noun(), original)
+        self.assertEqual(original.capitalize().bold().to_basic_noun(), original)
+
         original = Noun.proper_noun('the Things', plural=True)
-        self.assertTrue(original.has_tags(WordTag.PROPER, WordTag.PLURAL))
-        without_tags = Noun('the Things')
-        self.assertEqual(original.to_basic_noun(), without_tags)
+        self.assertEqual(original.to_basic_noun(), original)
+        self.assertEqual(original.capitalize().bold().to_basic_noun(), original)
 
         original = Noun.uncountable_noun('water')
-        self.assertTrue(original.has_tags(WordTag.UNCOUNTABLE))
-        without_tags = Noun('water')
-        self.assertEqual(original.to_basic_noun(), without_tags)
+        self.assertEqual(original.to_basic_noun(), original)
+        self.assertEqual(original.capitalize().bold().to_basic_noun(), original)
+        self.assertEqual(original.definite().to_basic_noun(), original)

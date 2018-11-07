@@ -97,6 +97,16 @@ class TestParagraph(unittest.TestCase):
         self.assertRaises(IndexError, paragraph.set, 10, 0, BasicWord('x'))
         self.assertRaises(IndexError, paragraph.set, 0, 10, BasicWord('x'))
 
+    def test_set_sentence(self):
+        tags = Tags([StatusTag.RAW])
+        sentences = [Sentence(), Sentence(), Sentence()]
+        new_sentence = Sentence([BasicWord('z')])
+
+        paragraph = Paragraph(sentences, tags).set_sentence(1, new_sentence)
+        expected = [Sentence(), new_sentence, Sentence()]
+        self.assertEqual(paragraph.sentence_list(), expected)
+        self.assertEqual(paragraph.tags, tags)
+
     def test_set_tags(self):
         sentence_list = [Sentence([BasicWord('test')])]
         paragraph = Paragraph(sentence_list, Tags([StatusTag.HAS_PLURALS]))
@@ -115,3 +125,7 @@ class TestParagraph(unittest.TestCase):
             [BasicWord('q')]
         ])
         self.assertEqual(paragraph.find(BasicWord('x')), [(0, 0), (1, 2)])
+
+
+if __name__ == '__main__':
+    unittest.main()
