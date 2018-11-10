@@ -15,6 +15,10 @@ class Sentence(object):
             word_list = []
         self._word_list = word_list.copy()
 
+    def __repr__(self):
+        # TODO for tests only
+        return 'Sentence({!r})'.format(self.word_list())
+
     def word_list(self):
         return self._word_list[:]
 

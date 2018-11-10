@@ -64,7 +64,7 @@ class TestSentence(unittest.TestCase):
         self.assertEqual(sentence.get_verb(), 0)
 
     def test_sentence_get_verb_be_verb(self):
-        sentence = Sentence([BasicWord('I'), BeVerb.AM.past().negative()])
+        sentence = Sentence([BasicWord('I'), BeVerb.AM.past_tense().negative()])
         self.assertEqual(sentence.get_verb(), 1)
 
     def test_sentence_get_verb_returns_first_instance_of_be_verb(self):

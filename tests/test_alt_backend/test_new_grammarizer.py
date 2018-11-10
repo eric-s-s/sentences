@@ -7,7 +7,7 @@ from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
 from sentences.words.basicword import BasicWord
 from sentences.words.noun import Noun
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.verb import Verb
 
 
@@ -28,10 +28,21 @@ class TestNewGrammarizer(unittest.TestCase):
         new_paragraph = grammarizer.grammarize_to_past_tense()
         self.assertEqual(new_paragraph.tags, tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL))
 
+    def test_grammarize_to_present_or_past_tense_capitalizes_first_word(self):
+        paragraph = Paragraph([Sentence([BasicWord('a'), BasicWord('b')]),
+                               Sentence([BasicWord('d'), BasicWord('e')])])
+        grammarizer = NewGrammarizer(paragraph)
+        past_answer = grammarizer.grammarize_to_past_tense()
+        present_answer = grammarizer.grammarize_to_present_tense()
+        expected = [Sentence([BasicWord('A'), BasicWord('b')]),
+                    Sentence([BasicWord('D'), BasicWord('e')])]
+        self.assertEqual(past_answer.sentence_list(), expected)
+        self.assertEqual(present_answer.sentence_list(), expected)
+
     def test_grammarize_to_present_or_past_tense_gives_singular_nouns_proper_articles(self):
         base_word_list = [Noun('x'), BasicWord('x')]
-        indefinite_word_list = [Noun('x').indefinite(), BasicWord('x')]
-        definite_word_list = [Noun('x').definite(), BasicWord('x')]
+        indefinite_word_list = [Noun('x').indefinite().capitalize(), BasicWord('x')]
+        definite_word_list = [Noun('x').definite().capitalize(), BasicWord('x')]
         expected = [Sentence(indefinite_word_list)] + [Sentence(definite_word_list) for _ in range(2)]
 
         raw_paragraph = Paragraph([Sentence(base_word_list) for _ in range(3)])
@@ -44,8 +55,8 @@ class TestNewGrammarizer(unittest.TestCase):
 
     def test_grammarize_to_present_or_past_tense_gives_plural_nouns_proper_articles(self):
         base_word_list = [Noun('x').plural(), BasicWord('x')]
-        indefinite_word_list = [Noun('x').plural(), BasicWord('x')]
-        definite_word_list = [Noun('x').definite().plural(), BasicWord('x')]
+        indefinite_word_list = [Noun('x').plural().capitalize(), BasicWord('x')]
+        definite_word_list = [Noun('x').definite().plural().capitalize(), BasicWord('x')]
         expected = [Sentence(indefinite_word_list)] + [Sentence(definite_word_list) for _ in range(2)]
 
         raw_paragraph = Paragraph([Sentence(base_word_list) for _ in range(3)])
@@ -57,9 +68,9 @@ class TestNewGrammarizer(unittest.TestCase):
         self.assertEqual(new_present.sentence_list(), expected)
 
     def test_grammarize_to_present_or_past_tense_does_not_alter_proper_nouns_or_uncountable_nouns(self):
-        word_list = [Noun.proper_noun('x', plural=True),
-                     Noun.proper_noun('y', plural=False),
-                     Noun.uncountable_noun('z')]
+        word_list = [Noun.proper_noun('A', plural=True),
+                     Noun.proper_noun('B', plural=False),
+                     Noun.uncountable_noun('d')]
         sentence_list = [Sentence(word_list) for _ in range(3)]
         raw_paragraph = Paragraph(sentence_list)
 
@@ -75,14 +86,16 @@ class TestNewGrammarizer(unittest.TestCase):
                                       Sentence([Noun.proper_noun('x'), Verb('y').negative()])]
         new_paragraph = NewGrammarizer(Paragraph(singular_subject_sentences)).grammarize_to_present_tense()
 
-        expected = [Sentence([Noun('x').indefinite(), Verb('y').third_person()]),
-                    Sentence([Noun.uncountable_noun('x'), Verb('y').third_person()]),
-                    Sentence([Noun.proper_noun('x'), Verb('y').third_person().negative()])]
+        expected = [Sentence([Noun('x').indefinite().capitalize(), Verb('y').third_person()]),
+                    Sentence([Noun.uncountable_noun('x').capitalize(), Verb('y').third_person()]),
+                    Sentence([Noun.proper_noun('x').capitalize(), Verb('y').third_person().negative()])]
         self.assertEqual(new_paragraph.sentence_list(), expected)
 
     def test_grammarize_to_present_tense_does_not_alter_verb_when_subject_is_plural_noun(self):
-        expected = plural_subject_sentences = [Sentence([Noun('x').plural(), Verb('y').negative()]),
-                                               Sentence([Noun.proper_noun('x', plural=True), Verb('y')])]
+        plural_subject_sentences = [Sentence([Noun('a').plural(), Verb('y').negative()]),
+                                    Sentence([Noun.proper_noun('A', plural=True), Verb('y')])]
+        expected = [Sentence([Noun('a').plural().capitalize(), Verb('y').negative()]),
+                    Sentence([Noun.proper_noun('A', plural=True), Verb('y')])]
 
         new_paragraph = NewGrammarizer(Paragraph(plural_subject_sentences)).grammarize_to_present_tense()
         self.assertEqual(new_paragraph.sentence_list(), expected)
@@ -93,16 +106,41 @@ class TestNewGrammarizer(unittest.TestCase):
                                   Sentence([Pronoun.IT, Verb('x')])]
         raw_paragraph = Paragraph(third_person_sentences)
         new_paragraph = NewGrammarizer(raw_paragraph).grammarize_to_present_tense()
-        expected = [Sentence([Pronoun.HE, Verb('x').third_person()]),
-                    Sentence([Pronoun.SHE, Verb('x').third_person().negative()]),
-                    Sentence([Pronoun.IT, Verb('x').third_person()])]
+        expected = [Sentence([CapitalPronoun.HE, Verb('x').third_person()]),
+                    Sentence([CapitalPronoun.SHE, Verb('x').third_person().negative()]),
+                    Sentence([CapitalPronoun.IT, Verb('x').third_person()])]
         self.assertEqual(new_paragraph.sentence_list(), expected)
 
     def test_grammarize_to_present_tense_does_not_alter_verb_when_subject_is_I_YOU_WE_THEY(self):
-        expected = sentences = [Sentence([Pronoun.I, Verb('x')]),
-                                Sentence([Pronoun.YOU, Verb('x')]),
-                                Sentence([Pronoun.WE, Verb('x')]),
-                                Sentence([Pronoun.THEY, Verb('x')])]
+        sentences = [Sentence([Pronoun.I, Verb('x')]),
+                     Sentence([Pronoun.YOU, Verb('x')]),
+                     Sentence([Pronoun.WE, Verb('x')]),
+                     Sentence([Pronoun.THEY, Verb('x')])]
+        expected = [Sentence([CapitalPronoun.I, Verb('x')]),
+                    Sentence([CapitalPronoun.YOU, Verb('x')]),
+                    Sentence([CapitalPronoun.WE, Verb('x')]),
+                    Sentence([CapitalPronoun.THEY, Verb('x')])]
         raw_paragraph = Paragraph(sentences)
         new_paragraph = NewGrammarizer(raw_paragraph).grammarize_to_present_tense()
         self.assertEqual(new_paragraph.sentence_list(), expected)
+
+    def test_grammarize_to_past_tense_alters_all_verbs(self):
+        sentences = [Sentence([Pronoun.I, Verb('x').negative()]),
+                     Sentence([Pronoun.HE, Verb('x')]),
+                     Sentence([Noun('a'), Verb('x')]),
+                     Sentence([Noun('a').plural(), Verb('x')]),
+                     Sentence([Noun.proper_noun('a'), Verb('x')]),
+                     Sentence([Noun.uncountable_noun('a'), Verb('x')])]
+        new_paragraph = NewGrammarizer(Paragraph(sentences)).grammarize_to_past_tense()
+
+        expected = [Sentence([CapitalPronoun.I, Verb('x').negative().past_tense()]),
+                    Sentence([CapitalPronoun.HE, Verb('x').past_tense()]),
+                    Sentence([Noun('a').indefinite().capitalize(), Verb('x').past_tense()]),
+                    Sentence([Noun('a').plural().capitalize(), Verb('x').past_tense()]),
+                    Sentence([Noun.proper_noun('a').capitalize(), Verb('x').past_tense()]),
+                    Sentence([Noun.uncountable_noun('a').capitalize(), Verb('x').past_tense()])]
+        self.assertEqual(new_paragraph.sentence_list(), expected)
+
+
+if __name__ == '__main__':
+    unittest.main()

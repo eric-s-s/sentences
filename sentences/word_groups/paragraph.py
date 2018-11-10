@@ -1,13 +1,13 @@
 from itertools import chain
 from typing import List
 
+from sentences.tags.tags import Tags
 from sentences.word_groups.sentence import Sentence
 from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.tags.tags import Tags
 
 
 class Paragraph(object):
-    def __init__(self, sentence_list: List[Sentence], tags: Tags=None):
+    def __init__(self, sentence_list: List[Sentence], tags: Tags = None):
         if tags is None:
             tags = Tags()
         self._tags = tags.copy()
@@ -24,6 +24,11 @@ class Paragraph(object):
     def sentence_list(self):
         return self._sentences[:]
 
+    def __eq__(self, other):
+        if not isinstance(other, Paragraph):
+            return False
+        return (self.tags, self.sentence_list()) == (other.tags, other.sentence_list())
+
     def __len__(self):
         return len(self._sentences)
 
@@ -32,6 +37,10 @@ class Paragraph(object):
 
     def __str__(self):
         return ' '.join((str(sentence) for sentence in self._sentences))
+
+    def __repr__(self):
+        # TODO for tests!
+        return 'Paragraph({!r}, {!r})'.format(self.sentence_list(), self.tags)
 
     def all_words(self):
         return chain.from_iterable(self._sentences)

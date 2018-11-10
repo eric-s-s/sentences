@@ -1,14 +1,13 @@
 import unittest
 
-from sentences.words.be_verb import BeVerb
-
-from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.tags.tags import Tags
 from sentences.tags.wordtag import WordTag
 from sentences.words.basicword import BasicWord
+from sentences.words.be_verb import BeVerb
+from sentences.words.wordtools.abstractword import AbstractWord
 
 
-class TestAltBeVerb(unittest.TestCase):
+class TestBeVerb(unittest.TestCase):
 
     def test_registered_subclass(self):
         self.assertTrue(isinstance(BeVerb.IS, AbstractWord))
@@ -76,18 +75,18 @@ class TestAltBeVerb(unittest.TestCase):
         self.assertEqual(BeVerb.WAS.negative(), BeVerb.WAS_NOT)
         self.assertEqual(BeVerb.WERE.negative(), BeVerb.WERE_NOT)
 
-    def test_past_already_past(self):
-        self.assertEqual(BeVerb.WAS.past(), BeVerb.WAS)
-        self.assertEqual(BeVerb.WAS_NOT.past(), BeVerb.WAS_NOT)
-        self.assertEqual(BeVerb.WERE.past(), BeVerb.WERE)
-        self.assertEqual(BeVerb.WERE_NOT.past(), BeVerb.WERE_NOT)
+    def test_past_tense_already_past_tense(self):
+        self.assertEqual(BeVerb.WAS.past_tense(), BeVerb.WAS)
+        self.assertEqual(BeVerb.WAS_NOT.past_tense(), BeVerb.WAS_NOT)
+        self.assertEqual(BeVerb.WERE.past_tense(), BeVerb.WERE)
+        self.assertEqual(BeVerb.WERE_NOT.past_tense(), BeVerb.WERE_NOT)
 
-    def test_past(self):
-        self.assertEqual(BeVerb.AM.past(), BeVerb.WAS)
-        self.assertEqual(BeVerb.AM_NOT.past(), BeVerb.WAS_NOT)
+    def test_past_tense(self):
+        self.assertEqual(BeVerb.AM.past_tense(), BeVerb.WAS)
+        self.assertEqual(BeVerb.AM_NOT.past_tense(), BeVerb.WAS_NOT)
 
-        self.assertEqual(BeVerb.IS.past(), BeVerb.WAS)
-        self.assertEqual(BeVerb.IS_NOT.past(), BeVerb.WAS_NOT)
+        self.assertEqual(BeVerb.IS.past_tense(), BeVerb.WAS)
+        self.assertEqual(BeVerb.IS_NOT.past_tense(), BeVerb.WAS_NOT)
 
-        self.assertEqual(BeVerb.ARE.past(), BeVerb.WERE)
-        self.assertEqual(BeVerb.ARE_NOT.past(), BeVerb.WERE_NOT)
+        self.assertEqual(BeVerb.ARE.past_tense(), BeVerb.WERE)
+        self.assertEqual(BeVerb.ARE_NOT.past_tense(), BeVerb.WERE_NOT)

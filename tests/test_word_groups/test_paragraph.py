@@ -1,8 +1,8 @@
 import unittest
 
-from sentences.word_groups.paragraph import Paragraph
 from sentences.tags.status_tag import StatusTag
 from sentences.tags.tags import Tags
+from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
 from sentences.words.basicword import BasicWord
 from sentences.words.punctuation import Punctuation
@@ -39,6 +39,26 @@ class TestParagraph(unittest.TestCase):
         paragraph = Paragraph.from_word_lists(word_lists)
         self.assertEqual(paragraph.sentence_list(), [Sentence(lst) for lst in word_lists])
         self.assertEqual(paragraph.tags, Tags())
+
+    def test__eq__true(self):
+        sentences = [Sentence([BasicWord('a'), BasicWord('b')]),
+                     Sentence([BasicWord('c')])]
+        tags = Tags([StatusTag.RAW, StatusTag.GRAMMATICAL])
+        self.assertEqual(Paragraph(sentences, tags), Paragraph(sentences, tags))
+
+    def test__eq__false_by_tags(self):
+        sentences = [Sentence([BasicWord('a'), BasicWord('b')]),
+                     Sentence([BasicWord('c')])]
+        self.assertNotEqual(Paragraph(sentences, Tags([StatusTag.GRAMMATICAL])),
+                            Paragraph(sentences, Tags()))
+
+    def test__eq__false_by_sentence_list(self):
+        tags = Tags([StatusTag.GRAMMATICAL])
+        self.assertNotEqual(Paragraph([Sentence([BasicWord('a')])], tags),
+                            Paragraph([Sentence([BasicWord('b')])], tags))
+
+    def test__eq__false_by_type(self):
+        self.assertNotEqual(Paragraph([]), [[]])
 
     def test_len(self):
         sentence_list = [Sentence([BasicWord('hi')]), Sentence([BasicWord('ho')])]
@@ -103,9 +123,8 @@ class TestParagraph(unittest.TestCase):
         new_sentence = Sentence([BasicWord('z')])
 
         paragraph = Paragraph(sentences, tags).set_sentence(1, new_sentence)
-        expected = [Sentence(), new_sentence, Sentence()]
-        self.assertEqual(paragraph.sentence_list(), expected)
-        self.assertEqual(paragraph.tags, tags)
+        expected = Paragraph([Sentence(), new_sentence, Sentence()], tags)
+        self.assertEqual(paragraph, expected)
 
     def test_set_tags(self):
         sentence_list = [Sentence([BasicWord('test')])]

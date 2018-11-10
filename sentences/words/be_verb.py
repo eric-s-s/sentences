@@ -1,10 +1,10 @@
-from enum import Enum
 from abc import ABCMeta
+from enum import Enum
 
-from sentences.words.wordtools.abstractword import AbstractWord
-from sentences.words.basicword import BasicWord
-from sentences.tags.wordtag import WordTag
 from sentences.tags.tags import Tags
+from sentences.tags.wordtag import WordTag
+from sentences.words.basicword import BasicWord
+from sentences.words.wordtools.abstractword import AbstractWord
 from sentences.words.wordtools.common_functions import bold
 
 
@@ -51,7 +51,7 @@ class BeVerb(Enum):
             return self
         return getattr(self, '{}_NOT'.format(self.name))
 
-    def past(self):
+    def past_tense(self):
         if self.has_tags(WordTag.PAST):
             return self
         new_name = self.name

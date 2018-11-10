@@ -3,7 +3,7 @@ from sentences.tags.wordtag import WordTag
 from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
 from sentences.words.noun import Noun
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 
 
 class NewGrammarizer(object):
@@ -19,11 +19,14 @@ class NewGrammarizer(object):
         self._altered = self._raw
         self._assign_noun_articles()
         self._assign_present_tense_verbs()
+        self._capitalize_first_letter_of_sentences()
         return self._set_tags()
 
     def grammarize_to_past_tense(self):
         self._altered = self._raw
         self._assign_noun_articles()
+        self._assign_past_tense_verbs()
+        self._capitalize_first_letter_of_sentences()
         return self._set_tags()
 
     def _assign_present_tense_verbs(self):
@@ -35,7 +38,13 @@ class NewGrammarizer(object):
                 self._altered = self._altered.set_sentence(s_index, new_sentence)
 
     def _assign_past_tense_verbs(self):
-        pass
+        for s_index, sentence in enumerate(self._altered):  # type: Sentence
+            v_index = sentence.get_verb()
+            if v_index == -1:
+                continue
+            new_verb = sentence.get(v_index).past_tense()
+            new_sentence = sentence.set(v_index, new_verb)
+            self._altered = self._altered.set_sentence(s_index, new_sentence)
 
     def _assign_noun_articles(self):
         assign_definite = set()
@@ -47,6 +56,12 @@ class NewGrammarizer(object):
                     new_word = word if word.has_tags(WordTag.PLURAL) else word.indefinite()
                     self._altered = self._altered.set(s_index, w_index, new_word)
                     assign_definite.add(word)
+
+    def _capitalize_first_letter_of_sentences(self):
+        for s_index, sentence in enumerate(self._altered):
+            old = sentence.get(0)
+            new_sentence = sentence.set(0, old.capitalize())
+            self._altered = self._altered.set_sentence(s_index, new_sentence)
 
     def _set_tags(self):
         return self._altered.set_tags(self._raw.tags.add(StatusTag.GRAMMATICAL).remove(StatusTag.RAW))
@@ -66,7 +81,12 @@ def _needs_third_person(sentence: Sentence):
 
     subject = sentence.get(subject_index)
 
-    third_person_pronouns = (Pronoun.HE, Pronoun.SHE, Pronoun.IT)
-    if isinstance(subject, Pronoun) and subject not in third_person_pronouns:
-        return False
-    return not subject.has_tags(WordTag.PLURAL)
+    first_person = (Pronoun.I, Pronoun.ME, CapitalPronoun.I, CapitalPronoun.ME)
+    if isinstance(subject, (Noun, Pronoun)) and subject not in first_person:
+        return not subject.has_tags(WordTag.PLURAL)
+    return False
+
+    # third_person_pronouns = (Pronoun.HE, Pronoun.SHE, Pronoun.IT)
+    # if isinstance(subject, Pronoun) and subject not in third_person_pronouns:
+    #     return False
+    # return not subject.has_tags(WordTag.PLURAL)
