@@ -13,7 +13,7 @@ from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
 from sentences.words.be_verb import BeVerb
 from sentences.words.noun import Noun
-from sentences.words.pronoun import Pronoun
+from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.verb import Verb
 
 
@@ -41,7 +41,7 @@ class TestNewErrorMaker(unittest.TestCase):
         plus_ed = [2, 8]
         plus_ed_plus_s = [0, 7]
         for index in range(10):
-            to_test = make_verb_error(verb, is_third_person_noun=True)
+            to_test = make_verb_error(verb)
             if index in plus_ed:
                 self.assertEqual(Verb('played', '', 'play', tags=self.past), to_test)
             elif index in plus_ed_plus_s:
@@ -55,7 +55,7 @@ class TestNewErrorMaker(unittest.TestCase):
         plus_ed = [2, 8]
         plus_ed_plus_s = [0, 7]
         for index in range(10):
-            to_test = make_verb_error(verb, is_third_person_noun=True)
+            to_test = make_verb_error(verb)
             if index in plus_ed:
                 self.assertEqual(Verb("didn't play", '', 'play', tags=self.negative_past), to_test)
             elif index in plus_ed_plus_s:
@@ -68,7 +68,7 @@ class TestNewErrorMaker(unittest.TestCase):
         verb = Verb('play')
         plus_ed = [1, 6]
         for index in range(10):
-            to_test = make_verb_error(verb, is_third_person_noun=False)
+            to_test = make_verb_error(verb)
             if index in plus_ed:
                 self.assertEqual(Verb('played', '', 'play', tags=self.past), to_test)
             else:
@@ -79,7 +79,7 @@ class TestNewErrorMaker(unittest.TestCase):
         verb = Verb('play').negative()
         plus_ed = [1, 6]
         for index in range(10):
-            to_test = make_verb_error(verb, is_third_person_noun=False)
+            to_test = make_verb_error(verb)
             if index in plus_ed:
                 self.assertEqual(Verb("didn't play", '', 'play', tags=self.negative_past), to_test)
             else:
@@ -88,9 +88,9 @@ class TestNewErrorMaker(unittest.TestCase):
     def test_make_verb_error_past_tense(self):
         random.seed(6)
         verb = Verb('play').past_tense()
-        plus_s = [0, 3, 5, 6, 9]
+        plus_s = [1, 2, 6, 7, 8]
         for index in range(10):
-            to_test = make_verb_error(verb, is_third_person_noun=random.choice([True, False]))
+            to_test = make_verb_error(verb)
             if index in plus_s:
                 self.assertEqual(Verb('plays', '', 'play', tags=self.third_person), to_test)
             else:
@@ -99,9 +99,9 @@ class TestNewErrorMaker(unittest.TestCase):
     def test_make_verb_error_negative_past_tense(self):
         random.seed(6)
         verb = Verb('play').negative().past_tense()
-        plus_s = [0, 3, 5, 6, 9]
+        plus_s = [1, 2, 6, 7, 8]
         for index in range(10):
-            to_test = make_verb_error(verb, is_third_person_noun=random.choice([True, False]))
+            to_test = make_verb_error(verb)
             if index in plus_s:
                 self.assertEqual(Verb("doesn't play", '', 'play', tags=self.negative_third_person), to_test)
             else:
@@ -264,76 +264,127 @@ class TestNewErrorMaker(unittest.TestCase):
 
     def test_error_maker_init(self):
         paragraph = Paragraph([Sentence([Noun('eskimo')])])
-        error_maker = NewErrorMaker(paragraph, 1.0)
-        self.assertEqual(error_maker.paragraph, paragraph)
-        self.assertEqual(error_maker.p_error, 1.0)
-        self.assertEqual(error_maker.error_paragraph, paragraph)
+        error_maker = NewErrorMaker(paragraph)
+        self.assertEqual(error_maker.get_paragraph(), paragraph)
 
-    def test_error_maker_method_order(self):
-        error_maker = NewErrorMaker(Paragraph([]), 1.0)
-        expected = [error_maker.create_noun_errors, error_maker.create_pronoun_errors,
-                    error_maker.create_verb_errors, error_maker.create_is_do_errors,
-                    error_maker.create_preposition_transpose_errors,
-                    error_maker.create_period_errors]
-        self.assertEqual(error_maker.method_order, expected)
+    def test_error_maker_empty_paragraph(self):
+        paragraph = Paragraph([])
+        error_maker = NewErrorMaker(paragraph)
 
-    def test_error_maker_reset(self):
-        sentences = [Sentence([Noun('roman').plural().capitalize(), Verb('go').third_person(),
-                               Noun('house').definite()])]
-        tags = Tags([StatusTag.GRAMMATICAL])
-        paragraph = Paragraph(sentences, tags)
-        error_maker = NewErrorMaker(paragraph, 1.0)
-        for method in error_maker.method_order:
-            method()
-            error_maker.reset()
-            self.assertEqual(error_maker.error_paragraph, paragraph)
+        self.assertEqual(error_maker.noun_errors(1.0).get_paragraph().sentence_list(), [])
+        self.assertEqual(error_maker.pronoun_errors(1.0).get_paragraph().sentence_list(), [])
+        self.assertEqual(error_maker.verb_errors(1.0).get_paragraph().sentence_list(), [])
+        self.assertEqual(error_maker.is_do_errors(1.0).get_paragraph().sentence_list(), [])
+        self.assertEqual(error_maker.preposition_errors(1.0).get_paragraph().sentence_list(), [])
+        self.assertEqual(error_maker.punctuation_errors(1.0).get_paragraph().sentence_list(), [])
 
-    def test_error_maker_changes_tags(self):
-        tags = Tags([StatusTag.GRAMMATICAL, StatusTag.HAS_PLURALS])
-        paragraph = Paragraph([], tags)
-        error_maker = NewErrorMaker(paragraph, 1.0)
+    def test_error_maker_noun_errors_changes_tags(self):
+        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        new_error_maker = NewErrorMaker(paragraph).noun_errors(0.5)
+        self.assertEqual(new_error_maker.get_paragraph().tags,
+                         paragraph.tags.add(StatusTag.NOUN_ERRORS).remove(StatusTag.GRAMMATICAL))
 
-        expected_tags = Tags([StatusTag.HAS_ERRORS, StatusTag.HAS_PLURALS])
-        for method in error_maker.method_order:
-            error_maker.reset()
-            method()
-            self.assertEqual(error_maker.paragraph.tags, tags)
-            self.assertEqual(error_maker.error_paragraph.tags, expected_tags)
-
-    def test_error_maker_make_noun_errors_p_error_zero(self):
-        sentences = [Sentence([Noun('roman').plural().capitalize(), Verb('go'), BasicWord.preposition('to'),
-                               Noun('house').definite(), Punctuation.EXCLAMATION])]
+    def test_error_maker_noun_errors_p_error_lte_zero(self):
+        sentences = [Sentence([Noun('a'), Verb('b'), BasicWord.preposition('to'),
+                               Pronoun.HIM, Punctuation.PERIOD])]
         paragraph = Paragraph(sentences)
-        error_maker = NewErrorMaker(paragraph, 0.0)
-        error_maker.create_noun_errors()
-        error_tags = Tags([StatusTag.HAS_ERRORS])
-        self.assertEqual(error_maker.paragraph, paragraph)
-        self.assertEqual(error_maker.error_paragraph, Paragraph(sentences, error_tags))
+        error_maker = NewErrorMaker(paragraph)
 
-    def test_error_maker_make_noun_errors_p_error_one(self):
-        random.seed(34758)
-        sentences = [Sentence([Noun('roman').plural().capitalize(), Verb('go'), BasicWord.preposition('to'),
-                               Noun('house').definite(), Punctuation.EXCLAMATION])]
+        error_paragraph = error_maker.noun_errors(0.0).get_paragraph()
+        self.assertEqual(error_paragraph.sentence_list(), sentences)
+
+        error_paragraph = error_maker.noun_errors(-1.0).get_paragraph()
+        self.assertEqual(error_paragraph.sentence_list(), sentences)
+
+    def test_error_maker_noun_errors_p_error_gte_one(self):
+        random.seed(4758)
+        sentences = [Sentence([Noun('a').definite().capitalize(), Noun.proper_noun('C')]),
+                     Sentence([Noun('d').indefinite().capitalize(), Noun('e').plural()]),
+                     Sentence([Noun.uncountable_noun('f').capitalize()])]
         paragraph = Paragraph(sentences)
-        error_maker = NewErrorMaker(paragraph, 1.0)
-        error_maker.create_noun_errors()
+        error_maker = NewErrorMaker(paragraph)
 
-        expected_sentences = [Sentence([Noun('roman').definite().capitalize(), Verb('go'), BasicWord.preposition('to'),
-                                        Noun('house'), Punctuation.EXCLAMATION])]
-        error_tags = Tags([StatusTag.HAS_ERRORS])
-        self.assertEqual(error_maker.paragraph, paragraph)
-        self.assertEqual(error_maker.error_paragraph, Paragraph(expected_sentences, error_tags))
+        error_paragraph = error_maker.noun_errors(1.0).get_paragraph()
+        expected = [Sentence([Noun('a').indefinite().capitalize(), Noun.proper_noun('C').indefinite()]),
+                    Sentence([Noun('d').capitalize(), Noun('e').indefinite()]),
+                    Sentence([Noun.uncountable_noun('f').indefinite().capitalize()])]
+        self.assertEqual(error_paragraph.sentence_list(), expected)
 
-    def test_error_maker_make_noun_errors_p_error_between_one_and_zero(self):
-        random.seed(48335)
-        sentences = [Sentence([Noun('roman').plural().capitalize(), Verb('go'), BasicWord.preposition('to'),
-                               Noun('house').definite(), Punctuation.EXCLAMATION])]
+        error_paragraph = error_maker.noun_errors(1.1).get_paragraph()
+        expected = [Sentence([Noun('a').capitalize(), Noun.proper_noun('C').definite()]),
+                    Sentence([Noun('d').capitalize(), Noun('e').indefinite()]),
+                    Sentence([Noun.uncountable_noun('f').plural().capitalize()])]
+        self.assertEqual(error_paragraph.sentence_list(), expected)
+
+    def test_error_maker_noun_error_p_error_middle(self):
+        random.seed(475456)
+        sentences = [Sentence([Noun('a').definite().capitalize(), Noun.proper_noun('C')]),
+                     Sentence([Noun('d').indefinite().capitalize(), Noun('e').plural()])]
         paragraph = Paragraph(sentences)
-        error_maker = NewErrorMaker(paragraph, 1.0)
-        error_maker.create_noun_errors()
+        error_maker = NewErrorMaker(paragraph)
 
-        expected_sentences = [Sentence([Noun('roman').definite().capitalize(), Verb('go'), BasicWord.preposition('to'),
-                                        Noun('house'), Punctuation.EXCLAMATION])]
-        error_tags = Tags([StatusTag.HAS_ERRORS])
-        self.assertEqual(error_maker.paragraph, paragraph)
-        print(error_maker.error_paragraph)
+        error_paragraph = error_maker.noun_errors(0.5).get_paragraph()
+        expected = [sentences[0],
+                    Sentence([Noun('d').capitalize(), Noun('e').plural().indefinite()])]
+        self.assertEqual(error_paragraph.sentence_list(), expected)
+
+    def test_error_maker_noun_error_does_not_affect_others(self):
+        sentences = [
+            Sentence([BasicWord.preposition('a'), Verb('a'), Pronoun.HIM, CapitalPronoun.ME, Punctuation.COMMA])]
+        error_maker = NewErrorMaker(Paragraph(sentences))
+
+        error_paragraph = error_maker.noun_errors(1.0).get_paragraph()
+        self.assertEqual(error_paragraph.sentence_list(), sentences)
+
+    def test_error_maker_verb_errors_changes_tags(self):
+        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        new_error_maker = NewErrorMaker(paragraph).verb_errors(0.5)
+        self.assertEqual(new_error_maker.get_paragraph().tags,
+                         paragraph.tags.add(StatusTag.VERB_ERRORS).remove(StatusTag.GRAMMATICAL))
+
+    def test_error_maker_verb_errors_p_error_lte_zero(self):
+        sentences = [Sentence([Verb('play'), Verb('like').third_person()]),
+                     Sentence([Verb('cry').negative(), Verb('dry').negative().third_person()]),
+                     Sentence([Verb('pry').past_tense(), Verb('fry').negative().past_tense()])]
+        paragraph = Paragraph(sentences)
+        error_maker = NewErrorMaker(paragraph)
+
+        error_paragraph = error_maker.verb_errors(0.0).get_paragraph()
+        self.assertEqual(error_paragraph.sentence_list(), sentences)
+
+        error_paragraph = error_maker.verb_errors(-1.0).get_paragraph()
+        self.assertEqual(error_paragraph.sentence_list(), sentences)
+
+    def test_error_maker_verb_errors_p_error_gte_one(self):
+        random.seed(4758)
+        sentences = [Sentence([Verb('play'), Verb('like').third_person()]),
+                     Sentence([Verb('cry').negative(), Verb('dry').negative().third_person()]),
+                     Sentence([Verb('pry').past_tense(), Verb('fry').negative().past_tense()])]
+        paragraph = Paragraph(sentences)
+        error_maker = NewErrorMaker(paragraph)
+
+        error_paragraph = error_maker.verb_errors(1.0).get_paragraph()
+        expected = [Sentence([Verb('play').past_tense(), Verb('like')]),
+                    Sentence([Verb('cry').negative().third_person(), Verb('dry').negative().past_tense()]),
+                    Sentence([Verb('pry'), Verb('fry').negative()])]
+        self.assertEqual(error_paragraph.sentence_list(), expected)
+
+        error_paragraph = error_maker.verb_errors(1.1).get_paragraph()
+        expected = [Sentence([Verb('play').past_tense(), Verb('like')]),
+                    Sentence([Verb('cry').negative().past_tense(), Verb('dry').negative()]),
+                    Sentence([Verb('pry').third_person(), Verb('fry').negative()])]
+        self.assertEqual(error_paragraph.sentence_list(), expected)
+
+    def test_error_maker_verb_errors_p_error_middle_value(self):
+        random.seed(4758)
+        sentences = [Sentence([Verb('play'), Verb('like').third_person()]),
+                     Sentence([Verb('cry').negative(), Verb('dry').negative().third_person()]),
+                     Sentence([Verb('pry').past_tense(), Verb('fry').negative().past_tense()])]
+        paragraph = Paragraph(sentences)
+        error_maker = NewErrorMaker(paragraph)
+
+        error_paragraph = error_maker.verb_errors(0.5).get_paragraph()
+        expected = [Sentence([Verb('play'), Verb('like').past_tense()]),
+                    Sentence([Verb('cry').negative(), Verb('dry').negative().third_person()]),
+                    Sentence([Verb('pry'), Verb('fry').negative()])]
+        self.assertEqual(error_paragraph.sentence_list(), expected)

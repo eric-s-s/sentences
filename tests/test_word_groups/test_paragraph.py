@@ -101,7 +101,7 @@ class TestParagraph(unittest.TestCase):
 
     def test_set(self):
         sentences = [Sentence([BasicWord('hi'), BasicWord('there')]), Sentence([BasicWord('ho')])]
-        tags = Tags([StatusTag.HAS_ERRORS])
+        tags = Tags([StatusTag.NOUN_ERRORS])
         paragraph = Paragraph(sentences, tags)
         new_paragraph = paragraph.set(0, 1, BasicWord('new'))
 

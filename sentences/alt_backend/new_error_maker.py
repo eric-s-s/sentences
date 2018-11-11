@@ -15,51 +15,29 @@ from sentences.words.wordtools.common_functions import add_s
 
 
 class NewErrorMaker(object):
-    def __init__(self, paragraph: Paragraph, p_error):
-        self.p_error = p_error
+    def __init__(self, paragraph: Paragraph):
         self._paragraph = paragraph
-        self._error_paragraph = paragraph  # type: Paragraph
+        self._error_paragraph = None  # type: Paragraph
 
-    @property
-    def paragraph(self):
+    def get_paragraph(self):
         return self._paragraph
 
-    @property
-    def error_paragraph(self):
-        return self._error_paragraph
+    def noun_errors(self, p_error):
+        self._error_paragraph = self._paragraph
+        self._set_error_tag(StatusTag.NOUN_ERRORS)
 
-    @property
-    def method_order(self):
-        methods = [
-            self.create_noun_errors, self.create_pronoun_errors, self.create_verb_errors, self.create_is_do_errors,
-            self.create_preposition_transpose_errors, self.create_period_errors
-        ]
-        return methods
-
-    def reset(self):
-        self._error_paragraph = self.paragraph
-
-    def create_noun_errors(self):
-        self._set_error_tags()
         for s_index, w_index, word in self._error_paragraph.indexed_all_words():
             if isinstance(word, Noun):
-                if random.random() < self.p_error:
+                if random.random() < p_error:
                     new_noun = make_noun_error(word)
-                    if w_index == 0:
-                        new_noun = new_noun.capitalize()
                     self._error_paragraph = self._error_paragraph.set(s_index, w_index, new_noun)
-        # for s_index, sentence in enumerate(self._error_paragraph):
-        #     for index, word in enumerate(sentence):
-        #         if isinstance(word, Noun):
-        #             if random.random() < self.p_error:
-        #
-        #                 new_noun = make_noun_error(word)
-        #                 if index == 0:
-        #                     new_noun = new_noun.capitalize()
-        #                 sentence[index] = new_noun
+        self._recapitalize_first_word()
+        return NewErrorMaker(self._error_paragraph)
 
-    def create_pronoun_errors(self):
-        self._set_error_tags()
+    def pronoun_errors(self, p_error):
+        self._error_paragraph = self._paragraph
+        self._set_error_tag(StatusTag.PRONOUN_ERRORS)
+        return NewErrorMaker(self._error_paragraph)
         # excluded = [Pronoun.YOU, Pronoun.IT, CapitalPronoun.YOU, CapitalPronoun.IT]
         # for s_index, sentence in enumerate(self._error_paragraph):
         #     for index, word in enumerate(sentence):
@@ -70,8 +48,17 @@ class NewErrorMaker(object):
         #                     new_pronoun = word.subject()
         #                 sentence[index] = new_pronoun
 
-    def create_verb_errors(self):
-        self._set_error_tags()
+    def verb_errors(self, p_error):
+        self._error_paragraph = self._paragraph
+        self._set_error_tag(StatusTag.VERB_ERRORS)
+
+        for s_index, w_index, word in self._error_paragraph.indexed_all_words():
+            if random.random() < p_error:
+                new_verb = make_verb_error(word)
+                self._error_paragraph = self._error_paragraph.set(s_index, w_index, new_verb)
+
+        self._recapitalize_first_word()
+        return NewErrorMaker(self._error_paragraph)
         # for s_index, sentence in enumerate(self._error_paragraph):
         #     for index, word in enumerate(sentence):
         #         if isinstance(word, Verb):
@@ -80,8 +67,10 @@ class NewErrorMaker(object):
         #                 new_verb = make_verb_error(word, is_third_person_noun)
         #                 sentence[index] = new_verb
 
-    def create_is_do_errors(self):
-        self._set_error_tags()
+    def is_do_errors(self, p_error):
+        self._error_paragraph = self._paragraph
+        self._set_error_tag(StatusTag.IS_DO_ERRORS)
+        return NewErrorMaker(self._error_paragraph)
         # for s_index, sentence in enumerate(self._error_paragraph):
         #     for index, word in enumerate(sentence):
         #         if isinstance(word, Verb):
@@ -90,8 +79,10 @@ class NewErrorMaker(object):
         #                 is_do = make_is_do_error(word, be_verb)
         #                 sentence[index] = is_do
 
-    def create_preposition_transpose_errors(self):
-        self._set_error_tags()
+    def preposition_errors(self, p_error):
+        self._error_paragraph = self._paragraph
+        self._set_error_tag(StatusTag.PREPOSITION_ERRORS)
+        return NewErrorMaker(self._error_paragraph)
         # for s_index, sentence in enumerate(self._error_paragraph):  # type: Sentence
         #     for index, word in enumerate(sentence):
         #         if word.has_tags(WordTag.PREPOSITION):
@@ -105,8 +96,10 @@ class NewErrorMaker(object):
         #                 sentence.insert(insert_index, obj)
         #                 sentence.insert(insert_index, word)
 
-    def create_period_errors(self):
-        self._set_error_tags()
+    def punctuation_errors(self, p_error):
+        self._error_paragraph = self._paragraph
+        self._set_error_tag(StatusTag.PUNCTUATION_ERRORS)
+        return NewErrorMaker(self._error_paragraph)
         # for s_index, sentence in enumerate(self._error_paragraph):
         #     if random.random() < self.p_error:
         #         sentence[-1] = Punctuation.COMMA
@@ -123,18 +116,28 @@ class NewErrorMaker(object):
         #         new_word = to_de_capitalize.de_capitalize()
         #         target_sentence[0] = new_word
 
-    def create_all_errors(self):
-        pass
-        # for method in self.method_order:
-        #     method()
+    def _set_error_tag(self, new_tag):
+        new_tags = self._error_paragraph.tags.remove(StatusTag.GRAMMATICAL).add(new_tag)
+        self._error_paragraph = self._error_paragraph.set_tags(new_tags)
 
-    def _set_error_tags(self):
-        new_tags = self._error_paragraph.tags.add(StatusTag.HAS_ERRORS).remove(StatusTag.GRAMMATICAL)
-        self._error_paragraph = self._error_paragraph.set_tags(new_tags)  # type: Paragraph
+    def _recapitalize_first_word(self):
+        for s_index, sentence in enumerate(self._error_paragraph):
+            try:
+                test_word = self._paragraph.sentence_list()[s_index].get(0)
+                new_word = sentence.get(0)
+            except IndexError:
+                continue
+
+            if test_word.capitalize() == test_word:
+                new_word = new_word.capitalize()
+
+            new_sentence = sentence.set(0, new_word)
+            self._error_paragraph = self._error_paragraph.set_sentence(s_index, new_sentence)
 
 
 def make_noun_error(noun):
     basic = noun.to_basic_noun()
+
     if noun.has_tags(WordTag.PROPER):
         choices = [basic.indefinite(), basic.definite()]
     elif noun.has_tags(WordTag.UNCOUNTABLE):
@@ -149,14 +152,14 @@ def make_noun_error(noun):
     return random.choice(choices)
 
 
-def make_verb_error(verb, is_third_person_noun):
+def make_verb_error(verb):
     basic = verb.to_basic_verb()
     if verb.has_tags(WordTag.NEGATIVE):
         basic = basic.negative()
 
     if verb.has_tags(WordTag.PAST):
         choices = [basic, basic.third_person()]
-    elif is_third_person_noun:
+    elif verb.has_tags(WordTag.THIRD_PERSON):
         choices = [basic] * 3 + [basic.past_tense(), _add_s_to_verb(basic.past_tense())]
 
     else:
@@ -176,3 +179,4 @@ def make_is_do_error(verb, be_verb: BeVerb):
     if verb.has_tags(WordTag.NEGATIVE):
         new_be_verb = new_be_verb.negative()
     return [new_be_verb, verb.to_basic_verb()]
+
