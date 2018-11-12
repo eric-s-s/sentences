@@ -2,12 +2,12 @@ import unittest
 from typing import List, Any
 
 from sentences.backend.investigation_tools import (requires_third_person, is_third_person, find_subject,
-                                                   is_word_in_sentence, get_present_be_verb)
+                                                   get_present_be_verb)
+from sentences.words.basicword import BasicWord
 from sentences.words.noun import Noun
 from sentences.words.pronoun import Pronoun, CapitalPronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
-from sentences.words.basicword import BasicWord
 
 i, me, you, he, him, she, her, it, we, us, they, them = Pronoun.__members__.values()
 period = Punctuation.PERIOD
@@ -85,23 +85,6 @@ class TestInvestigationTools(unittest.TestCase):
         answer = [Verb('STOP'), BasicWord('in'), Noun('name').definite(), BasicWord('of'), Noun('love'),
                   period, period, period]
         self.assertFalse(requires_third_person(answer))
-
-    def test_is_word_in_sentence_pronoun(self):
-        sentence = [i, Verb('do').negative().past_tense(), it]
-        self.assertTrue(is_word_in_sentence(me, sentence))
-        self.assertTrue(is_word_in_sentence(i, sentence))
-        self.assertFalse(is_word_in_sentence(they, sentence))
-        self.assertTrue(is_word_in_sentence(it, sentence))
-
-    def test_is_word_in_sentence_other(self):
-        sentence = [BasicWord('tom'), Verb('dick'), Noun('harry')]
-        self.assertTrue(is_word_in_sentence(BasicWord('tom'), sentence))
-        self.assertTrue(is_word_in_sentence(Verb('dick'), sentence))
-        self.assertTrue(is_word_in_sentence(Noun('harry'), sentence))
-
-        self.assertFalse(is_word_in_sentence(Noun('tom'), sentence))
-        self.assertFalse(is_word_in_sentence(BasicWord('dick'), sentence))
-        self.assertFalse(is_word_in_sentence(Verb('harry'), sentence))
 
     def test_get_present_be_verb_no_subj(self):
         sentence = [Verb('Give'), Pronoun.ME, Noun('break').indefinite(), period]

@@ -9,6 +9,8 @@ from sentences.words.wordtools.common_functions import bold
 
 
 class BeVerb(Enum):
+    BE = 'be'
+
     IS = 'is'
     AM = 'am'
     ARE = 'are'
@@ -47,7 +49,7 @@ class BeVerb(Enum):
         return BasicWord(bold(self.value))
 
     def negative(self):
-        if self.has_tags(WordTag.NEGATIVE):
+        if self.has_tags(WordTag.NEGATIVE) or self == BeVerb.BE:
             return self
         return getattr(self, '{}_NOT'.format(self.name))
 

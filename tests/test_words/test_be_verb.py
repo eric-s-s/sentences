@@ -14,6 +14,7 @@ class TestBeVerb(unittest.TestCase):
 
     def test_values(self):
         expected_pairs = [
+            (BeVerb.BE, 'be'),
             (BeVerb.AM, 'am'), (BeVerb.IS, 'is'), (BeVerb.ARE, 'are'),
             (BeVerb.AM_NOT, 'am not'), (BeVerb.IS_NOT, 'is not'), (BeVerb.ARE_NOT, 'are not'),
             (BeVerb.WAS, 'was'), (BeVerb.WERE, 'were'),
@@ -23,6 +24,7 @@ class TestBeVerb(unittest.TestCase):
             self.assertEqual(word.value, value)
 
     def test_tags(self):
+        self.assertEqual(BeVerb.BE.tags, Tags())
         self.assertEqual(BeVerb.AM.tags, Tags())
         self.assertEqual(BeVerb.IS.tags, Tags([WordTag.THIRD_PERSON]))
         self.assertEqual(BeVerb.ARE.tags, Tags())
@@ -75,6 +77,9 @@ class TestBeVerb(unittest.TestCase):
         self.assertEqual(BeVerb.WAS.negative(), BeVerb.WAS_NOT)
         self.assertEqual(BeVerb.WERE.negative(), BeVerb.WERE_NOT)
 
+    def test_be_has_no_negative(self):
+        self.assertEqual(BeVerb.BE.negative(), BeVerb.BE)
+
     def test_past_tense_already_past_tense(self):
         self.assertEqual(BeVerb.WAS.past_tense(), BeVerb.WAS)
         self.assertEqual(BeVerb.WAS_NOT.past_tense(), BeVerb.WAS_NOT)
@@ -90,3 +95,6 @@ class TestBeVerb(unittest.TestCase):
 
         self.assertEqual(BeVerb.ARE.past_tense(), BeVerb.WERE)
         self.assertEqual(BeVerb.ARE_NOT.past_tense(), BeVerb.WERE_NOT)
+
+    def test_be_has_no_past_tense(self):
+        self.assertEqual(BeVerb.BE.past_tense(), BeVerb.BE)

@@ -1,5 +1,3 @@
-
-
 def bold(word_value) -> str:
     if word_value.endswith('</bold>') and word_value.startswith('<bold>'):
         return word_value
@@ -51,8 +49,3 @@ def ends_with_short_vowel_and_consonant(value: str) -> bool:
             return value[-3] not in vowels
         return True
     return False
-
-
-
-
-

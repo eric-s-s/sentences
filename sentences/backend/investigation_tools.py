@@ -39,9 +39,3 @@ def is_third_person(word) -> bool:
     if isinstance(word, (Noun, AbstractPronoun)) and word not in first_person:
         return not word.has_tags(WordTag.PLURAL)
     return False
-
-
-def is_word_in_sentence(word, raw_sentence):
-    if isinstance(word, AbstractPronoun):
-        return any(word.is_pair(element) for element in raw_sentence)
-    return word in raw_sentence

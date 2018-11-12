@@ -126,6 +126,16 @@ class TestParagraph(unittest.TestCase):
         expected = Paragraph([Sentence(), new_sentence, Sentence()], tags)
         self.assertEqual(paragraph, expected)
 
+    def test_get_sentence(self):
+        sentences = [Sentence([BasicWord('a')]), Sentence([BasicWord('b')])]
+        paragraph = Paragraph(sentences)
+        self.assertEqual(paragraph.get_sentence(0), sentences[0])
+        self.assertEqual(paragraph.get_sentence(1), sentences[1])
+
+    def test_get_sentence_index_error(self):
+        paragarph = Paragraph([])
+        self.assertRaises(IndexError, paragarph.get_sentence, 0)
+
     def test_set_tags(self):
         sentence_list = [Sentence([BasicWord('test')])]
         paragraph = Paragraph(sentence_list, Tags([StatusTag.HAS_PLURALS]))

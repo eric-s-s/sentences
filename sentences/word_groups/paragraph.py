@@ -53,6 +53,9 @@ class Paragraph(object):
     def set_tags(self, tags: Tags):
         return Paragraph(self.sentence_list(), tags)
 
+    def get_sentence(self, index):
+        return self._sentences[index]
+
     def set_sentence(self, index, new_sentence):
         sentences = self.sentence_list()
         sentences[index] = new_sentence
