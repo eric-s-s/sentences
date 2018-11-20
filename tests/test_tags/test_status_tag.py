@@ -7,6 +7,7 @@ from sentences.tags.tags import Tags
 class TestStatusTag(unittest.TestCase):
     def test_sorted_members(self):
         expected = [StatusTag.RAW, StatusTag.HAS_PLURALS, StatusTag.HAS_NEGATIVES, StatusTag.GRAMMATICAL,
+                    StatusTag.SIMPLE_PRESENT, StatusTag.SIMPLE_PAST,
                     StatusTag.NOUN_ERRORS, StatusTag.PRONOUN_ERRORS,
                     StatusTag.VERB_ERRORS, StatusTag.IS_DO_ERRORS,
                     StatusTag.PREPOSITION_ERRORS, StatusTag.PUNCTUATION_ERRORS]
@@ -16,6 +17,7 @@ class TestStatusTag(unittest.TestCase):
 
     def test_repr(self):
         for name in ('RAW', 'HAS_PLURALS', 'HAS_NEGATIVES', 'GRAMMATICAL',
+                     'SIMPLE_PRESENT', 'SIMPLE_PAST',
                      'NOUN_ERRORS', 'PRONOUN_ERRORS', 'VERB_ERRORS', 'IS_DO_ERRORS',
                      'PREPOSITION_ERRORS', 'PUNCTUATION_ERRORS'):
             tag = getattr(StatusTag, name)

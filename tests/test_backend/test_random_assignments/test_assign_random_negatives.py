@@ -26,8 +26,8 @@ class TestAssignRandomNegatives(unittest.TestCase):
         self.assertEqual(to_test.sentence_list(), self.sentence_list)
 
     def test_p_negative_gte_one(self):
-        expected_list = [Sentence([BasicWord('a'), Verb('b').past_tense(), BasicWord('c')]),
-                         Sentence([BasicWord('d'), Verb('e').past_tense()])]
+        expected_list = [Sentence([BasicWord('a'), Verb('b').negative(), BasicWord('c')]),
+                         Sentence([BasicWord('d'), Verb('e').negative()])]
 
         to_test = assign_random_negatives(self.paragraph, p_negative=1.0)
         self.assertEqual(to_test.sentence_list(), expected_list)
@@ -49,5 +49,5 @@ class TestAssignRandomNegatives(unittest.TestCase):
             expected = self.paragraph
             for verb in past_verbs[index]:
                 indices = self.paragraph.find(verb)[0]
-                expected = expected.set(*indices, verb.past_tense())
+                expected = expected.set(*indices, verb.negative())
             self.assertEqual(to_test.sentence_list(), expected.sentence_list())

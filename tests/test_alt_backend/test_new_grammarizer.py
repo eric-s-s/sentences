@@ -23,10 +23,12 @@ class TestNewGrammarizer(unittest.TestCase):
         paragraph = Paragraph([Sentence([Noun('x')])], tags)
         grammarizer = NewGrammarizer(paragraph)
         new_paragraph = grammarizer.grammarize_to_present_tense()
-        self.assertEqual(new_paragraph.tags, tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL))
+        new_tags = tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL).add(StatusTag.SIMPLE_PRESENT)
+        self.assertEqual(new_paragraph.tags, new_tags)
 
         new_paragraph = grammarizer.grammarize_to_past_tense()
-        self.assertEqual(new_paragraph.tags, tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL))
+        new_tags = tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL).add(StatusTag.SIMPLE_PAST)
+        self.assertEqual(new_paragraph.tags, new_tags)
 
     def test_grammarize_to_present_or_past_tense_capitalizes_first_word(self):
         paragraph = Paragraph([Sentence([BasicWord('a'), BasicWord('b')]),

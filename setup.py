@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def readme():
@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sentences',
-      version='3.3',
+      version='4.0',
       description='sentence generator',
       long_description=readme(),
       keywords='',
@@ -22,7 +22,7 @@ setup(name='sentences',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui', 'sentences.words.wordtools'],
+      packages=find_packages(include=['sentences.*', 'sentences']),
       entry_points={
           'console_scripts': ['gen_pdf = sentences.guimain:main_app'],
       },

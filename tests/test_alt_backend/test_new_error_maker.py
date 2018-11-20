@@ -758,3 +758,58 @@ class TestNewErrorMaker(unittest.TestCase):
                     Sentence([Noun('dog').definite(), Punctuation.COMMA]),
                     Sentence([BasicWord('a'), Punctuation.PERIOD])]
         self.assertEqual(error_paragraph.sentence_list(), expected)
+
+    def test_error_maker_order_of_errors_affects_verb_errors_is_do_errors(self):
+        random.seed(4958)
+        sentences = [
+            Sentence([CapitalPronoun.I, Verb('play'), Punctuation.PERIOD]),
+            Sentence([CapitalPronoun.I, Verb('play'), Punctuation.PERIOD]),
+            Sentence([Noun('dog').definite(), Verb('play').third_person(), Punctuation.PERIOD]),
+            Sentence([Noun('dog').definite(), Verb('play').third_person(), Punctuation.PERIOD]),
+            Sentence([CapitalPronoun.I, Verb('play'), Punctuation.PERIOD]),
+            Sentence([Noun('dog').definite(), Verb('play').third_person(), Punctuation.PERIOD]),
+        ]
+        original_str = 'I play. I play. the dog plays. the dog plays. I play. the dog plays.'
+        self.assertEqual(str(Paragraph(sentences)), original_str)
+
+        error_maker = NewErrorMaker(Paragraph(sentences))
+
+        verb_then_is_do = error_maker.verb_errors(1.0).is_do_errors(1.0).get_paragraph()
+        verb_then_is_do_str = 'I was play. I am play. the dog was play. the dog is play. I am play. the dog is play.'
+        self.assertEqual(str(verb_then_is_do), verb_then_is_do_str)
+
+        is_do_then_verb = error_maker.is_do_errors(1.0).verb_errors(1.0).get_paragraph()
+        is_do_then_verb_str = ('I am played. I am plays. the dog is plays.'
+                               ' the dog is played. I am played. the dog is plays.')
+        self.assertEqual(str(is_do_then_verb), is_do_then_verb_str)
+
+    def test_error_maker_order_of_errors_preposition_errors_affect_is_do_errors(self):
+        sentences = [
+            Sentence([CapitalPronoun.I, Verb('play'), Punctuation.PERIOD, BasicWord.preposition('with'), Pronoun.HIM]),
+            Sentence(
+                [Noun('dog').definite(), Verb('play').third_person(), Punctuation.PERIOD, BasicWord.preposition('with'),
+                 Pronoun.HIM]),
+        ]
+        error_maker = NewErrorMaker(Paragraph(sentences))
+
+        is_do_preposition = error_maker.is_do_errors(1.0).preposition_errors(1.0).get_paragraph()
+        expected_str = 'I with him am play. the dog with him is play.'
+        self.assertEqual(str(is_do_preposition), expected_str)
+
+        preposition_is_do = error_maker.preposition_errors(1.0).is_do_errors(1.0).get_paragraph()
+        expected_str = 'I with him is play. the dog with him is play.'
+        self.assertEqual(str(preposition_is_do), expected_str)
+
+    def test_regression_test_verb_error_is_do_error(self):
+        random.seed(11)
+        paragraph = Paragraph([Sentence([Pronoun.HE, Verb('play').negative().third_person()])])
+        error_maker = NewErrorMaker(paragraph)
+
+        verb_error = error_maker.verb_errors(1.0)
+        verb_is_do_error = verb_error.is_do_errors(1.0)
+
+        expected_verb_error = "he didn't plays"
+        expected_verb_is_do_error = "he was not play"
+
+        self.assertEqual(str(verb_error.get_paragraph()), expected_verb_error)
+        self.assertEqual(str(verb_is_do_error.get_paragraph()), expected_verb_is_do_error)

@@ -46,15 +46,15 @@ class Verb(AbstractWord):
     def __hash__(self):
         return hash('hash of {!r}'.format(self))
 
-    def capitalize(self):
+    def capitalize(self) -> 'Verb':
         new_value = self.value[0].upper() + self.value[1:]
         return Verb(new_value, self.irregular_past, self.infinitive, self.tags)
 
-    def de_capitalize(self):
+    def de_capitalize(self) -> 'Verb':
         new_value = self.value[0].lower() + self.value[1:]
         return Verb(new_value, self.irregular_past, self.infinitive, self.tags)
 
-    def bold(self):
+    def bold(self) -> 'Verb':
         return Verb(bold(self.value), self.irregular_past, self.infinitive, self.tags)
 
     def past_tense(self):

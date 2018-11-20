@@ -20,14 +20,14 @@ class NewGrammarizer(object):
         self._assign_noun_articles()
         self._assign_present_tense_verbs()
         self._capitalize_first_letter_of_sentences()
-        return self._set_tags()
+        return self._set_tags(StatusTag.SIMPLE_PRESENT)
 
     def grammarize_to_past_tense(self):
         self._altered = self._raw
         self._assign_noun_articles()
         self._assign_past_tense_verbs()
         self._capitalize_first_letter_of_sentences()
-        return self._set_tags()
+        return self._set_tags(StatusTag.SIMPLE_PAST)
 
     def _assign_present_tense_verbs(self):
         for s_index, sentence in enumerate(self._altered):  # type: Sentence
@@ -63,8 +63,9 @@ class NewGrammarizer(object):
             new_sentence = sentence.set(0, old.capitalize())
             self._altered = self._altered.set_sentence(s_index, new_sentence)
 
-    def _set_tags(self):
-        return self._altered.set_tags(self._raw.tags.add(StatusTag.GRAMMATICAL).remove(StatusTag.RAW))
+    def _set_tags(self, tense_tag):
+        new_tags = self._raw.tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL).add(tense_tag)
+        return self._altered.set_tags(new_tags)
 
 
 def _is_alterable_noun(word):

@@ -65,8 +65,6 @@ setup(name='sentence_mangler',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
       ],
-      packages=['sentences', 'sentences.words', 'sentences.backend', 'sentences.gui', 'sentences.words.wordtools'],
-
       package_data={
           '': ['data/*.csv', 'data/default.cfg', 'data/*.txt', 'data/*.ico']
       },
