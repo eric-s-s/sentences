@@ -107,7 +107,7 @@ class NewErrorMaker(object):
                 self._error_paragraph = self._error_paragraph.set_sentence(next_index, next_sentence)
 
     def _set_error_tag(self, new_tag):
-        new_tags = self._error_paragraph.tags.remove(StatusTag.GRAMMATICAL).add(new_tag)
+        new_tags = self._error_paragraph.tags.add(new_tag)
         self._error_paragraph = self._error_paragraph.set_tags(new_tags)
 
     def _recapitalize_first_word(self):

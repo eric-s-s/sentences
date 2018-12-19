@@ -327,10 +327,10 @@ class TestNewErrorMaker(unittest.TestCase):
         self.assertEqual(error_maker.punctuation_errors(1.0).get_paragraph().sentence_list(), [])
 
     def test_error_maker_noun_errors_changes_tags(self):
-        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        paragraph = Paragraph([], Tags([StatusTag.PRONOUN_ERRORS]))
         new_error_maker = NewErrorMaker(paragraph).noun_errors(0.5)
         self.assertEqual(new_error_maker.get_paragraph().tags,
-                         paragraph.tags.add(StatusTag.NOUN_ERRORS).remove(StatusTag.GRAMMATICAL))
+                         paragraph.tags.add(StatusTag.NOUN_ERRORS))
 
     def test_error_maker_noun_errors_retains_capital_letters_in_first_word(self):
         sentences = [Sentence([Noun('A'), Noun('b')]),
@@ -398,10 +398,10 @@ class TestNewErrorMaker(unittest.TestCase):
         self.assertEqual(error_paragraph.sentence_list(), sentences)
 
     def test_error_maker_pronoun_errors_changes_tags(self):
-        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.NOUN_ERRORS]))
+        paragraph = Paragraph([], Tags([StatusTag.NOUN_ERRORS]))
         new_error_maker = NewErrorMaker(paragraph).pronoun_errors(0.5)
         self.assertEqual(new_error_maker.get_paragraph().tags,
-                         paragraph.tags.add(StatusTag.PRONOUN_ERRORS).remove(StatusTag.GRAMMATICAL))
+                         paragraph.tags.add(StatusTag.PRONOUN_ERRORS))
 
     def test_error_maker_pronoun_errors_retains_capital_letters_in_first_word(self):
         sentences = [Sentence([CapitalPronoun.I, Pronoun.ME]),
@@ -486,10 +486,10 @@ class TestNewErrorMaker(unittest.TestCase):
         self.assertEqual(error_paragraph.sentence_list(), sentences)
 
     def test_error_maker_verb_errors_changes_tags(self):
-        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        paragraph = Paragraph([], Tags([StatusTag.PRONOUN_ERRORS]))
         new_error_maker = NewErrorMaker(paragraph).verb_errors(0.5)
         self.assertEqual(new_error_maker.get_paragraph().tags,
-                         paragraph.tags.add(StatusTag.VERB_ERRORS).remove(StatusTag.GRAMMATICAL))
+                         paragraph.tags.add(StatusTag.VERB_ERRORS))
 
     def test_error_maker_verb_errors_retains_capital_letters_in_first_word(self):
         sentences = [Sentence([Verb('A'), Verb('b')]),
@@ -561,10 +561,10 @@ class TestNewErrorMaker(unittest.TestCase):
         self.assertEqual(error_paragraph.sentence_list(), sentences)
 
     def test_error_maker_is_do_errors_changes_tags(self):
-        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        paragraph = Paragraph([], Tags([StatusTag.PRONOUN_ERRORS]))
         new_error_maker = NewErrorMaker(paragraph).is_do_errors(0.5)
         self.assertEqual(new_error_maker.get_paragraph().tags,
-                         paragraph.tags.add(StatusTag.IS_DO_ERRORS).remove(StatusTag.GRAMMATICAL))
+                         paragraph.tags.add(StatusTag.IS_DO_ERRORS))
 
     def test_error_maker_is_do_errors_retains_capital_letters_in_first_word(self):
         sentences = [Sentence([Verb('A'), Verb('b')]),
@@ -639,10 +639,10 @@ class TestNewErrorMaker(unittest.TestCase):
         self.assertEqual(error_paragraph.sentence_list(), sentences)
 
     def test_error_maker_preposition_errors_changes_tags(self):
-        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        paragraph = Paragraph([], Tags([StatusTag.PRONOUN_ERRORS]))
         new_error_maker = NewErrorMaker(paragraph).preposition_errors(0.5)
         self.assertEqual(new_error_maker.get_paragraph().tags,
-                         paragraph.tags.add(StatusTag.PREPOSITION_ERRORS).remove(StatusTag.GRAMMATICAL))
+                         paragraph.tags.add(StatusTag.PREPOSITION_ERRORS))
 
     def test_error_maker_preposition_errors_retains_capital_letters_in_first_word(self):
         sentences = [Sentence([Verb('Go'), BasicWord.preposition('with'), Pronoun.HIM]),
@@ -714,10 +714,10 @@ class TestNewErrorMaker(unittest.TestCase):
         self.assertEqual(error_paragraph.sentence_list(), sentences)
 
     def test_error_maker_punctuation_errors_changes_tags(self):
-        paragraph = Paragraph([], Tags([StatusTag.GRAMMATICAL, StatusTag.PRONOUN_ERRORS]))
+        paragraph = Paragraph([], Tags([StatusTag.PRONOUN_ERRORS]))
         new_error_maker = NewErrorMaker(paragraph).punctuation_errors(0.5)
         self.assertEqual(new_error_maker.get_paragraph().tags,
-                         paragraph.tags.add(StatusTag.PUNCTUATION_ERRORS).remove(StatusTag.GRAMMATICAL))
+                         paragraph.tags.add(StatusTag.PUNCTUATION_ERRORS))
 
     def test_error_maker_punctuation_errors_p_error_lte_zero(self):
         sentences = [Sentence([CapitalPronoun.I, Verb('go'), Pronoun.HIM, Punctuation.PERIOD]),

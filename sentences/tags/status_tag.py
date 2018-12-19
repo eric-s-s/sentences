@@ -5,7 +5,6 @@ class StatusTag(Enum):
     RAW = 1
     HAS_PLURALS = 2
     HAS_NEGATIVES = 3
-    GRAMMATICAL = 4
 
     SIMPLE_PRESENT = 5
     SIMPLE_PAST = 6

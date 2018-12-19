@@ -64,7 +64,7 @@ class NewGrammarizer(object):
             self._altered = self._altered.set_sentence(s_index, new_sentence)
 
     def _set_tags(self, tense_tag):
-        new_tags = self._raw.tags.remove(StatusTag.RAW).add(StatusTag.GRAMMATICAL).add(tense_tag)
+        new_tags = self._raw.tags.remove(StatusTag.RAW).add(tense_tag)
         return self._altered.set_tags(new_tags)
 
 

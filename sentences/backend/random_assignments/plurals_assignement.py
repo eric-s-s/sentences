@@ -10,10 +10,9 @@ from sentences.words.wordtools.abstractword import AbstractWord
 class PluralsAssignment(object):
     def __init__(self, raw_paragraph: Paragraph):
         self._raw = raw_paragraph
-        if raw_paragraph.tags.has(StatusTag.HAS_PLURALS):
-            self._revert_nouns()
+        self._revert_nouns_and_tags()
 
-    def _revert_nouns(self):
+    def _revert_nouns_and_tags(self):
         for s_index, w_index, word in self._raw.indexed_all_words():
             if isinstance(word, Noun):
                 self._raw = self._raw.set(s_index, w_index, word.to_basic_noun())  # type: Paragraph

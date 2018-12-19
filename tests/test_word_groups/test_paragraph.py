@@ -43,17 +43,17 @@ class TestParagraph(unittest.TestCase):
     def test__eq__true(self):
         sentences = [Sentence([BasicWord('a'), BasicWord('b')]),
                      Sentence([BasicWord('c')])]
-        tags = Tags([StatusTag.RAW, StatusTag.GRAMMATICAL])
+        tags = Tags([StatusTag.RAW, StatusTag.SIMPLE_PAST])
         self.assertEqual(Paragraph(sentences, tags), Paragraph(sentences, tags))
 
     def test__eq__false_by_tags(self):
         sentences = [Sentence([BasicWord('a'), BasicWord('b')]),
                      Sentence([BasicWord('c')])]
-        self.assertNotEqual(Paragraph(sentences, Tags([StatusTag.GRAMMATICAL])),
+        self.assertNotEqual(Paragraph(sentences, Tags([StatusTag.SIMPLE_PAST])),
                             Paragraph(sentences, Tags()))
 
     def test__eq__false_by_sentence_list(self):
-        tags = Tags([StatusTag.GRAMMATICAL])
+        tags = Tags([StatusTag.SIMPLE_PAST])
         self.assertNotEqual(Paragraph([Sentence([BasicWord('a')])], tags),
                             Paragraph([Sentence([BasicWord('b')])], tags))
 
@@ -133,8 +133,8 @@ class TestParagraph(unittest.TestCase):
         self.assertEqual(paragraph.get_sentence(1), sentences[1])
 
     def test_get_sentence_index_error(self):
-        paragarph = Paragraph([])
-        self.assertRaises(IndexError, paragarph.get_sentence, 0)
+        paragraph = Paragraph([])
+        self.assertRaises(IndexError, paragraph.get_sentence, 0)
 
     def test_set_tags(self):
         sentence_list = [Sentence([BasicWord('test')])]

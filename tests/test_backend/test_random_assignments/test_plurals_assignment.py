@@ -19,7 +19,7 @@ class TestPluralsAssignment(unittest.TestCase):
         self.assertEqual(pa.raw.sentence_list(), sentences)
         self.assertEqual(pa.raw.tags, tags)
 
-    def test_init_reverts_nouns_if_has_plural(self):
+    def test_init_reverts_nouns_and_removes_tag(self):
         original_sentences = [Sentence([Noun('x').plural(), Noun('y'),
                                         Noun.uncountable_noun('z'), Noun.proper_noun('A', plural=True)])]
         original_tags = Tags([StatusTag.HAS_PLURALS, StatusTag.RAW])
