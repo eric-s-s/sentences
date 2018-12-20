@@ -2,7 +2,12 @@ import re
 from itertools import zip_longest
 
 from sentences.word_groups.paragraph import Paragraph
+from sentences.word_groups.sentence import Sentence
+from sentences.words.basicword import BasicWord
 from sentences.words.noun import Noun
+from sentences.words.punctuation import Punctuation
+from sentences.words.verb import Verb
+from sentences.words.wordtools.abstractword import AbstractWord
 
 
 class ParagraphComparison(object):
@@ -36,53 +41,98 @@ class ParagraphComparison(object):
 
 
 def compare_sentences(sentence, submission_str):
-    word_list = get_word_list(submission_str)
-    # grouped = get_noun_groupings(get_verb_groupings(word_list))
+    new_sentence = []
+    error_count = 0
+    for word in sentence:
+
+        if isinstance(word, Punctuation):
+            new_word = get_punctuation(submission_str)
+        else:
+            location = find_word_group(word, submission_str)
+            substr = submission_str[slice(*location)]
+            new_word = BasicWord(substr)
+
+        if new_word is None:
+            new_word = BasicWord('MISSING')
+        if new_word.value != word.value:
+            new_word = new_word.bold()
+            error_count += 1
+        new_sentence.append(new_word)
+    hint = str(Sentence(new_sentence))
     return {
-        'error_count': 0,
-        'hint_sentence': submission_str,
+        'error_count': error_count,
+        'hint_sentence': hint,
     }
+
+
+def get_punctuation(submission_str):
+    punctuations = {
+        '.': Punctuation.PERIOD,
+        ',': Punctuation.COMMA,
+        '!': Punctuation.EXCLAMATION,
+        '?': Punctuation.QUESTION
+    }
+    last_character = submission_str.strip(' ')[-1]
+    try:
+        return punctuations[last_character]
+    except KeyError:
+        return None
 
 
 def find_word_group(word, submission_str):
     if isinstance(word, Noun):
-        base_word = word.to_basic_noun()
-        or_statement = '({}|{})'.format(base_word.value, base_word.capitalize().value)
-        answer = re.compile(r'.*{}\w*'.format(or_statement)).match(submission_str)
-        if answer:
-            return answer.span()
+        return find_noun_group(word, submission_str)
+    elif isinstance(word, Verb):
+        return find_verb_group(word, submission_str)
+    else:
+        return find_word(word, submission_str)
 
 
-def get_noun_groupings(sentence, submission_str):
-    breaks = r"[ ,.?!]"
-    answer = {}
-    for word in sentence:
-        if isinstance(word, Noun):
-            to_search = Noun.base_noun
+def find_noun_group(word: Noun, submission_str):
+    prefixes = '(a|A|an|An|the|The)'
+
+    base_word = word.to_basic_noun()
+
+    base_value = base_word.value
+    plural_value = base_word.plural().value
+
+    base_regex = _get_dual_case(base_value)
+    plural_regex = _get_dual_case(plural_value)
+
+    word_regex = f'({base_regex}|{plural_regex})'
+
+    return _find_from_regex(prefixes, word_regex, submission_str)
 
 
-def get_word_list(submission_str: str):
-    added_spaces = submission_str
-    for puncutaion in ",.?!":
-        added_spaces = added_spaces.replace(puncutaion, f" {puncutaion} ")
-    return [word for word in added_spaces.split(' ') if word]
+def find_verb_group(word: Verb, submission_str):
+    prefixes = ["don't", "doesn't", "didn't"]
+    all_prefixes = prefixes + [word.capitalize() for word in prefixes]
+    prefix_regex = '({})'.format('|'.join(all_prefixes))
+
+    base_word = word.to_basic_verb()
+
+    base_value = base_word.value
+    third_person_value = base_word.third_person().value
+    past_value = base_word.past_tense().value
+
+    base_regex = _get_dual_case(base_value)
+    plural_regex = _get_dual_case(third_person_value)
+    past_regex = _get_dual_case(past_value)
+
+    word_regex = f'({base_regex}|{plural_regex}|{past_regex})'
+
+    return _find_from_regex(prefix_regex, word_regex, submission_str)
 
 
+def find_word(word: AbstractWord, submission_str):
+    answer = re.search(r'\b{}\b'.format(word.value), submission_str)
+    return answer.span() if answer is not None else answer
 
 
-# def get_noun_groupings(word_list):
-#     articles = ['a', 'A', 'an', 'An', 'the', 'The']
-#     answer = []
-#     index = 0
-#     while index < len(word_list):
-#         word = word_list[index]
-#         if word in articles:
-#             word = f"{word} {word_list[index + 1]}"
-#             index += 1
-#         answer.append(word)
-#         index += 1
-#     return answer
+def _find_from_regex(prefixes, word_regex, submission_str):
+    answer = re.compile(r'({} )?{}\w*'.format(prefixes, word_regex)).search(submission_str)
+    return answer.span() if answer is not None else answer
 
 
-def get_verb_groupings(word_list):
-    return word_list[:]
+def _get_dual_case(base_str):
+    return '[{}{}]{}'.format(base_str[0].upper(), base_str[0], base_str[1:])
