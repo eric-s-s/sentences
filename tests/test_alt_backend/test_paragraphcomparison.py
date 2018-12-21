@@ -2,12 +2,13 @@ import unittest
 
 from sentences.alt_backend.paragraph_comparison import (
     ParagraphComparison, find_noun_group, find_verb_group, find_word,
-    find_word_group, compare_sentences
-)
+    find_word_group, compare_sentences,
+    get_word_locations, filter_locations)
 from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
 from sentences.words.basicword import BasicWord
 from sentences.words.noun import Noun
+from sentences.words.pronoun import Pronoun
 from sentences.words.punctuation import Punctuation
 from sentences.words.verb import Verb
 
@@ -123,6 +124,39 @@ class TestParagraphComparison(unittest.TestCase):
             'missing_sentences': -1
         }
         self.assertEqual(hints, expected)
+
+    def test_get_word_locations(self):
+        submission_str = "I can fly, and you can't."
+        spans = get_word_locations(submission_str)
+        expected = [(0, 1),  # I
+                    (2, 5),  # can
+                    (6, 9),  # fly
+                    (9, 10),  # ,
+                    (11, 14),  # and
+                    (15, 18),  # you
+                    (19, 24),  # can't
+                    (24, 25)]  # .
+        self.assertEqual(spans, expected)
+
+    def test_filter_locations_to_remove_is_in_list(self):
+        locations = [(1, 2), (3, 4), (5, 6)]
+        to_remove = (3, 4)
+        answer = filter_locations(locations, to_remove)
+        expected = [(1, 2), (5, 6)]
+        self.assertEqual(answer, expected)
+
+    def test_filter_locations_remove_spans_two_elements(self):
+        locations = [(1, 2), (2, 5), (5, 6), (6, 8)]
+        to_remove = (2, 6)
+        answer = filter_locations(locations, to_remove)
+        expected = [(1, 2), (6, 8)]
+        self.assertEqual(answer, expected)
+
+    def test_filter_locations_location_is_equal_high_low(self):
+        locations = [(1, 2), (2, 4)]
+        to_remove = (2, 2)
+        answer = filter_locations(locations, to_remove)
+        self.assertEqual(answer, locations)
 
     def test_find_noun_group_word_not_present(self):
         submission_str = ''
@@ -341,5 +375,86 @@ class TestParagraphComparison(unittest.TestCase):
         expected = {
             'hint_sentence': 'Go <bold>MISSING</bold>',
             'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_missing_word_start_of_sentence(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'b he.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': '<bold>MISSING</bold> b he.',
+            'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_missing_word_middle_of_sentence(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'a he.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a <bold>MISSING</bold> he.',
+            'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_extra_word_first_word(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'c a b he.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': '<bold>c</bold> a b he.',
+            'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_extra_word_middle(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'a b c he.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a b <bold>c</bold> he.',
+            'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_extra_word_end(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'a b he c.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a b he <bold>c</bold>.',
+            'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_two_extra_words_apart(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'a c b c he.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a <bold>c</bold> b <bold>c</bold> he.',
+            'error_count': 2
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_two_extra_words_together(self):
+        sentence = Sentence([Noun('a'), Verb('b'), Pronoun.HE, Punctuation.PERIOD])
+        submission_str = 'a b he c c.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a b he <bold>c</bold> <bold>c</bold>.',
+            'error_count': 2
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_repeating_words_no_errors(self):
+        sentence = Sentence(
+            [Noun('dog').plural().capitalize(), Verb('dog'), Noun('dog').definite(), Punctuation.PERIOD])
+        submission_str = 'Dogs dog the dog.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': submission_str,
+            'error_count': 0
         }
         self.assertEqual(answer, expected)

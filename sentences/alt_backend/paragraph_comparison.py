@@ -43,26 +43,61 @@ class ParagraphComparison(object):
 def compare_sentences(sentence, submission_str):
     new_sentence = []
     error_count = 0
+    extra_locations = get_word_locations(submission_str)
+
     for word in sentence:
-
         if isinstance(word, Punctuation):
-            new_word = get_punctuation(submission_str)
+            new_word, location = get_punctuation(submission_str)
         else:
-            location = find_word_group(word, submission_str)
-            substr = submission_str[slice(*location)]
-            new_word = BasicWord(substr)
+            new_word, location = get_word(submission_str, word)
 
-        if new_word is None:
-            new_word = BasicWord('MISSING')
+        if not location:
+            location = _get_missing_location(new_sentence)
+        extra_locations = filter_locations(extra_locations, location)
+
         if new_word.value != word.value:
             new_word = new_word.bold()
             error_count += 1
-        new_sentence.append(new_word)
-    hint = str(Sentence(new_sentence))
+        new_sentence.append((location, new_word))
+
+    for location in extra_locations:
+        new_sentence.append((location, BasicWord(submission_str[slice(*location)]).bold()))
+        error_count += 1
+
+    in_order = sorted(new_sentence, key=lambda el: el[0])
+    hint = str(Sentence([el[1] for el in in_order]))
     return {
         'error_count': error_count,
         'hint_sentence': hint,
     }
+
+
+def _get_missing_location(current_sentence):
+    if not current_sentence:
+        location = (0, 0)
+    else:
+        last_location = current_sentence[-1][0]
+        end_index = last_location[1]
+        location = (end_index, end_index)
+    return location
+
+
+def get_word_locations(submission_str):
+    return [match.span() for match in re.compile(r"([a-zA-Z']+|[.,?!])").finditer(submission_str)]
+
+
+def filter_locations(all_locations, to_remove):
+    low, high = to_remove
+    return [location for location in all_locations if location[0] >= high or location[1] <= low]
+
+
+def get_word(submission_str, word):
+    location = find_word_group(word, submission_str)
+    if location is None:
+        return BasicWord('MISSING'), ()
+    substr = submission_str[slice(*location)]
+    new_word = BasicWord(substr)
+    return new_word, location
 
 
 def get_punctuation(submission_str):
@@ -72,11 +107,12 @@ def get_punctuation(submission_str):
         '!': Punctuation.EXCLAMATION,
         '?': Punctuation.QUESTION
     }
-    last_character = submission_str.strip(' ')[-1]
+    last_index = len(submission_str.strip(' ')) - 1
+    last_character = submission_str.strip(' ')[last_index]
     try:
-        return punctuations[last_character]
+        return punctuations[last_character], (last_index, last_index + 1)
     except KeyError:
-        return None
+        return BasicWord("MISSING"), ()
 
 
 def find_word_group(word, submission_str):
