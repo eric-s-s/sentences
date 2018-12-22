@@ -39,7 +39,21 @@ class ParagraphComparison(object):
         return [sentence.strip() for sentence in submission_sentences]
 
     def compare_by_words(self):
-        return {'error_count': 0, 'hint_paragraph': str(self.answer), 'missing_sentences': 0}
+        submission_sentences = self._get_submission_sentences()
+        missing_sentences = len(self.answer) - len(submission_sentences)
+        if missing_sentences > 0:
+            submission_sentences += [''] * missing_sentences
+
+        error_count = 0
+        hint_sentences = []
+        for sentence, submission_str in zip_longest(self.answer, submission_sentences, fillvalue=Sentence()):
+            answer = compare_sentences(sentence, submission_str)
+            error_count += answer['error_count']
+            hint_sentences.append(answer['hint_sentence'])
+
+        return {'error_count': error_count,
+                'hint_paragraph': ' '.join(hint_sentences),
+                'missing_sentences': missing_sentences}
 
 
 WordObj = namedtuple('WordObj', ['index', 'location', 'word'])
@@ -148,7 +162,7 @@ def get_punctuation(submission_str):
         '?': Punctuation.QUESTION
     }
     last_index = len(submission_str.strip(' ')) - 1
-    last_character = submission_str.strip(' ')[last_index]
+    last_character = submission_str.strip(' ')[last_index:]
     try:
         return punctuations[last_character], (last_index, last_index + 1)
     except KeyError:

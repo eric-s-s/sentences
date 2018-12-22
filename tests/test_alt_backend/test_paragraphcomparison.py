@@ -125,6 +125,142 @@ class TestParagraphComparison(unittest.TestCase):
         }
         self.assertEqual(hints, expected)
 
+    def test_compare_by_words_no_errors(self):
+        answer = Paragraph([Sentence([BasicWord('a'), Punctuation.PERIOD]),
+                            Sentence([BasicWord('b'), Punctuation.PERIOD])])
+        submission = 'a. b.'
+        hint_paragraph = 'a. b.'
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 0,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_noun_errors(self):
+        answer = Paragraph([Sentence([Noun('dog').definite(), Punctuation.PERIOD]),
+                            Sentence([Noun('cat').plural(), Punctuation.PERIOD])])
+        submission = 'a dog. The cats.'
+        hint_paragraph = '<bold>a dog</bold>. <bold>The cats</bold>.'
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 2,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_verb_errors(self):
+        answer = Paragraph([Sentence([Verb('go', 'went'), Punctuation.PERIOD]),
+                            Sentence([Verb('play'), Punctuation.PERIOD])])
+        submission = "went. doesn't plays."
+        hint_paragraph = "<bold>went</bold>. <bold>doesn't plays</bold>."
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 2,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_punctuation_errors(self):
+        answer = Paragraph([Sentence([Verb('go', 'went'), Punctuation.PERIOD]),
+                            Sentence([Verb('play'), Punctuation.PERIOD])])
+        submission = "go! play "
+        hint_paragraph = "go<bold>!</bold> play <bold>MISSING</bold>"
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 2,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_missing_word_errors(self):
+        answer = Paragraph([Sentence([Verb('go', 'went'), Punctuation.PERIOD]),
+                            Sentence([Verb('play'), Punctuation.PERIOD])])
+        submission = " . ."
+        hint_paragraph = "<bold>MISSING</bold>. <bold>MISSING</bold>."
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 2,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_extra_word_errors(self):
+        answer = Paragraph([Sentence([Verb('go', 'went'), Punctuation.PERIOD]),
+                            Sentence([Verb('play'), Punctuation.PERIOD])])
+        submission = "I go. play it."
+        hint_paragraph = "<bold>I</bold> go. play <bold>it</bold>."
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 2,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_word_order_errors(self):
+        answer = Paragraph([Sentence([Pronoun.I, Verb('go', 'went'), Punctuation.PERIOD]),
+                            Sentence([Noun('cat'), Verb('play'), BasicWord('with'), Pronoun.HIM, Punctuation.PERIOD])])
+        submission = "go I. cat with him play."
+        hint_paragraph = "<bold>go</bold> I. cat <bold>with</bold> <bold>him</bold> play."
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 3,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 0
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_missing_sentence(self):
+        answer = Paragraph([Sentence([Verb('go', 'went'), Punctuation.PERIOD]),
+                            Sentence([Noun('cat'), Verb('play'), Punctuation.PERIOD])])
+        submission = "go."
+        hint_paragraph = "go. <bold>MISSING</bold> <bold>MISSING</bold> <bold>MISSING</bold>"
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 3,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': 1
+        }
+        self.assertEqual(hints, expected)
+
+    def test_compare_by_words_extra_sentence_MINOR_ISSUE_WITH_PUNCTUATION(self):
+        answer = Paragraph([Sentence([Verb('go', 'went'), Punctuation.PERIOD])])
+        submission = "go. now. please!"
+        hint_paragraph = "go. <bold>now</bold> <bold>.</bold> <bold>please</bold> <bold>!</bold>"
+
+        comparitor = ParagraphComparison(answer, submission)
+        hints = comparitor.compare_by_words()
+        expected = {
+            'error_count': 4,
+            'hint_paragraph': hint_paragraph,
+            'missing_sentences': -2
+        }
+        self.assertEqual(hints, expected)
+
+
+class TestParagraphComparisonHelperFunctions(unittest.TestCase):
     def test_get_word_locations(self):
         submission_str = "I can fly, and you can't."
         spans = get_word_locations(submission_str)
@@ -347,6 +483,11 @@ class TestParagraphComparison(unittest.TestCase):
     def test_get_word_returns_missing_and_none_when_missing(self):
         submission_str = ''
         answer = get_word(submission_str, Noun('cat'))
+        self.assertEqual(answer, (BasicWord('MISSING'), None))
+
+    def test_get_punctuation_empty_str(self):
+        submission_str = ''
+        answer = get_punctuation(submission_str)
         self.assertEqual(answer, (BasicWord('MISSING'), None))
 
     def test_get_punctuation_returns_punctuation_at_end_of_sentence(self):
