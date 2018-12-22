@@ -1,5 +1,7 @@
 import re
+from collections import namedtuple
 from itertools import zip_longest
+from typing import List
 
 from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
@@ -40,32 +42,46 @@ class ParagraphComparison(object):
         return {'error_count': 0, 'hint_paragraph': str(self.answer), 'missing_sentences': 0}
 
 
+WordObj = namedtuple('WordObj', ['index', 'location', 'word'])
+
+
 def compare_sentences(sentence, submission_str):
     new_sentence = []
     error_count = 0
     extra_locations = get_word_locations(submission_str)
 
-    for word in sentence:
-        if isinstance(word, Punctuation):
-            new_word, location = get_punctuation(submission_str)
-        else:
-            new_word, location = get_word(submission_str, word)
+    current_search_str = submission_str
 
-        if not location:
+    for index, word in enumerate(sentence):
+        if isinstance(word, Punctuation):
+            new_word, location = get_punctuation(current_search_str)
+        else:
+            new_word, location = get_word(current_search_str, word)
+
+        if location is None:
             location = _get_missing_location(new_sentence)
         extra_locations = filter_locations(extra_locations, location)
+
+        until, after = location
+        replace_found_word = '_' * (after - until)
+        current_search_str = current_search_str[:until] + replace_found_word + current_search_str[after:]
 
         if new_word.value != word.value:
             new_word = new_word.bold()
             error_count += 1
-        new_sentence.append((location, new_word))
+        word_obj = WordObj(index=index, location=location, word=new_word)
+        new_sentence.append(word_obj)
 
     for location in extra_locations:
-        new_sentence.append((location, BasicWord(submission_str[slice(*location)]).bold()))
+        word = BasicWord(submission_str[slice(*location)]).bold()
+        word_obj = WordObj(index=None, location=location, word=word)
+        new_sentence.append(word_obj)
         error_count += 1
 
-    in_order = sorted(new_sentence, key=lambda el: el[0])
-    hint = str(Sentence([el[1] for el in in_order]))
+    ordered_like_submission_str = sorted(new_sentence, key=lambda el: el.location)
+    final_word_list, extra_errors = _check_for_out_of_order_words(ordered_like_submission_str)
+    hint = str(Sentence(final_word_list))
+    error_count += extra_errors
     return {
         'error_count': error_count,
         'hint_sentence': hint,
@@ -76,7 +92,7 @@ def _get_missing_location(current_sentence):
     if not current_sentence:
         location = (0, 0)
     else:
-        last_location = current_sentence[-1][0]
+        last_location = current_sentence[-1].location
         end_index = last_location[1]
         location = (end_index, end_index)
     return location
@@ -91,10 +107,34 @@ def filter_locations(all_locations, to_remove):
     return [location for location in all_locations if location[0] >= high or location[1] <= low]
 
 
+def _check_for_out_of_order_words(obj_list: List[WordObj]):
+    word_list = []
+    expected_index = 0
+    extra_errors = 0
+    skipped_indices = 0
+    for word_obj in obj_list:
+
+        if word_obj.index is None:
+            word_list.append(word_obj.word)
+            continue
+
+        if word_obj.index != expected_index:
+            new_word = word_obj.word.bold()
+            skipped_indices += 1
+            if new_word != word_obj.word:
+                extra_errors += 1
+        else:
+            new_word = word_obj.word
+            expected_index += 1 + skipped_indices
+            skipped_indices = 0
+        word_list.append(new_word)
+    return word_list, extra_errors
+
+
 def get_word(submission_str, word):
     location = find_word_group(word, submission_str)
     if location is None:
-        return BasicWord('MISSING'), ()
+        return BasicWord('MISSING'), None
     substr = submission_str[slice(*location)]
     new_word = BasicWord(substr)
     return new_word, location
@@ -112,7 +152,7 @@ def get_punctuation(submission_str):
     try:
         return punctuations[last_character], (last_index, last_index + 1)
     except KeyError:
-        return BasicWord("MISSING"), ()
+        return BasicWord("MISSING"), None
 
 
 def find_word_group(word, submission_str):

@@ -3,7 +3,7 @@ import unittest
 from sentences.alt_backend.paragraph_comparison import (
     ParagraphComparison, find_noun_group, find_verb_group, find_word,
     find_word_group, compare_sentences,
-    get_word_locations, filter_locations)
+    get_word_locations, filter_locations, get_word, get_punctuation)
 from sentences.word_groups.paragraph import Paragraph
 from sentences.word_groups.sentence import Sentence
 from sentences.words.basicword import BasicWord
@@ -338,6 +338,32 @@ class TestParagraphComparison(unittest.TestCase):
         for word in (Noun('a'), Verb('a'), BasicWord('a')):
             self.assertIsNone(find_word_group(word, submission_str))
 
+    def test_get_word_returns_AbstractWord_and_location(self):
+        submission_str = 'the cat is here.'
+        answer = get_word(submission_str, Noun('cat'))
+        expected = (BasicWord('the cat'), (0, 7))
+        self.assertEqual(answer, expected)
+
+    def test_get_word_returns_missing_and_none_when_missing(self):
+        submission_str = ''
+        answer = get_word(submission_str, Noun('cat'))
+        self.assertEqual(answer, (BasicWord('MISSING'), None))
+
+    def test_get_punctuation_returns_punctuation_at_end_of_sentence(self):
+        submission_str = '! hi.'
+        answer = get_punctuation(submission_str)
+        self.assertEqual(answer, (Punctuation.PERIOD, (4, 5)))
+
+    def test_get_punctuation_returns_punctuation_at_end_of_sentence_controls_for_whitespace(self):
+        submission_str = 'hi!     '
+        answer = get_punctuation(submission_str)
+        self.assertEqual(answer, (Punctuation.EXCLAMATION, (2, 3)))
+
+    def test_get_punctuation_returns_missing_and_none_when_no_punctuation_at_end_of_sentence(self):
+        submission_str = 'hi. there'
+        answer = get_punctuation(submission_str)
+        self.assertEqual(answer, (BasicWord('MISSING'), None))
+
     def test_compare_sentences(self):
         sentence = Sentence([Noun('dog').definite().capitalize(), Verb('play').third_person(), Punctuation.PERIOD])
         submission_str = 'The dog plays.'
@@ -456,5 +482,81 @@ class TestParagraphComparison(unittest.TestCase):
         expected = {
             'hint_sentence': submission_str,
             'error_count': 0
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_repeating_words_errors(self):
+        sentence = Sentence(
+            [Noun('dog').plural().capitalize(), Verb('dog'), Noun('dog').definite(), Punctuation.PERIOD])
+        submission_str = 'dog dog dog.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': '<bold>dog</bold> dog <bold>dog</bold>.',
+            'error_count': 2
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_single_word_in_wrong_place(self):
+        sentence = Sentence([Noun('a'), Noun('b'), Noun('c')])
+        submission_str = 'a c b'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a <bold>c</bold> b',
+            'error_count': 1
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_two_words_in_wrong_place(self):
+        sentence = Sentence([Noun('a'), Noun('b'), Noun('c'), Noun('d')])
+        submission_str = 'a c d b'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a <bold>c</bold> <bold>d</bold> b',
+            'error_count': 2
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_LIMITATION_two_separate_words_in_wrong_place_is_handled_incorrectly(self):
+        sentence = Sentence([Noun('a'), Noun('b'), Noun('c'), Noun('d')])
+        submission_str = 'd a c b'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': '<bold>d</bold> a c <bold>b</bold>',
+            'error_count': 2
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_extra_words_and_wrong_order(self):
+        sentence = Sentence([
+            Noun('dog').definite().capitalize(), Verb('play').third_person(), BasicWord.preposition('with'),
+            Noun('cat').indefinite(), Punctuation.PERIOD
+        ])
+        submission_str = 'extra The dog extra with extra a cat extra plays extra.'
+        answer = compare_sentences(sentence, submission_str)
+        extra = '<bold>extra</bold>'
+        expected_hint = f'{extra} The dog {extra} <bold>with</bold> {extra} <bold>a cat</bold> {extra} plays {extra}.'
+        expected = {
+            'hint_sentence': expected_hint,
+            'error_count': 7
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_missing_words_and_wrong_order(self):
+        sentence = Sentence([Noun('a'), Noun('b'), Noun('c'), Noun('d'), Punctuation.PERIOD])
+        submission_str = 'a d c.'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': 'a <bold>MISSING</bold> <bold>d</bold> c.',
+            'error_count': 2
+        }
+        self.assertEqual(answer, expected)
+
+    def test_compare_sentences_does_not_double_count_error_for_wrong_word_and_wrong_order(self):
+        sentence = Sentence([Noun('dog').indefinite(), Verb('play').third_person()])
+        submission_str = 'play dog'
+        answer = compare_sentences(sentence, submission_str)
+        expected = {
+            'hint_sentence': '<bold>play</bold> <bold>dog</bold>',
+            'error_count': 2
         }
         self.assertEqual(answer, expected)
